@@ -315,12 +315,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 12px;
+  align-items: end;
 }
 .fctl {
   min-width: 0;
 }
+.fctl.span-2 { grid-column: span 2; }
+.fctl.span-3 { grid-column: span 3; }
+.fctl.span-4 { grid-column: span 4; }
+.fctl.span-6 { grid-column: span 6; }
+.fctl.span-12 { grid-column: 1 / -1; }
 .fctl label {
   display: block;
   font-size: 10px;
@@ -349,9 +355,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .fctl.meta input {
   text-align: right;
 }
+.fctl.meta.is-active input {
+  border-color: var(--green);
+  box-shadow: 0 0 0 1px var(--green-bg);
+}
 .filter-actions {
   display: flex;
   align-items: end;
+}
+.filter-actions .filter-reset {
+  width: 100%;
 }
 .filter-reset {
   height: 38px;
@@ -413,6 +426,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .ch { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; flex-wrap: wrap; }
 .ct  { font-size: 13px; font-weight: 600; color: var(--t1); white-space: nowrap; }
 .csub { font-size: 10.5px; color: var(--t2); white-space: nowrap; }
+.prod-chart-card .ch,
+.prod-table-card .ch { align-items: flex-start; }
+#prod-chart-subtitle,
+#prod-table-subtitle {
+  white-space: normal;
+  text-align: right;
+}
 .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 
 /* ═══════════════════════════════════════════════════════
@@ -520,12 +540,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .val-num { font-size: 14px; font-weight: 600; }
 
 @media (max-width: 1180px) {
-  .filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filter-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
   .kpi-grid, .g2, .g3, .val-row { grid-template-columns: 1fr; }
   .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fctl.span-2,
+  .fctl.span-3,
+  .fctl.span-4,
+  .fctl.span-6 { grid-column: span 1; }
 }
 
 @media (max-width: 640px) {
@@ -843,40 +867,40 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       </div>
     </div>
     <div class="filter-grid">
-      <div class="fctl">
+      <div class="fctl span-2">
         <label for="prod-period-select">Período</label>
         <select id="prod-period-select"></select>
       </div>
-      <div class="fctl">
-        <label for="prod-team-select">Equipe</label>
-        <select id="prod-team-select"></select>
-      </div>
-      <div class="fctl">
+      <div class="fctl span-2">
         <label for="prod-year-select">Ano</label>
         <select id="prod-year-select"></select>
       </div>
-      <div class="fctl">
+      <div class="fctl span-2">
         <label for="prod-month-select">Mês</label>
         <select id="prod-month-select"></select>
       </div>
-      <div class="fctl">
+      <div class="fctl span-3">
+        <label for="prod-team-select">Equipe</label>
+        <select id="prod-team-select"></select>
+      </div>
+      <div class="fctl span-3">
         <label for="prod-city-select">Município</label>
         <select id="prod-city-select"></select>
       </div>
-      <div class="fctl meta">
+      <div class="fctl meta span-3 prod-meta-field" data-mode="day">
         <label for="prod-target-day">Meta diária</label>
         <input id="prod-target-day" type="number" min="0" step="100" value="6500">
       </div>
-      <div class="fctl meta">
+      <div class="fctl meta span-3 prod-meta-field" data-mode="week">
         <label for="prod-target-week">Meta semanal</label>
         <input id="prod-target-week" type="number" min="0" step="500" value="32500">
       </div>
-      <div class="fctl meta filter-actions">
-        <button class="filter-reset" id="prod-reset-filters" type="button">Limpar filtros</button>
-      </div>
-      <div class="fctl meta">
+      <div class="fctl meta span-3 prod-meta-field" data-mode="month">
         <label for="prod-target-month">Meta mensal</label>
         <input id="prod-target-month" type="number" min="0" step="1000" value="140000">
+      </div>
+      <div class="fctl meta filter-actions span-3">
+        <button class="filter-reset" id="prod-reset-filters" type="button">Limpar filtros</button>
       </div>
     </div>
   </div>
@@ -886,13 +910,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-posts-label">Total Postes</div><div class="kc-val" id="prod-kpi-posts">88</div><div class="kc-sub up" id="prod-kpi-posts-sub"><i class="ti ti-bolt" style="font-size:11px"></i>na semana</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-bolt" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Equipes Atingiram</div><div class="kc-val" id="prod-kpi-teams-hit" style="color:var(--green)">4 / 13</div><div class="kc-sub up" id="prod-kpi-teams-hit-sub"><i class="ti ti-users" style="font-size:11px"></i>meta atingida</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-users" aria-hidden="true"></i></div></div>
   </div>
-  <div class="card" style="margin-bottom:14px">
+  <div class="card prod-chart-card" style="margin-bottom:14px">
     <div class="ch"><div class="ct" id="prod-chart-title">Meta por Equipe — S20/2026</div><div class="csub" id="prod-chart-subtitle">Meta: R$ 32.500 · linha vermelha tracejada</div></div>
-    <div class="cw" style="height:180px">
+    <div class="cw" style="height:220px">
       <canvas id="ch7" role="img" aria-label="Barras de produção por equipe com linha de meta">4 de 13 equipes atingiram a meta de R$32.500.</canvas>
     </div>
   </div>
-  <div class="card">
+  <div class="card prod-table-card">
     <div class="ch"><div class="ct">Detalhe por Equipe</div><div class="csub" id="prod-table-subtitle">S20 · Meta: R$ 32.500,00 / equipe</div></div>
     <div class="tbl-wrap">
       <table class="dtable">
@@ -1054,6 +1078,17 @@ function fmtCurrency(value) {
     currency: 'BRL',
     maximumFractionDigits: 0,
   }).format(value || 0);
+}
+
+function fmtCurrencyCompact(value) {
+  if (!value) return 'R$ 0';
+  if (value >= 1000000) {
+    return `R$ ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(value / 1000000)}M`;
+  }
+  if (value >= 1000) {
+    return `R$ ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(value / 1000)}k`;
+  }
+  return fmtCurrency(value);
 }
 
 function parseMoney(value) {
@@ -1266,6 +1301,9 @@ function updateFilterControls() {
   document.querySelectorAll('#prod-mode-seg .seg-btn').forEach((btn) => {
     btn.classList.toggle('on', btn.dataset.mode === prodState.mode);
   });
+  document.querySelectorAll('.prod-meta-field').forEach((field) => {
+    field.classList.toggle('is-active', field.dataset.mode === prodState.mode);
+  });
   document.getElementById('prod-target-day').value = prodState.targets.day;
   document.getElementById('prod-target-week').value = prodState.targets.week;
   document.getElementById('prod-target-month').value = prodState.targets.month;
@@ -1353,10 +1391,14 @@ function bindProductionFilters() {
   });
 
   ['day', 'week', 'month'].forEach((mode) => {
-    document.getElementById(`prod-target-${mode}`)?.addEventListener('change', (event) => {
+    const input = document.getElementById(`prod-target-${mode}`);
+    if (!input) return;
+    const syncTarget = (event) => {
       prodState.targets[mode] = parseInteger(event.target.value);
       updateProductionDashboard();
-    });
+    };
+    input.addEventListener('input', syncTarget);
+    input.addEventListener('change', syncTarget);
   });
 
   document.getElementById('prod-reset-filters')?.addEventListener('click', () => {
@@ -1502,17 +1544,51 @@ async function loadPublishedSheet() {
 function getColors() {
   const cs = getComputedStyle(document.documentElement);
   return {
-    green:  '#0ab39c',
-    blue:   '#3577f1',
+    green:  cs.getPropertyValue('--green').trim()  || '#1ea896',
+    blue:   cs.getPropertyValue('--blue').trim()   || '#4f7cff',
     yellow: cs.getPropertyValue('--yellow').trim() || '#f7b84b',
     red:    cs.getPropertyValue('--red').trim()    || '#f06548',
-    purple: '#564ab1',
+    purple: cs.getPropertyValue('--purple').trim() || '#7c6cf2',
     gray:   cs.getPropertyValue('--t3').trim()     || '#495057',
     grid:   cs.getPropertyValue('--border').trim() || '#32383e',
     tick:   cs.getPropertyValue('--t2').trim()     || '#878a99',
+    text:   cs.getPropertyValue('--t1').trim()     || '#d8dee6',
     bg:     cs.getPropertyValue('--card').trim()   || '#262a2e',
   };
 }
+
+const valueLabelPlugin = {
+  id: 'valueLabelPlugin',
+  afterDatasetsDraw(chart, args, pluginOptions) {
+    if (!pluginOptions?.enabled) return;
+    const datasetIndex = pluginOptions.datasetIndex ?? 0;
+    const dataset = chart.data.datasets[datasetIndex];
+    const meta = chart.getDatasetMeta(datasetIndex);
+    if (!dataset || !meta?.data?.length) return;
+
+    const { ctx, chartArea } = chart;
+    ctx.save();
+    ctx.font = `600 ${pluginOptions.fontSize || 10}px Poppins, sans-serif`;
+    ctx.fillStyle = pluginOptions.color || '#d8dee6';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+
+    meta.data.forEach((element, index) => {
+      const rawValue = dataset.data[index];
+      if (rawValue == null) return;
+      const props = element.getProps(['x', 'y'], true);
+      const y = Math.max(props.y - 6, chartArea.top + 10);
+      const text = typeof pluginOptions.formatter === 'function'
+        ? pluginOptions.formatter(rawValue, index, chart)
+        : String(rawValue);
+      ctx.fillText(text, props.x, y);
+    });
+
+    ctx.restore();
+  }
+};
+
+Chart.register(valueLabelPlugin);
 
 function axCfg(C) {
   return { grid: { color: C.grid }, ticks: { color: C.tick, font: { family: 'Poppins', size: 10 } } };
@@ -1615,6 +1691,17 @@ function build() {
       ]
     },
     options: { ...defs,
+      layout: { padding: { top: 22 } },
+      plugins: {
+        ...defs.plugins,
+        valueLabelPlugin: {
+          enabled: true,
+          datasetIndex: 0,
+          color: C.text,
+          fontSize: 9,
+          formatter: (value) => fmtCurrencyCompact(value)
+        }
+      },
       scales: {
         x: { ...axCfg(C), grid: { display: false },
              ticks: { ...axCfg(C).ticks, maxRotation: 35, autoSkip: false } },
