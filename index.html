@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CENA Engenharia — Painel Operacional</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   TOKENS — dark mode (default)
+═══════════════════════════════════════════════════════ */
+:root {
+  --bg:      #1a1d21;
+  --sb:      #212529;
+  --card:    #262a2e;
+  --border:  #32383e;
+  --track:   #2c3035;
+  --t1:      #ced4da;
+  --t2:      #878a99;
+  --t3:      #495057;
+  --shadow:  0 1px 4px rgba(0,0,0,.35);
+
+  --green:   #0ab39c;
+  --blue:    #3577f1;
+  --yellow:  #f7b84b;
+  --red:     #f06548;
+  --purple:  #564ab1;
+  --cyan:    #299cdb;
+
+  --green-bg:  #0ab39c18;
+  --blue-bg:   #3577f118;
+  --yellow-bg: #f7b84b18;
+  --red-bg:    #f0654818;
+  --purple-bg: #564ab118;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOKENS — light mode
+═══════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:      #f3f6f9;
+  --sb:      #ffffff;
+  --card:    #ffffff;
+  --border:  #e2e8f0;
+  --track:   #e9ecef;
+  --t1:      #212529;
+  --t2:      #6c757d;
+  --t3:      #adb5bd;
+  --shadow:  0 1px 6px rgba(0,0,0,.08);
+
+  --green:   #0ab39c;
+  --blue:    #3577f1;
+  --yellow:  #e4a117;
+  --red:     #d9543b;
+  --purple:  #564ab1;
+  --cyan:    #1a85c2;
+
+  --green-bg:  #0ab39c14;
+  --blue-bg:   #3577f114;
+  --yellow-bg: #f7b84b14;
+  --red-bg:    #f0654814;
+  --purple-bg: #564ab114;
+}
+
+/* ═══ RESET ═══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--t1);
+  transition: background .25s, color .25s;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* ═══ LAYOUT SHELL ═══ */
+.shell { display: flex; min-height: 100vh; }
+
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════════ */
+.sb {
+  width: 220px;
+  background: var(--sb);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  transition: background .25s, border-color .25s;
+}
+.sb-logo {
+  height: 62px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sb-logo-icon {
+  width: 32px; height: 32px;
+  background: var(--green);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.sb-logo-name { font-size: 17px; font-weight: 700; color: var(--t1); letter-spacing: .3px; line-height: 1.1; }
+.sb-logo-sub  { font-size: 9px; color: var(--t2); text-transform: uppercase; letter-spacing: 1.5px; }
+
+.sb-section { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 1.2px; padding: 16px 20px 5px; font-weight: 600; }
+
+.sb-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 20px;
+  cursor: pointer;
+  color: var(--t2);
+  font-size: 12.5px;
+  font-weight: 400;
+  transition: color .15s, background .15s;
+  position: relative;
+  user-select: none;
+}
+.sb-item i { font-size: 17px; width: 18px; flex-shrink: 0; }
+.sb-item:hover { color: var(--t1); background: rgba(10,179,156,.06); }
+.sb-item.on  { color: var(--green); background: var(--green-bg); font-weight: 500; }
+.sb-item.on::before {
+  content: '';
+  position: absolute; left: 0; top: 6px; bottom: 6px;
+  width: 3px; background: var(--green); border-radius: 0 3px 3px 0;
+}
+
+.sb-badge {
+  margin-left: auto;
+  font-size: 9px; font-weight: 600;
+  padding: 2px 7px; border-radius: 20px;
+  white-space: nowrap;
+}
+.sb-badge.new { background: var(--green-bg); color: var(--green); }
+.sb-badge.hot { background: var(--red-bg);   color: var(--red); }
+
+.sb-foot {
+  margin-top: auto;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sb-foot-date { font-size: 10px; color: var(--t3); margin-bottom: 4px; }
+.sb-foot-live { font-size: 10px; color: var(--green); display: flex; align-items: center; gap: 5px; }
+.sb-foot-live::before { content: ''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+
+/* ═══════════════════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════════════════ */
+.topbar {
+  height: 62px;
+  background: var(--sb);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 12px;
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 100;
+  transition: background .25s, border-color .25s;
+}
+.tb-search {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  height: 36px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px;
+  min-width: 220px;
+  transition: border-color .15s;
+}
+.tb-search:focus-within { border-color: var(--green); }
+.tb-search i    { font-size: 15px; color: var(--t2); flex-shrink: 0; }
+.tb-search input {
+  background: none; border: none; outline: none;
+  color: var(--t1); font-family: 'Poppins', sans-serif; font-size: 12px;
+  width: 160px;
+}
+.tb-search input::placeholder { color: var(--t3); }
+
+.tb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* theme toggle */
+.theme-toggle {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--t2);
+  font-size: 17px;
+  transition: border-color .15s, color .15s, background .25s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.tb-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--t2); font-size: 17px; position: relative;
+  transition: border-color .15s, color .15s, background .25s;
+}
+.tb-icon:hover { border-color: var(--green); color: var(--green); }
+.tb-badge-dot {
+  position: absolute; top: -5px; right: -5px;
+  min-width: 17px; height: 17px;
+  background: var(--red); border-radius: 20px;
+  font-size: 9px; color: #fff; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--sb);
+}
+
+.tb-divider { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+
+.tb-user {
+  display: flex; align-items: center; gap: 9px;
+  cursor: pointer; padding: 4px 10px;
+  border-radius: 8px; transition: background .15s;
+}
+.tb-user:hover { background: rgba(10,179,156,.06); }
+.tb-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #405189, #0ab39c);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: #fff;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+.tb-uname { font-size: 12.5px; font-weight: 500; color: var(--t1); white-space: nowrap; }
+.tb-urole { font-size: 10px; color: var(--t2); white-space: nowrap; }
+.tb-chevron { font-size: 13px; color: var(--t2); margin-left: 2px; }
+
+/* ═══════════════════════════════════════════════════════
+   MAIN / CONTENT
+═══════════════════════════════════════════════════════ */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.content { flex: 1; padding: 22px 24px 30px; overflow-y: auto; }
+
+.page-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+}
+.page-title { font-size: 16px; font-weight: 600; color: var(--t1); margin-bottom: 3px; }
+.breadcrumb { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--t2); flex-wrap: wrap; }
+.breadcrumb span { color: var(--green); }
+.live-pill {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--t2); white-space: nowrap;
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════
+   KPI CARDS
+═══════════════════════════════════════════════════════ */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+.kcard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  box-shadow: var(--shadow);
+  transition: border-color .2s, background .25s, box-shadow .2s;
+  min-width: 0;
+}
+.kcard:hover { border-color: var(--green); box-shadow: 0 2px 12px rgba(10,179,156,.12); }
+.kc-label { font-size: 11px; color: var(--t2); margin-bottom: 5px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kc-val   { font-size: 22px; font-weight: 600; color: var(--t1); line-height: 1.1; }
+.kc-sub   { font-size: 10.5px; margin-top: 5px; display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+.kc-sub.up { color: var(--green); }
+.kc-sub.dn { color: var(--red); }
+.kc-sub.wn { color: var(--yellow); }
+.kc-icon {
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CARDS & GRID
+═══════════════════════════════════════════════════════ */
+.g2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; margin-bottom: 14px; }
+.g3 { display: grid; grid-template-columns: minmax(0,3fr) minmax(0,2fr); gap: 14px; margin-bottom: 14px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: background .25s, border-color .25s;
+}
+.ch { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; flex-wrap: wrap; }
+.ct  { font-size: 13px; font-weight: 600; color: var(--t1); white-space: nowrap; }
+.csub { font-size: 10.5px; color: var(--t2); white-space: nowrap; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+/* ═══════════════════════════════════════════════════════
+   HORIZONTAL BAR (manual)
+═══════════════════════════════════════════════════════ */
+.hbars { display: flex; flex-direction: column; gap: 9px; }
+.hrow  { display: flex; align-items: center; gap: 8px; }
+.hlbl  { font-size: 11px; color: var(--t2); width: 52px; flex-shrink: 0; text-align: right; }
+.htrack { flex: 1; height: 16px; background: var(--track); border-radius: 4px; overflow: hidden; }
+.hfill  { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 6px; font-size: 9.5px; color: #fff; font-weight: 500; transition: width .4s; }
+.hnum   { font-size: 11px; color: var(--t2); width: 32px; text-align: right; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════
+   FUNNEL BARS
+═══════════════════════════════════════════════════════ */
+.frows { display: flex; flex-direction: column; gap: 8px; }
+.fr  { display: flex; align-items: center; gap: 8px; }
+.fl  { font-size: 11px; color: var(--t2); width: 110px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ft  { flex: 1; height: 12px; background: var(--track); border-radius: 3px; overflow: hidden; }
+.ff  { height: 100%; border-radius: 3px; transition: width .4s; }
+.fn  { font-size: 11px; color: var(--t1); width: 28px; text-align: right; flex-shrink: 0; font-weight: 500; }
+
+/* ═══════════════════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════════════════ */
+.tbl-wrap { overflow-x: auto; }
+.dtable { width: 100%; border-collapse: collapse; }
+.dtable th {
+  font-size: 10px; color: var(--t2); text-transform: uppercase;
+  letter-spacing: .6px; padding: 0 10px 10px;
+  text-align: left; border-bottom: 1px solid var(--border);
+  white-space: nowrap; font-weight: 500;
+}
+.dtable td {
+  font-size: 11.5px; color: var(--t1);
+  padding: 9px 10px; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.dtable tr:last-child td { border-bottom: none; }
+.dtable tr.tot td { background: rgba(10,179,156,.06); font-weight: 600; }
+.dtable tr:hover:not(.tot) td { background: rgba(10,179,156,.04); }
+
+/* ═══════════════════════════════════════════════════════
+   PROGRESS BAR (inline)
+═══════════════════════════════════════════════════════ */
+.pbwrap { display: flex; align-items: center; gap: 6px; }
+.pb     { width: 52px; height: 4px; background: var(--track); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.pbf    { height: 100%; border-radius: 2px; }
+.pct    { font-size: 10px; }
+
+/* ═══════════════════════════════════════════════════════
+   PILLS
+═══════════════════════════════════════════════════════ */
+.pill { display: inline-flex; align-items: center; gap: 3px; border-radius: 5px; padding: 3px 8px; font-size: 10px; font-weight: 500; white-space: nowrap; }
+.pill.ok { background: var(--green-bg); color: var(--green); }
+.pill.no { background: var(--red-bg);   color: var(--red); }
+.pill.wn { background: var(--yellow-bg); color: var(--yellow); }
+.pill.bl { background: var(--blue-bg);  color: var(--blue); }
+
+/* ═══════════════════════════════════════════════════════
+   INTEGRATION CARDS
+═══════════════════════════════════════════════════════ */
+.integ { display: flex; flex-direction: column; gap: 9px; }
+.ic {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px;
+  display: flex; align-items: center; gap: 11px;
+  transition: border-color .15s, background .25s;
+}
+.ic:hover { border-color: var(--green); }
+.ic.dashed { border-style: dashed; opacity: .55; }
+.icicon {
+  width: 38px; height: 38px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; flex-shrink: 0;
+}
+.ict  { font-size: 12.5px; color: var(--t1); font-weight: 500; }
+.ics  { font-size: 10px; color: var(--t2); margin-top: 1px; }
+.ic-right { margin-left: auto; }
+
+/* ═══════════════════════════════════════════════════════
+   CHART WRAPPERS
+═══════════════════════════════════════════════════════ */
+.cw { position: relative; width: 100%; }
+
+/* ═══════════════════════════════════════════════════════
+   LEGEND
+═══════════════════════════════════════════════════════ */
+.leg { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--t2); }
+.leg-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════
+   PAGE PANES
+═══════════════════════════════════════════════════════ */
+.pane { display: none; }
+.pane.on { display: block; }
+
+/* ═══════════════════════════════════════════════════════
+   VALUES ROW (encerramento summary)
+═══════════════════════════════════════════════════════ */
+.val-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; text-align: center; }
+.val-lbl { font-size: 10px; color: var(--t2); margin-bottom: 4px; }
+.val-num { font-size: 14px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ═══════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">C</div>
+    <div>
+      <div class="sb-logo-name">CENA</div>
+      <div class="sb-logo-sub">Engenharia</div>
+    </div>
+  </div>
+
+  <div class="sb-section">Menu</div>
+  <div class="sb-item on" onclick="go('viab',this)">
+    <i class="ti ti-layout-dashboard" aria-hidden="true"></i>Viabilidade
+  </div>
+  <div class="sb-item" onclick="go('peps',this)">
+    <i class="ti ti-file-certificate" aria-hidden="true"></i>PEP's
+  </div>
+  <div class="sb-item" onclick="go('prog',this)">
+    <i class="ti ti-calendar-stats" aria-hidden="true"></i>Programação
+  </div>
+  <div class="sb-item" onclick="go('prod',this)">
+    <i class="ti ti-trending-up" aria-hidden="true"></i>Prod. Diária
+    <span class="sb-badge new">Live</span>
+  </div>
+  <div class="sb-item" onclick="go('enc',this)">
+    <i class="ti ti-clipboard-check" aria-hidden="true"></i>Encerramento
+  </div>
+
+  <div class="sb-section">Fontes de dados</div>
+  <div class="sb-item">
+    <i class="ti ti-brand-google" aria-hidden="true"></i>Google Sheets
+    <span class="sb-badge new">●</span>
+  </div>
+  <div class="sb-item">
+    <i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Excel Online
+    <span class="sb-badge new">●</span>
+  </div>
+  <div class="sb-item">
+    <i class="ti ti-chart-bar" aria-hidden="true"></i>Power BI
+    <span class="sb-badge hot">Cfg</span>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-foot-date">Semana S20 · 02/06/2026</div>
+    <div class="sb-foot-live">Sistema online</div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tb-search">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input type="search" placeholder="Buscar nota, PEP, equipe...">
+    </div>
+
+    <div class="tb-right">
+      <!-- Theme toggle -->
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" title="Alternar claro / escuro">
+        <i class="ti ti-sun" id="theme-icon" aria-hidden="true"></i>
+      </button>
+
+      <div class="tb-icon" title="Notificações">
+        <i class="ti ti-bell" aria-hidden="true"></i>
+        <div class="tb-badge-dot">3</div>
+      </div>
+      <div class="tb-icon" title="Configurações">
+        <i class="ti ti-settings" aria-hidden="true"></i>
+      </div>
+
+      <div class="tb-divider"></div>
+
+      <div class="tb-user">
+        <div class="tb-avatar">AA</div>
+        <div>
+          <div class="tb-uname">Anna Adame</div>
+          <div class="tb-urole">Coordenadora</div>
+        </div>
+        <i class="ti ti-chevron-down tb-chevron" aria-hidden="true"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+<!-- ══════════════════════════════════════════════════════
+     PANE: VIABILIDADE
+══════════════════════════════════════════════════════ -->
+<div id="p-viab" class="pane on">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Viabilidade</div>
+      <div class="breadcrumb">
+        Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i>
+        <span>Viabilidade</span>
+      </div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+  </div>
+
+  <!-- KPIs row 1 -->
+  <div class="kpi-grid">
+    <div class="kcard">
+      <div style="min-width:0">
+        <div class="kc-label">Total Notas</div>
+        <div class="kc-val">1.281</div>
+        <div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>Carteiras 1–4</div>
+      </div>
+      <div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-notes" aria-hidden="true"></i></div>
+    </div>
+    <div class="kcard">
+      <div style="min-width:0">
+        <div class="kc-label">Total Aptos</div>
+        <div class="kc-val" style="color:var(--green)">410</div>
+        <div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>405 com PEP</div>
+      </div>
+      <div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+    </div>
+    <div class="kcard">
+      <div style="min-width:0">
+        <div class="kc-label">Expurgos</div>
+        <div class="kc-val" style="color:var(--red)">462</div>
+        <div class="kc-sub dn"><i class="ti ti-arrow-down-right" style="font-size:11px"></i>36.1% do total</div>
+      </div>
+      <div class="kc-icon" style="background:var(--red-bg);color:var(--red)"><i class="ti ti-trash" aria-hidden="true"></i></div>
+    </div>
+    <div class="kcard">
+      <div style="min-width:0">
+        <div class="kc-label">Falta Viabilizar</div>
+        <div class="kc-val" style="color:var(--yellow)">233</div>
+        <div class="kc-sub wn"><i class="ti ti-alert-triangle" style="font-size:11px"></i>Ação necessária</div>
+      </div>
+      <div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-clock-exclamation" aria-hidden="true"></i></div>
+    </div>
+  </div>
+
+  <!-- KPIs row 2 -->
+  <div class="kpi-grid">
+    <div class="kcard">
+      <div style="min-width:0"><div class="kc-label">Devoluções</div><div class="kc-val">72</div></div>
+      <div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-arrow-back-up" aria-hidden="true"></i></div>
+    </div>
+    <div class="kcard">
+      <div style="min-width:0"><div class="kc-label">Dev. Campo</div><div class="kc-val">31</div></div>
+      <div class="kc-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-map-pin" aria-hidden="true"></i></div>
+    </div>
+    <div class="kcard">
+      <div style="min-width:0"><div class="kc-label">Pendente</div><div class="kc-val">21</div></div>
+      <div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-hourglass" aria-hidden="true"></i></div>
+    </div>
+    <div class="kcard">
+      <div style="min-width:0"><div class="kc-label">Em Análise</div><div class="kc-val">45</div></div>
+      <div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-eye" aria-hidden="true"></i></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">Status de Viabilidade</div><div class="csub">Total: 1.281 notas</div></div>
+      <div class="cw" style="height:220px">
+        <canvas id="ch1" role="img" aria-label="Barras horizontais com status de viabilidade das notas">
+          Expurgo 462, Apto 410, Falta Viabilizar 233, Devolução 72, Em Análise 45, Dev Campo 31, Pendente 21.
+        </canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Registros por Mês</div><div class="csub">out/25 → jun/26</div></div>
+      <div class="cw" style="height:120px">
+        <canvas id="ch2" role="img" aria-label="Barras mensais de registros">Out 135, Fev 133, Mar 144, Abr 67, Mai 31.</canvas>
+      </div>
+      <div class="divider"></div>
+      <div class="ch" style="margin-bottom:10px"><div class="ct">Total PI</div></div>
+      <div class="hbars">
+        <div class="hrow"><div class="hlbl">LPT</div><div class="htrack"><div class="hfill" style="width:86%;background:var(--green)">338</div></div><div class="hnum">338</div></div>
+        <div class="hrow"><div class="hlbl">UNR</div><div class="htrack"><div class="hfill" style="width:26%;background:var(--blue)">101</div></div><div class="hnum">101</div></div>
+        <div class="hrow"><div class="hlbl">UNI</div><div class="htrack"><div class="hfill" style="width:10.5%;background:var(--blue)">41</div></div><div class="hnum">41</div></div>
+        <div class="hrow"><div class="hlbl">ERD</div><div class="htrack"><div class="hfill" style="width:3.1%;background:var(--yellow)"></div></div><div class="hnum">12</div></div>
+        <div class="hrow"><div class="hlbl">MTP</div><div class="htrack"><div class="hfill" style="width:2%;background:var(--t3)"></div></div><div class="hnum">8</div></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /viab -->
+
+<!-- ══════════════════════════════════════════════════════
+     PANE: PEPS
+══════════════════════════════════════════════════════ -->
+<div id="p-peps" class="pane">
+  <div class="page-head">
+    <div>
+      <div class="page-title">PEP's</div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>PEP's</span></div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Aptos</div><div class="kc-val" style="color:var(--blue)">421</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>registrados</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-circle-check" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Aptos s/ PEP</div><div class="kc-val" style="color:var(--yellow)">16</div><div class="kc-sub wn"><i class="ti ti-alert-triangle" style="font-size:11px"></i>aguardando</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-file-off" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Aptos c/ PEP</div><div class="kc-val" style="color:var(--green)">405</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>96.2% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-file-certificate" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Média Semanal</div><div class="kc-val" style="color:var(--green)">9.4</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>PEPs/semana</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-chart-line" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">Pipeline de Status Resumo</div><div class="csub">405 PEPs ativos</div></div>
+      <div class="frows">
+        <div class="fr"><div class="fl">ABER // ABER</div><div class="ft"><div class="ff" style="width:0.5%;background:var(--t3)"></div></div><div class="fn">2</div></div>
+        <div class="fr"><div class="fl">ABER // LOG</div><div class="ft"><div class="ff" style="width:2.5%;background:var(--t3)"></div></div><div class="fn">10</div></div>
+        <div class="fr"><div class="fl">LIB // LOG</div><div class="ft"><div class="ff" style="width:13.8%;background:var(--blue)"></div></div><div class="fn">56</div></div>
+        <div class="fr"><div class="fl">LIB // ATEC</div><div class="ft"><div class="ff" style="width:9.1%;background:var(--blue)"></div></div><div class="fn">37</div></div>
+        <div class="fr"><div class="fl">LIB // ENER</div><div class="ft"><div class="ff" style="width:10.4%;background:var(--blue)"></div></div><div class="fn">42</div></div>
+        <div class="fr"><div class="fl">LIB // CONC</div><div class="ft"><div class="ff" style="width:8.6%;background:var(--blue)"></div></div><div class="fn">35</div></div>
+        <div class="fr"><div class="fl">LIB // PEND</div><div class="ft"><div class="ff" style="width:3.5%;background:var(--yellow)"></div></div><div class="fn">14</div></div>
+        <div class="fr"><div class="fl">LIB // MED</div><div class="ft"><div class="ff" style="width:17%;background:var(--yellow)"></div></div><div class="fn">69</div></div>
+        <div class="fr"><div class="fl">LIB // DEV</div><div class="ft"><div class="ff" style="width:0.3%;background:var(--t3)"></div></div><div class="fn">1</div></div>
+        <div class="fr"><div class="fl">LIB // CKCP</div><div class="ft"><div class="ff" style="width:13.3%;background:var(--purple)"></div></div><div class="fn">54</div></div>
+        <div class="fr"><div class="fl">ENTE // ANCE</div><div class="ft"><div class="ff" style="width:0.3%;background:var(--green)"></div></div><div class="fn">1</div></div>
+        <div class="fr"><div class="fl" style="color:var(--green);font-weight:500">ENCE // ENCE</div><div class="ft"><div class="ff" style="width:20%;background:var(--green)"></div></div><div class="fn" style="color:var(--green)">81</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">PEPs por Semana</div><div class="csub">S35/25 → S13/26</div></div>
+      <div class="cw" style="height:140px">
+        <canvas id="ch3" role="img" aria-label="Linha de tendência de PEPs criados por semana">Tendência semanal com média de 9.4 PEPs por semana.</canvas>
+      </div>
+      <div class="divider"></div>
+      <div class="ch" style="margin-bottom:10px"><div class="ct">Aptos por PEP</div><div class="csub">421 aptos · 405 c/ PEP</div></div>
+      <div class="cw" style="height:80px">
+        <canvas id="ch4" role="img" aria-label="Barras: aptos 421, sem PEP -16, total 405">Aptos 421, Sem PEP -16, Total 405.</canvas>
+      </div>
+    </div>
+  </div>
+</div><!-- /peps -->
+
+<!-- ══════════════════════════════════════════════════════
+     PANE: PROGRAMAÇÃO
+══════════════════════════════════════════════════════ -->
+<div id="p-prog" class="pane">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Programação</div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>Programação</span></div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Prog. Concluídas</div><div class="kc-val" style="color:var(--green)">297</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>73.5% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-check" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Programadas</div><div class="kc-val" style="color:var(--blue)">70</div><div class="kc-sub up"><i class="ti ti-calendar" style="font-size:11px"></i>em andamento</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-calendar-stats" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Reprogramadas</div><div class="kc-val" style="color:var(--yellow)">10</div><div class="kc-sub wn"><i class="ti ti-refresh" style="font-size:11px"></i>reagendadas</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-refresh" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Canceladas</div><div class="kc-val" style="color:var(--red)">27</div><div class="kc-sub dn"><i class="ti ti-x" style="font-size:11px"></i>6.7% do total</div></div><div class="kc-icon" style="background:var(--red-bg);color:var(--red)"><i class="ti ti-x" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">Programação por Status</div><div class="csub">Total: 404 obras</div></div>
+      <div class="leg">
+        <div class="leg-item"><div class="leg-sq" style="background:var(--green)"></div>Concluídas (297)</div>
+        <div class="leg-item"><div class="leg-sq" style="background:var(--blue)"></div>Programadas (70)</div>
+        <div class="leg-item"><div class="leg-sq" style="background:var(--red)"></div>Canceladas (27)</div>
+        <div class="leg-item"><div class="leg-sq" style="background:var(--yellow)"></div>Reprogramadas (10)</div>
+      </div>
+      <div class="cw" style="height:160px">
+        <canvas id="ch5" role="img" aria-label="Donut de programação por status">Concluídas 297, Programadas 70, Canceladas 27, Reprogramadas 10.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Valor por Status</div><div class="csub">Total: R$ 5,44M</div></div>
+      <div class="cw" style="height:180px">
+        <canvas id="ch6" role="img" aria-label="Barras de valor por status de programação">Concluídas R$3,31M, Programadas R$1,78M, Canceladas R$209k, Reprogramadas R$137k.</canvas>
+      </div>
+    </div>
+  </div>
+</div><!-- /prog -->
+
+<!-- ══════════════════════════════════════════════════════
+     PANE: PRODUÇÃO DIÁRIA
+══════════════════════════════════════════════════════ -->
+<div id="p-prod" class="pane">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Produção Diária</div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>S20/2026</span></div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Meta semanal: R$ 32.500,00</div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Prod. Valor Semana</div><div class="kc-val" style="color:var(--green);font-size:18px">R$ 439.982</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>S20/2026</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Notas</div><div class="kc-val">77</div><div class="kc-sub up"><i class="ti ti-notes" style="font-size:11px"></i>executadas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-notes" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Postes</div><div class="kc-val">88</div><div class="kc-sub up"><i class="ti ti-bolt" style="font-size:11px"></i>na semana</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-bolt" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Equipes Atingiram</div><div class="kc-val" style="color:var(--green)">4 / 13</div><div class="kc-sub up"><i class="ti ti-users" style="font-size:11px"></i>meta atingida</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-users" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="ct">Meta por Equipe — S20/2026</div><div class="csub">Meta: R$ 32.500 · linha vermelha tracejada</div></div>
+    <div class="cw" style="height:180px">
+      <canvas id="ch7" role="img" aria-label="Barras de produção por equipe com linha de meta">4 de 13 equipes atingiram a meta de R$32.500.</canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Detalhe por Equipe</div><div class="csub">S20 · Meta: R$ 32.500,00 / equipe</div></div>
+    <div class="tbl-wrap">
+      <table class="dtable">
+        <thead><tr>
+          <th style="min-width:130px">Equipe</th>
+          <th>Notas</th><th>Postes</th>
+          <th style="min-width:110px">Prod. Total</th>
+          <th style="min-width:100px">% Meta</th>
+          <th style="min-width:110px">Status</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="color:var(--t1);font-weight:500">PI-THE-O030M</td><td>6</td><td>9</td><td style="color:var(--green)">R$ 60.567</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">100%</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
+          <tr><td style="color:var(--t1);font-weight:500">PI-THE-V008M</td><td>6</td><td>4</td><td style="color:var(--green)">R$ 57.984</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">100%</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
+          <tr><td style="color:var(--t1);font-weight:500">PI-THE-O031M</td><td>6</td><td>10</td><td style="color:var(--green)">R$ 53.363</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">100%</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
+          <tr><td style="color:var(--t1);font-weight:500">PI-THE-V007M</td><td>8</td><td>6</td><td style="color:var(--green)">R$ 49.385</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">100%</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
+          <tr><td>PI-THE-O034M</td><td>6</td><td>12</td><td>R$ 30.925</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:95%;background:var(--yellow)"></div></div><span class="pct" style="color:var(--yellow)">95%</span></div></td><td><span class="pill wn">≈ Próximo</span></td></tr>
+          <tr><td>PI-THE-O027M</td><td>5</td><td>1</td><td>R$ 28.954</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:89%;background:var(--yellow)"></div></div><span class="pct" style="color:var(--yellow)">89%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr><td>PI-THE-O025M</td><td>6</td><td>1</td><td>R$ 28.188</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:87%;background:var(--yellow)"></div></div><span class="pct" style="color:var(--yellow)">87%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr><td>PI-THE-O026M</td><td>5</td><td>8</td><td>R$ 28.021</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:86%;background:var(--yellow)"></div></div><span class="pct" style="color:var(--yellow)">86%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr><td>PI-THE-O032M</td><td>8</td><td>10</td><td>R$ 26.028</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:80%;background:var(--yellow)"></div></div><span class="pct" style="color:var(--yellow)">80%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr><td>PI-THE-O028M</td><td>5</td><td>9</td><td>R$ 23.356</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:72%;background:var(--red)"></div></div><span class="pct" style="color:var(--red)">72%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr><td>PI-THE-O033M</td><td>6</td><td>9</td><td>R$ 22.612</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:70%;background:var(--red)"></div></div><span class="pct" style="color:var(--red)">70%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr><td>PI-THE-O029M</td><td>5</td><td>9</td><td>R$ 17.618</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:54%;background:var(--red)"></div></div><span class="pct" style="color:var(--red)">54%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr><td>PI-THE-O024M</td><td>5</td><td>0</td><td>R$ 12.981</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:40%;background:var(--red)"></div></div><span class="pct" style="color:var(--red)">40%</span></div></td><td><span class="pill no">✗ Não Atingiu</span></td></tr>
+          <tr class="tot"><td>Total</td><td>77</td><td>88</td><td style="color:var(--green)">R$ 439.982</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">Meta ok</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- /prod -->
+
+<!-- ══════════════════════════════════════════════════════
+     PANE: ENCERRAMENTO
+══════════════════════════════════════════════════════ -->
+<div id="p-enc" class="pane">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Encerramento</div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>Encerramento</span></div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Notas Enc.</div><div class="kc-val">297</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>encerradas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-clipboard-check" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Obra Faturada</div><div class="kc-val" style="color:var(--green)">143</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>48.1% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-receipt" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Medição Enviada</div><div class="kc-val" style="color:var(--blue)">116</div><div class="kc-sub up"><i class="ti ti-send" style="font-size:11px"></i>39.1% do total</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-send" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor Faturado</div><div class="kc-val" style="color:var(--green);font-size:18px">R$ 2,38M</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>de R$ 4,45M medido</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="ch"><div class="ct">Situação por Status</div><div class="csub">297 notas · valores em R$</div></div>
+      <div class="leg">
+        <div class="leg-item"><div class="leg-sq" style="background:var(--blue)"></div>MO</div>
+        <div class="leg-item"><div class="leg-sq" style="background:var(--green)"></div>Medido</div>
+        <div class="leg-item"><div class="leg-sq" style="background:var(--yellow)"></div>Faturado</div>
+      </div>
+      <div class="cw" style="height:200px">
+        <canvas id="ch8" role="img" aria-label="Barras agrupadas de encerramento por status">Barras agrupadas com MO, Medido e Faturado por status.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Fontes Integradas</div><div class="csub">Conexões ativas</div></div>
+      <div class="integ">
+        <div class="ic">
+          <div class="icicon" style="background:var(--green-bg)"><i class="ti ti-brand-google" style="color:var(--green)" aria-hidden="true"></i></div>
+          <div style="min-width:0"><div class="ict">Google Sheets</div><div class="ics">Produção Diária · tempo real</div></div>
+          <div class="ic-right"><span class="pill ok"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:3px"></span>Ativo</span></div>
+        </div>
+        <div class="ic">
+          <div class="icicon" style="background:var(--blue-bg)"><i class="ti ti-file-spreadsheet" style="color:var(--blue)" aria-hidden="true"></i></div>
+          <div style="min-width:0"><div class="ict">Excel Online</div><div class="ics">Controle · PEP · Programação</div></div>
+          <div class="ic-right"><span class="pill ok"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:3px"></span>Ativo</span></div>
+        </div>
+        <div class="ic">
+          <div class="icicon" style="background:var(--yellow-bg)"><i class="ti ti-chart-bar" style="color:var(--yellow)" aria-hidden="true"></i></div>
+          <div style="min-width:0"><div class="ict">Power BI Embed</div><div class="ics">Relatórios avançados</div></div>
+          <div class="ic-right"><span class="pill wn">Configurar</span></div>
+        </div>
+        <div class="ic dashed">
+          <div class="icicon" style="background:var(--track)"><i class="ti ti-plus" style="color:var(--t2)" aria-hidden="true"></i></div>
+          <div style="min-width:0"><div class="ict" style="color:var(--t2)">Adicionar fonte</div><div class="ics">SharePoint · API REST · OneDrive</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="val-row">
+        <div><div class="val-lbl">Valor MO</div><div class="val-num">R$ 3,78M</div></div>
+        <div><div class="val-lbl">Medido</div><div class="val-num" style="color:var(--blue)">R$ 4,45M</div></div>
+        <div><div class="val-lbl">Faturado</div><div class="val-num" style="color:var(--green)">R$ 2,38M</div></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /enc -->
+
+  </main>
+</div><!-- /.main -->
+</div><!-- /.shell -->
+
+<script>
+/* ═══ NAV ═══ */
+function go(id, el) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('on'));
+  document.getElementById('p-' + id).classList.add('on');
+  el.classList.add('on');
+  rebuildCharts();
+}
+
+/* ═══ THEME TOGGLE ═══ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const icon = document.getElementById('theme-icon');
+  if (html.dataset.theme === 'dark') {
+    html.dataset.theme = 'light';
+    icon.className = 'ti ti-moon';
+  } else {
+    html.dataset.theme = 'dark';
+    icon.className = 'ti ti-sun';
+  }
+  rebuildCharts();
+}
+
+/* ═══ CHART.JS HELPERS ═══ */
+const charts = {};
+
+function getColors() {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    green:  '#0ab39c',
+    blue:   '#3577f1',
+    yellow: cs.getPropertyValue('--yellow').trim() || '#f7b84b',
+    red:    cs.getPropertyValue('--red').trim()    || '#f06548',
+    purple: '#564ab1',
+    gray:   cs.getPropertyValue('--t3').trim()     || '#495057',
+    grid:   cs.getPropertyValue('--border').trim() || '#32383e',
+    tick:   cs.getPropertyValue('--t2').trim()     || '#878a99',
+    bg:     cs.getPropertyValue('--card').trim()   || '#262a2e',
+  };
+}
+
+function axCfg(C) {
+  return { grid: { color: C.grid }, ticks: { color: C.tick, font: { family: 'Poppins', size: 10 } } };
+}
+
+function build() {
+  const C = getColors();
+  const defs = {
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 500 },
+    plugins: { legend: { display: false } }
+  };
+
+  /* ch1 – Horizontal bars viabilidade */
+  mkChart('ch1', { type: 'bar',
+    data: {
+      labels: ['Expurgo','Apto','F. Viabilizar','Devolução','Em Análise','Dev. Campo','Pendente'],
+      datasets: [{ data: [462, 410, 233, 72, 45, 31, 21],
+        backgroundColor: [C.red, C.green, C.yellow, C.purple, C.blue, C.purple, C.gray],
+        borderRadius: 4, borderSkipped: false }]
+    },
+    options: { ...defs, indexAxis: 'y',
+      scales: { x: axCfg(C), y: { ...axCfg(C), grid: { display: false } } }
+    }
+  });
+
+  /* ch2 – Monthly bars */
+  mkChart('ch2', { type: 'bar',
+    data: { labels: ['out/25','fev/26','mar/26','abr/26','mai/26'],
+      datasets: [{ data: [135, 133, 144, 67, 31],
+        backgroundColor: [C.gray, C.gray, C.green, C.green, C.green],
+        borderRadius: 3 }]
+    },
+    options: { ...defs, scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), display: false } } }
+  });
+
+  /* ch3 – PEPs weekly line */
+  mkChart('ch3', { type: 'line',
+    data: {
+      labels: ['S35','S37','S39','S41','S43','S45','S47','S49','S51','S01','S03','S05','S07','S09','S11','S13'],
+      datasets: [{ data: [21,8,12,5,22,10,11,6,8,7,5,3,10,12,19,9],
+        borderColor: C.green, backgroundColor: C.green + '22',
+        pointBackgroundColor: C.green, pointRadius: 2.5,
+        tension: .4, fill: true, borderWidth: 2 }]
+    },
+    options: { ...defs, scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), beginAtZero: true } } }
+  });
+
+  /* ch4 – Aptos bar */
+  mkChart('ch4', { type: 'bar',
+    data: { labels: ['Aptos','Sem PEP','Total'],
+      datasets: [{ data: [421, -16, 405],
+        backgroundColor: [C.blue, C.red, C.gray],
+        borderRadius: 4 }]
+    },
+    options: { ...defs, scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), display: false } } }
+  });
+
+  /* ch5 – Programação donut */
+  mkChart('ch5', { type: 'doughnut',
+    data: { labels: ['Concluídas','Programadas','Canceladas','Reprogramadas'],
+      datasets: [{ data: [297, 70, 27, 10],
+        backgroundColor: [C.green, C.blue, C.red, C.yellow],
+        borderWidth: 2, borderColor: C.bg }]
+    },
+    options: { ...defs, cutout: '68%' }
+  });
+
+  /* ch6 – Valor por status */
+  mkChart('ch6', { type: 'bar',
+    data: { labels: ['Concluídas','Programadas','Canceladas','Reprog.'],
+      datasets: [{ data: [3312242, 1783337, 208998, 136800],
+        backgroundColor: [C.green, C.blue, C.red, C.yellow],
+        borderRadius: 4 }]
+    },
+    options: { ...defs,
+      scales: {
+        x: { ...axCfg(C), grid: { display: false } },
+        y: { ...axCfg(C), ticks: { ...axCfg(C).ticks, callback: v => 'R$' + (v/1e6).toFixed(1) + 'M' } }
+      }
+    }
+  });
+
+  /* ch7 – Produção por equipe */
+  mkChart('ch7', { type: 'bar',
+    data: {
+      labels: ['O030M','V008M','O031M','V007M','O034M','O027M','O025M','O026M','O032M','O028M','O033M','O029M','O024M'],
+      datasets: [
+        { label: 'Produção',
+          data: [60567,57984,53363,49385,30925,28954,28188,28021,26028,23356,22612,17618,12981],
+          backgroundColor: [C.green,C.green,C.green,C.green,C.yellow,C.yellow,C.yellow,C.yellow,C.yellow,C.red,C.red,C.red,C.red],
+          borderRadius: 3 },
+        { label: 'Meta', type: 'line',
+          data: Array(13).fill(32500),
+          borderColor: C.red, borderDash: [5,4], borderWidth: 1.5,
+          pointRadius: 0, fill: false, order: 0 }
+      ]
+    },
+    options: { ...defs,
+      scales: {
+        x: { ...axCfg(C), grid: { display: false },
+             ticks: { ...axCfg(C).ticks, maxRotation: 35, autoSkip: false } },
+        y: { ...axCfg(C), ticks: { ...axCfg(C).ticks, callback: v => 'R$'+(v/1000).toFixed(0)+'k' } }
+      }
+    }
+  });
+
+  /* ch8 – Encerramento grouped */
+  mkChart('ch8', { type: 'bar',
+    data: {
+      labels: ['Em Medição','Pend. EQTL','Corr. Const.','Med. Enviada','Obra Fat.','Total'],
+      datasets: [
+        { label: 'MO',      data: [58358,87379,193178,1269440,2120321,3781995], backgroundColor: C.blue+'cc',   borderRadius: 2 },
+        { label: 'Medido',  data: [10890,75472,65548, 1610781,2632291,4447449], backgroundColor: C.green+'cc',  borderRadius: 2 },
+        { label: 'Faturado',data: [0,    0,    0,     0,      2242974,2383756], backgroundColor: C.yellow+'cc', borderRadius: 2 }
+      ]
+    },
+    options: { ...defs,
+      scales: {
+        x: { ...axCfg(C), grid: { display: false },
+             ticks: { ...axCfg(C).ticks, maxRotation: 30 } },
+        y: { ...axCfg(C), ticks: { ...axCfg(C).ticks,
+             callback: v => v >= 1e6 ? 'R$'+(v/1e6).toFixed(1)+'M' : v >= 1e3 ? 'R$'+(v/1e3).toFixed(0)+'k' : v } }
+      }
+    }
+  });
+}
+
+function mkChart(id, cfg) {
+  if (charts[id]) { charts[id].destroy(); }
+  const el = document.getElementById(id);
+  if (!el) return;
+  charts[id] = new Chart(el, cfg);
+}
+
+function rebuildCharts() {
+  // slight delay so CSS vars update first
+  setTimeout(build, 60);
+}
+
+document.addEventListener('DOMContentLoaded', build);
+</script>
+</body>
+</html>
