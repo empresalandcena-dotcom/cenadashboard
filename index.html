@@ -852,6 +852,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <select id="prod-team-select"></select>
       </div>
       <div class="fctl">
+        <label for="prod-year-select">Ano</label>
+        <select id="prod-year-select"></select>
+      </div>
+      <div class="fctl">
+        <label for="prod-month-select">Mês</label>
+        <select id="prod-month-select"></select>
+      </div>
+      <div class="fctl">
         <label for="prod-city-select">Município</label>
         <select id="prod-city-select"></select>
       </div>
@@ -1015,6 +1023,8 @@ let prodFiltersBound = false;
 const prodState = {
   mode: 'week',
   periodKey: '',
+  year: 'all',
+  month: 'all',
   team: 'all',
   municipality: 'all',
   targets: {
@@ -1174,6 +1184,20 @@ function getUniqueValues(rows, field) {
   return Array.from(new Set(rows.map((row) => row[field]).filter(Boolean))).sort((a, b) => a.localeCompare(b));
 }
 
+function getMonthNumber(row) {
+  return row.data.getMonth() + 1;
+}
+
+function getYearNumber(row) {
+  return row.data.getFullYear();
+}
+
+function getMonthName(monthNumber) {
+  return new Intl.DateTimeFormat('pt-BR', { month: 'long' })
+    .format(new Date(2026, monthNumber - 1, 1))
+    .replace(/^\w/, (char) => char.toUpperCase());
+}
+
 function buildSelectOptions(selectId, options, currentValue, allLabel) {
   const el = document.getElementById(selectId);
   if (!el) return;
@@ -1184,12 +1208,24 @@ function buildSelectOptions(selectId, options, currentValue, allLabel) {
 }
 
 function updateFilterControls() {
-  const periodOptions = getPeriodOptions(prodRows, prodState.mode);
+  const yearOptions = Array.from(new Set(prodRows.map(getYearNumber))).sort((a, b) => b - a);
+  if (prodState.year !== 'all' && !yearOptions.includes(Number(prodState.year))) {
+    prodState.year = 'all';
+  }
+
+  const rowsByYear = prodRows.filter((row) => prodState.year === 'all' || getYearNumber(row) === Number(prodState.year));
+  const monthOptions = Array.from(new Set(rowsByYear.map(getMonthNumber))).sort((a, b) => a - b);
+  if (prodState.month !== 'all' && !monthOptions.includes(Number(prodState.month))) {
+    prodState.month = 'all';
+  }
+
+  const scopedRows = rowsByYear.filter((row) => prodState.month === 'all' || getMonthNumber(row) === Number(prodState.month));
+  const periodOptions = getPeriodOptions(scopedRows, prodState.mode);
   if (!periodOptions.some((option) => option.key === prodState.periodKey)) {
     prodState.periodKey = periodOptions[0]?.key || '';
   }
 
-  const periodRows = getPeriodRows(prodRows, prodState.mode, prodState.periodKey);
+  const periodRows = getPeriodRows(scopedRows, prodState.mode, prodState.periodKey);
   const teamOptions = getUniqueValues(periodRows, 'equipe').map((value) => ({ value, label: value }));
   if (prodState.team !== 'all' && !teamOptions.some((option) => option.value === prodState.team)) {
     prodState.team = 'all';
@@ -1206,6 +1242,18 @@ function updateFilterControls() {
     prodState.municipality = 'all';
   }
 
+  buildSelectOptions(
+    'prod-year-select',
+    yearOptions.map((value) => ({ value: String(value), label: String(value) })),
+    prodState.year,
+    'Todos os anos'
+  );
+  buildSelectOptions(
+    'prod-month-select',
+    monthOptions.map((value) => ({ value: String(value), label: getMonthName(value) })),
+    prodState.month,
+    'Todos os meses'
+  );
   buildSelectOptions(
     'prod-period-select',
     periodOptions.map((option) => ({ value: option.key, label: option.label })),
@@ -1251,7 +1299,9 @@ function getFallbackProductionRows() {
 }
 
 function getFilteredProductionRows() {
-  const periodRows = getPeriodRows(prodRows, prodState.mode, prodState.periodKey);
+  const rowsByYear = prodRows.filter((row) => prodState.year === 'all' || getYearNumber(row) === Number(prodState.year));
+  const rowsByMonth = rowsByYear.filter((row) => prodState.month === 'all' || getMonthNumber(row) === Number(prodState.month));
+  const periodRows = getPeriodRows(rowsByMonth, prodState.mode, prodState.periodKey);
   return periodRows.filter((row) => {
     if (prodState.team !== 'all' && row.equipe !== prodState.team) return false;
     if (prodState.municipality !== 'all' && row.municipio !== prodState.municipality) return false;
@@ -1281,6 +1331,22 @@ function bindProductionFilters() {
     updateProductionDashboard();
   });
 
+  document.getElementById('prod-year-select')?.addEventListener('change', (event) => {
+    prodState.year = event.target.value;
+    prodState.periodKey = '';
+    prodState.team = 'all';
+    prodState.municipality = 'all';
+    updateProductionDashboard();
+  });
+
+  document.getElementById('prod-month-select')?.addEventListener('change', (event) => {
+    prodState.month = event.target.value;
+    prodState.periodKey = '';
+    prodState.team = 'all';
+    prodState.municipality = 'all';
+    updateProductionDashboard();
+  });
+
   document.getElementById('prod-city-select')?.addEventListener('change', (event) => {
     prodState.municipality = event.target.value;
     updateProductionDashboard();
@@ -1296,6 +1362,8 @@ function bindProductionFilters() {
   document.getElementById('prod-reset-filters')?.addEventListener('click', () => {
     prodState.mode = 'week';
     prodState.periodKey = '';
+    prodState.year = 'all';
+    prodState.month = 'all';
     prodState.team = 'all';
     prodState.municipality = 'all';
     prodState.targets = { day: 6500, week: 32500, month: 140000 };
