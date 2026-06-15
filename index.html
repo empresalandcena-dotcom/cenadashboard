@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
    TOKENS — dark mode (default)
@@ -263,6 +264,111 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
+.filter-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t1);
+}
+.filter-subtitle {
+  font-size: 10.5px;
+  color: var(--t2);
+  margin-top: 3px;
+}
+.seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.seg-btn {
+  height: 32px;
+  min-width: 72px;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: var(--t2);
+  font-size: 11px;
+  font-weight: 500;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.seg-btn.on {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+.fctl {
+  min-width: 0;
+}
+.fctl label {
+  display: block;
+  font-size: 10px;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 7px;
+}
+.fctl select,
+.fctl input {
+  width: 100%;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--t1);
+  padding: 0 12px;
+  outline: none;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 11.5px;
+}
+.fctl select:focus,
+.fctl input:focus {
+  border-color: var(--green);
+}
+.fctl.meta input {
+  text-align: right;
+}
+.filter-actions {
+  display: flex;
+  align-items: end;
+}
+.filter-reset {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--t2);
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 500;
+  transition: border-color .15s, color .15s;
+}
+.filter-reset:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
 /* ═══════════════════════════════════════════════════════
    KPI CARDS
 ═══════════════════════════════════════════════════════ */
@@ -412,6 +518,22 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .val-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; text-align: center; }
 .val-lbl { font-size: 10px; color: var(--t2); margin-bottom: 4px; }
 .val-num { font-size: 14px; font-weight: 600; }
+
+@media (max-width: 1180px) {
+  .filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .kpi-grid, .g2, .g3, .val-row { grid-template-columns: 1fr; }
+  .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .content { padding: 18px 14px 26px; }
+  .filter-grid { grid-template-columns: 1fr; }
+  .seg { width: 100%; justify-content: stretch; }
+  .seg-btn { flex: 1; min-width: 0; }
+}
 </style>
 </head>
 <body>
@@ -704,24 +826,66 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="page-head">
     <div>
       <div class="page-title">Produção Diária</div>
-      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>S20/2026</span></div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span id="prod-breadcrumb-week">S20/2026</span></div>
     </div>
-    <div class="live-pill"><div class="live-dot"></div>Meta semanal: R$ 32.500,00</div>
+    <div class="live-pill" id="prod-live-pill"><div class="live-dot"></div>Meta semanal: R$ 32.500,00</div>
+  </div>
+  <div class="filter-card">
+    <div class="filter-toolbar">
+      <div>
+        <div class="filter-title">Filtros de Produção</div>
+        <div class="filter-subtitle">Troque o período, ajuste metas e filtre por equipe ou município.</div>
+      </div>
+      <div class="seg" id="prod-mode-seg">
+        <button class="seg-btn on" type="button" data-mode="day">Meta Diária</button>
+        <button class="seg-btn" type="button" data-mode="week">Meta Semanal</button>
+        <button class="seg-btn" type="button" data-mode="month">Meta Mensal</button>
+      </div>
+    </div>
+    <div class="filter-grid">
+      <div class="fctl">
+        <label for="prod-period-select">Período</label>
+        <select id="prod-period-select"></select>
+      </div>
+      <div class="fctl">
+        <label for="prod-team-select">Equipe</label>
+        <select id="prod-team-select"></select>
+      </div>
+      <div class="fctl">
+        <label for="prod-city-select">Município</label>
+        <select id="prod-city-select"></select>
+      </div>
+      <div class="fctl meta">
+        <label for="prod-target-day">Meta diária</label>
+        <input id="prod-target-day" type="number" min="0" step="100" value="6500">
+      </div>
+      <div class="fctl meta">
+        <label for="prod-target-week">Meta semanal</label>
+        <input id="prod-target-week" type="number" min="0" step="500" value="32500">
+      </div>
+      <div class="fctl meta filter-actions">
+        <button class="filter-reset" id="prod-reset-filters" type="button">Limpar filtros</button>
+      </div>
+      <div class="fctl meta">
+        <label for="prod-target-month">Meta mensal</label>
+        <input id="prod-target-month" type="number" min="0" step="1000" value="140000">
+      </div>
+    </div>
   </div>
   <div class="kpi-grid">
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Prod. Valor Semana</div><div class="kc-val" style="color:var(--green);font-size:18px">R$ 439.982</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>S20/2026</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Notas</div><div class="kc-val">77</div><div class="kc-sub up"><i class="ti ti-notes" style="font-size:11px"></i>executadas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-notes" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Postes</div><div class="kc-val">88</div><div class="kc-sub up"><i class="ti ti-bolt" style="font-size:11px"></i>na semana</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-bolt" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Equipes Atingiram</div><div class="kc-val" style="color:var(--green)">4 / 13</div><div class="kc-sub up"><i class="ti ti-users" style="font-size:11px"></i>meta atingida</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-users" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-value-label">Prod. Valor Semana</div><div class="kc-val" id="prod-kpi-value" style="color:var(--green);font-size:18px">R$ 439.982</div><div class="kc-sub up" id="prod-kpi-value-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>S20/2026</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-notes-label">Total Notas</div><div class="kc-val" id="prod-kpi-notes">77</div><div class="kc-sub up" id="prod-kpi-notes-sub"><i class="ti ti-notes" style="font-size:11px"></i>executadas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-notes" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-posts-label">Total Postes</div><div class="kc-val" id="prod-kpi-posts">88</div><div class="kc-sub up" id="prod-kpi-posts-sub"><i class="ti ti-bolt" style="font-size:11px"></i>na semana</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-bolt" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Equipes Atingiram</div><div class="kc-val" id="prod-kpi-teams-hit" style="color:var(--green)">4 / 13</div><div class="kc-sub up" id="prod-kpi-teams-hit-sub"><i class="ti ti-users" style="font-size:11px"></i>meta atingida</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-users" aria-hidden="true"></i></div></div>
   </div>
   <div class="card" style="margin-bottom:14px">
-    <div class="ch"><div class="ct">Meta por Equipe — S20/2026</div><div class="csub">Meta: R$ 32.500 · linha vermelha tracejada</div></div>
+    <div class="ch"><div class="ct" id="prod-chart-title">Meta por Equipe — S20/2026</div><div class="csub" id="prod-chart-subtitle">Meta: R$ 32.500 · linha vermelha tracejada</div></div>
     <div class="cw" style="height:180px">
       <canvas id="ch7" role="img" aria-label="Barras de produção por equipe com linha de meta">4 de 13 equipes atingiram a meta de R$32.500.</canvas>
     </div>
   </div>
   <div class="card">
-    <div class="ch"><div class="ct">Detalhe por Equipe</div><div class="csub">S20 · Meta: R$ 32.500,00 / equipe</div></div>
+    <div class="ch"><div class="ct">Detalhe por Equipe</div><div class="csub" id="prod-table-subtitle">S20 · Meta: R$ 32.500,00 / equipe</div></div>
     <div class="tbl-wrap">
       <table class="dtable">
         <thead><tr>
@@ -731,7 +895,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <th style="min-width:100px">% Meta</th>
           <th style="min-width:110px">Status</th>
         </tr></thead>
-        <tbody>
+        <tbody id="prod-team-table-body">
           <tr><td style="color:var(--t1);font-weight:500">PI-THE-O030M</td><td>6</td><td>9</td><td style="color:var(--green)">R$ 60.567</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">100%</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
           <tr><td style="color:var(--t1);font-weight:500">PI-THE-V008M</td><td>6</td><td>4</td><td style="color:var(--green)">R$ 57.984</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">100%</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
           <tr><td style="color:var(--t1);font-weight:500">PI-THE-O031M</td><td>6</td><td>10</td><td style="color:var(--green)">R$ 53.363</td><td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:100%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">100%</span></div></td><td><span class="pill ok">✓ Atingiu</span></td></tr>
@@ -844,6 +1008,428 @@ function toggleTheme() {
 
 /* ═══ CHART.JS HELPERS ═══ */
 const charts = {};
+const DATA_SOURCE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTE2IBM9w4xK0zGo1A4alA0fVM6uIcK7KShcFoTN93348ssJsLJ9ZaVtjRnnhtx7wLTM6n_-rvOKKij/pub?gid=302605702&single=true&output=csv';
+let liveData = null;
+let prodRows = [];
+let prodFiltersBound = false;
+const prodState = {
+  mode: 'week',
+  periodKey: '',
+  team: 'all',
+  municipality: 'all',
+  targets: {
+    day: 6500,
+    week: 32500,
+    month: 140000,
+  },
+};
+
+function setHTML(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = value;
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function fmtNumber(value) {
+  return new Intl.NumberFormat('pt-BR').format(value || 0);
+}
+
+function fmtCurrency(value) {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+}
+
+function parseMoney(value) {
+  if (typeof value === 'number') return value;
+  if (!value) return 0;
+  const normalized = String(value).replace(/\./g, '').replace(',', '.').trim();
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseInteger(value) {
+  if (typeof value === 'number') return value;
+  if (!value) return 0;
+  const parsed = Number(String(value).replace(/\./g, '').replace(',', '.').trim());
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseDateBR(value) {
+  if (!value) return null;
+  const text = String(value).trim();
+  const match = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const dt = new Date(Number(year), Number(month) - 1, Number(day));
+  return Number.isNaN(dt.getTime()) ? null : dt;
+}
+
+function titleCase(text) {
+  return String(text || '')
+    .toLowerCase()
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getWeekLabel(weekNumber, date) {
+  if (!weekNumber && !date) return 'Semana atual';
+  const year = date ? date.getFullYear() : new Date().getFullYear();
+  return `S${String(weekNumber).padStart(2, '0')}/${year}`;
+}
+
+function formatDateLabel(date) {
+  return new Intl.DateTimeFormat('pt-BR').format(date);
+}
+
+function formatMonthLabel(date) {
+  return new Intl.DateTimeFormat('pt-BR', { month: 'short', year: 'numeric' })
+    .format(date)
+    .replace('.', '')
+    .toUpperCase();
+}
+
+function getPeriodDescriptor(mode) {
+  return mode === 'day' ? 'Dia' : mode === 'week' ? 'Semana' : 'Mês';
+}
+
+function getTargetForMode(mode) {
+  return prodState.targets[mode] || 0;
+}
+
+function getPeriodInfo(row, mode) {
+  const date = row.data;
+  if (mode === 'day') {
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return { key, label: formatDateLabel(date), order: date.getTime() };
+  }
+  if (mode === 'month') {
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    return { key, label: formatMonthLabel(date), order: Number(key.replace('-', '')) };
+  }
+  const week = row.semana || 0;
+  const year = date.getFullYear();
+  return {
+    key: `${year}-W${String(week).padStart(2, '0')}`,
+    label: getWeekLabel(week, date),
+    order: year * 100 + week,
+  };
+}
+
+function extractRows(parsedRows) {
+  const headerIndex = parsedRows.findIndex((row) => Array.isArray(row) && row.includes('Carimbo de data/hora'));
+  if (headerIndex === -1) return [];
+  const headers = parsedRows[headerIndex];
+  const dataRows = parsedRows.slice(headerIndex + 1);
+
+  return dataRows
+    .map((row) => {
+      const mapped = {};
+      headers.forEach((header, index) => {
+        mapped[header] = row[index];
+      });
+      return mapped;
+    })
+    .filter((row) => row['Carimbo de data/hora'] && row['Qual Número da Equipe?'])
+    .map((row) => {
+      const date = parseDateBR(row['DATA'] || row['Carimbo de data/hora']);
+      return {
+        timestamp: row['Carimbo de data/hora'],
+        supervisor: row['Supervisor'] || '',
+        equipe: row['Qual Número da Equipe?'] || 'Sem equipe',
+        nota: row['Qual Numero da Nota?'] || '',
+        municipio: row['Qual Município do trabalho da Equipe?'] || '',
+        valor: parseMoney(row['VALOR TOTAL']),
+        postes: parseInteger(row['Quantos POSTES IMPLANTADOS (R$ 944,71 por poste)']),
+        data: date,
+        semana: parseInteger(row['SEMANA']),
+      };
+    })
+    .filter((row) => row.data instanceof Date && !Number.isNaN(row.data.getTime()));
+}
+
+function getPeriodOptions(rows, mode) {
+  const map = new Map();
+  rows.forEach((row) => {
+    const info = getPeriodInfo(row, mode);
+    if (!map.has(info.key)) map.set(info.key, info);
+  });
+  return Array.from(map.values()).sort((a, b) => b.order - a.order);
+}
+
+function getPeriodRows(rows, mode, periodKey) {
+  if (!periodKey) return rows;
+  return rows.filter((row) => getPeriodInfo(row, mode).key === periodKey);
+}
+
+function getUniqueValues(rows, field) {
+  return Array.from(new Set(rows.map((row) => row[field]).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+}
+
+function buildSelectOptions(selectId, options, currentValue, allLabel) {
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  el.innerHTML = [`<option value="all">${allLabel}</option>`]
+    .concat(options.map((option) => `<option value="${option.value}">${option.label}</option>`))
+    .join('');
+  el.value = options.some((option) => option.value === currentValue) ? currentValue : 'all';
+}
+
+function updateFilterControls() {
+  const periodOptions = getPeriodOptions(prodRows, prodState.mode);
+  if (!periodOptions.some((option) => option.key === prodState.periodKey)) {
+    prodState.periodKey = periodOptions[0]?.key || '';
+  }
+
+  const periodRows = getPeriodRows(prodRows, prodState.mode, prodState.periodKey);
+  const teamOptions = getUniqueValues(periodRows, 'equipe').map((value) => ({ value, label: value }));
+  if (prodState.team !== 'all' && !teamOptions.some((option) => option.value === prodState.team)) {
+    prodState.team = 'all';
+  }
+
+  const municipalityBaseRows = prodState.team === 'all'
+    ? periodRows
+    : periodRows.filter((row) => row.equipe === prodState.team);
+  const cityOptions = getUniqueValues(municipalityBaseRows, 'municipio').map((value) => ({
+    value,
+    label: titleCase(value),
+  }));
+  if (prodState.municipality !== 'all' && !cityOptions.some((option) => option.value === prodState.municipality)) {
+    prodState.municipality = 'all';
+  }
+
+  buildSelectOptions(
+    'prod-period-select',
+    periodOptions.map((option) => ({ value: option.key, label: option.label })),
+    prodState.periodKey,
+    `Todos os ${getPeriodDescriptor(prodState.mode).toLowerCase()}s`
+  );
+  buildSelectOptions('prod-team-select', teamOptions, prodState.team, 'Todas as equipes');
+  buildSelectOptions('prod-city-select', cityOptions, prodState.municipality, 'Todos os municípios');
+
+  document.querySelectorAll('#prod-mode-seg .seg-btn').forEach((btn) => {
+    btn.classList.toggle('on', btn.dataset.mode === prodState.mode);
+  });
+  document.getElementById('prod-target-day').value = prodState.targets.day;
+  document.getElementById('prod-target-week').value = prodState.targets.week;
+  document.getElementById('prod-target-month').value = prodState.targets.month;
+}
+
+function getFallbackProductionRows() {
+  const body = document.getElementById('prod-team-table-body');
+  if (!body) return [];
+  const rows = Array.from(body.querySelectorAll('tr:not(.tot)'));
+  const fallbackDate = new Date(2026, 5, 2);
+
+  return rows.map((row, index) => {
+    const cells = row.querySelectorAll('td');
+    const equipe = cells[0]?.textContent?.trim() || `Equipe ${index + 1}`;
+    const notas = parseInteger(cells[1]?.textContent || '0');
+    const postes = parseInteger(cells[2]?.textContent || '0');
+    const valor = parseMoney((cells[3]?.textContent || '').replace('R$', '').trim());
+
+    return {
+      timestamp: 'fallback',
+      supervisor: '',
+      equipe,
+      nota: `${equipe}-${index + 1}`,
+      municipio: '',
+      valor,
+      postes,
+      data: fallbackDate,
+      semana: 20,
+    };
+  });
+}
+
+function getFilteredProductionRows() {
+  const periodRows = getPeriodRows(prodRows, prodState.mode, prodState.periodKey);
+  return periodRows.filter((row) => {
+    if (prodState.team !== 'all' && row.equipe !== prodState.team) return false;
+    if (prodState.municipality !== 'all' && row.municipio !== prodState.municipality) return false;
+    return true;
+  });
+}
+
+function bindProductionFilters() {
+  if (prodFiltersBound) return;
+  prodFiltersBound = true;
+
+  document.querySelectorAll('#prod-mode-seg .seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      prodState.mode = btn.dataset.mode;
+      prodState.periodKey = '';
+      updateProductionDashboard();
+    });
+  });
+
+  document.getElementById('prod-period-select')?.addEventListener('change', (event) => {
+    prodState.periodKey = event.target.value === 'all' ? '' : event.target.value;
+    updateProductionDashboard();
+  });
+
+  document.getElementById('prod-team-select')?.addEventListener('change', (event) => {
+    prodState.team = event.target.value;
+    updateProductionDashboard();
+  });
+
+  document.getElementById('prod-city-select')?.addEventListener('change', (event) => {
+    prodState.municipality = event.target.value;
+    updateProductionDashboard();
+  });
+
+  ['day', 'week', 'month'].forEach((mode) => {
+    document.getElementById(`prod-target-${mode}`)?.addEventListener('change', (event) => {
+      prodState.targets[mode] = parseInteger(event.target.value);
+      updateProductionDashboard();
+    });
+  });
+
+  document.getElementById('prod-reset-filters')?.addEventListener('click', () => {
+    prodState.mode = 'week';
+    prodState.periodKey = '';
+    prodState.team = 'all';
+    prodState.municipality = 'all';
+    prodState.targets = { day: 6500, week: 32500, month: 140000 };
+    updateProductionDashboard();
+  });
+}
+
+function buildLiveData(rows) {
+  if (!rows.length) {
+    return {
+      mode: prodState.mode,
+      periodLabel: 'Sem dados',
+      target: getTargetForMode(prodState.mode),
+      producao: { totalValue: 0, totalPosts: 0, totalNotes: 0, teamsHit: 0, teamsTotal: 0, teams: [] },
+    };
+  }
+
+  const target = getTargetForMode(prodState.mode);
+  const teamMap = new Map();
+  rows.forEach((row) => {
+    const key = row.equipe;
+    if (!teamMap.has(key)) {
+      teamMap.set(key, { equipe: key, notas: new Set(), postes: 0, valor: 0 });
+    }
+    const item = teamMap.get(key);
+    if (row.nota) item.notas.add(row.nota);
+    item.postes += row.postes;
+    item.valor += row.valor;
+  });
+
+  const teams = Array.from(teamMap.values())
+    .map((item) => {
+      const pctRaw = target ? (item.valor / target) * 100 : 0;
+      return {
+        equipe: item.equipe,
+        notas: item.notas.size,
+        postes: item.postes,
+        valor: item.valor,
+        pct: Math.round(pctRaw),
+      };
+    })
+    .sort((a, b) => b.valor - a.valor);
+
+  return {
+    mode: prodState.mode,
+    periodLabel: getPeriodInfo(rows[0], prodState.mode).label,
+    target,
+    producao: {
+      totalValue: rows.reduce((sum, row) => sum + row.valor, 0),
+      totalPosts: rows.reduce((sum, row) => sum + row.postes, 0),
+      totalNotes: new Set(rows.map((row) => row.nota).filter(Boolean)).size,
+      teamsHit: teams.filter((team) => team.valor >= target).length,
+      teamsTotal: teams.length,
+      teams,
+    },
+  };
+}
+
+function renderLiveSummary(data) {
+  if (!data) return;
+  const modeLabel = getPeriodDescriptor(data.mode);
+  const target = data.target;
+  setText('prod-breadcrumb-week', data.periodLabel);
+  setHTML('prod-live-pill', `<div class="live-dot"></div>Meta ${modeLabel.toLowerCase()}: ${fmtCurrency(target)}`);
+  setText('prod-kpi-value-label', `Prod. Valor ${modeLabel}`);
+  setText('prod-kpi-value', fmtCurrency(data.producao.totalValue));
+  setHTML('prod-kpi-value-sub', `<i class="ti ti-arrow-up-right" style="font-size:11px"></i>${data.periodLabel}`);
+  setText('prod-kpi-notes-label', 'Total Notas');
+  setText('prod-kpi-notes', fmtNumber(data.producao.totalNotes));
+  setHTML('prod-kpi-notes-sub', `<i class="ti ti-notes" style="font-size:11px"></i>notas no ${modeLabel.toLowerCase()}`);
+  setText('prod-kpi-posts-label', 'Total Postes');
+  setText('prod-kpi-posts', fmtNumber(data.producao.totalPosts));
+  setHTML('prod-kpi-posts-sub', `<i class="ti ti-bolt" style="font-size:11px"></i>postes no ${modeLabel.toLowerCase()}`);
+  setText('prod-kpi-teams-hit', `${fmtNumber(data.producao.teamsHit)} / ${fmtNumber(data.producao.teamsTotal)}`);
+  setHTML('prod-kpi-teams-hit-sub', `<i class="ti ti-users" style="font-size:11px"></i>meta atingida`);
+  setText('prod-chart-title', `Meta por Equipe — ${data.periodLabel}`);
+  setText('prod-chart-subtitle', `Meta ${modeLabel.toLowerCase()}: ${fmtCurrency(target)} · linha vermelha tracejada`);
+  setText('prod-table-subtitle', `${data.periodLabel} · Meta ${modeLabel.toLowerCase()}: ${fmtCurrency(target)} / equipe`);
+
+  const body = document.getElementById('prod-team-table-body');
+  if (!body) return;
+
+  if (!data.producao.teams.length) {
+    body.innerHTML = `<tr><td colspan="6" style="color:var(--t2)">Nenhum registro encontrado para os filtros selecionados.</td></tr>`;
+    return;
+  }
+
+  const rows = data.producao.teams.map((team) => {
+    const pct = Math.max(0, Math.min(team.pct, 100));
+    const isHit = team.valor >= target;
+    const isNear = !isHit && team.valor >= target * 0.9;
+    const color = isHit ? 'var(--green)' : isNear ? 'var(--yellow)' : 'var(--red)';
+    const pillClass = isHit ? 'ok' : isNear ? 'wn' : 'no';
+    const pillText = isHit ? '✓ Atingiu' : isNear ? '≈ Próximo' : '✗ Não Atingiu';
+    const strongStyle = isHit ? ' style="color:var(--t1);font-weight:500"' : '';
+    return `<tr>
+      <td${strongStyle}>${team.equipe}</td>
+      <td>${fmtNumber(team.notas)}</td>
+      <td>${fmtNumber(team.postes)}</td>
+      <td${isHit ? ' style="color:var(--green)"' : ''}>${fmtCurrency(team.valor)}</td>
+      <td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:${pct}%;background:${color}"></div></div><span class="pct" style="color:${color}">${team.pct}%</span></div></td>
+      <td><span class="pill ${pillClass}">${pillText}</span></td>
+    </tr>`;
+  }).join('');
+
+  const totalPct = data.producao.teamsTotal ? Math.round((data.producao.teamsHit / data.producao.teamsTotal) * 100) : 0;
+  body.innerHTML = `${rows}
+    <tr class="tot">
+      <td>Total</td>
+      <td>${fmtNumber(data.producao.totalNotes)}</td>
+      <td>${fmtNumber(data.producao.totalPosts)}</td>
+      <td style="color:var(--green)">${fmtCurrency(data.producao.totalValue)}</td>
+      <td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:${totalPct}%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">${fmtNumber(data.producao.teamsHit)} equipes</span></div></td>
+      <td><span class="pill ok">Base ao vivo</span></td>
+    </tr>`;
+}
+
+function updateProductionDashboard() {
+  if (!prodRows.length) return;
+  updateFilterControls();
+  liveData = buildLiveData(getFilteredProductionRows());
+  renderLiveSummary(liveData);
+  rebuildCharts();
+}
+
+async function loadPublishedSheet() {
+  if (!window.Papa) return;
+  const response = await fetch(DATA_SOURCE_URL);
+  if (!response.ok) throw new Error(`Falha ao buscar CSV: ${response.status}`);
+  const csvText = await response.text();
+  const parsed = Papa.parse(csvText, { header: false, skipEmptyLines: true }).data;
+  prodRows = extractRows(parsed);
+  updateProductionDashboard();
+}
 
 function getColors() {
   const cs = getComputedStyle(document.documentElement);
@@ -945,14 +1531,17 @@ function build() {
   /* ch7 – Produção por equipe */
   mkChart('ch7', { type: 'bar',
     data: {
-      labels: ['O030M','V008M','O031M','V007M','O034M','O027M','O025M','O026M','O032M','O028M','O033M','O029M','O024M'],
+      labels: liveData ? liveData.producao.teams.map(team => team.equipe.replace('PI-THE-', '')) : ['O030M','V008M','O031M','V007M','O034M','O027M','O025M','O026M','O032M','O028M','O033M','O029M','O024M'],
       datasets: [
         { label: 'Produção',
-          data: [60567,57984,53363,49385,30925,28954,28188,28021,26028,23356,22612,17618,12981],
-          backgroundColor: [C.green,C.green,C.green,C.green,C.yellow,C.yellow,C.yellow,C.yellow,C.yellow,C.red,C.red,C.red,C.red],
+          data: liveData ? liveData.producao.teams.map(team => team.valor) : [60567,57984,53363,49385,30925,28954,28188,28021,26028,23356,22612,17618,12981],
+          backgroundColor: liveData ? liveData.producao.teams.map((team) => (
+            team.valor >= liveData.target ? C.green :
+            team.valor >= liveData.target * 0.9 ? C.yellow : C.red
+          )) : [C.green,C.green,C.green,C.green,C.yellow,C.yellow,C.yellow,C.yellow,C.yellow,C.red,C.red,C.red,C.red],
           borderRadius: 3 },
         { label: 'Meta', type: 'line',
-          data: Array(13).fill(32500),
+          data: Array(liveData ? liveData.producao.teams.length : 13).fill(liveData ? liveData.target : 32500),
           borderColor: C.red, borderDash: [5,4], borderWidth: 1.5,
           pointRadius: 0, fill: false, order: 0 }
       ]
@@ -999,7 +1588,20 @@ function rebuildCharts() {
   setTimeout(build, 60);
 }
 
-document.addEventListener('DOMContentLoaded', build);
+document.addEventListener('DOMContentLoaded', async () => {
+  build();
+  bindProductionFilters();
+  try {
+    await loadPublishedSheet();
+  } catch (error) {
+    console.error('Falha ao carregar a base publicada.', error);
+    if (!prodRows.length) {
+      prodRows = getFallbackProductionRows();
+      updateProductionDashboard();
+    }
+    setHTML('prod-live-pill', '<div class="live-dot"></div>Usando ultima composicao visual');
+  }
+});
 </script>
 </body>
 </html>
