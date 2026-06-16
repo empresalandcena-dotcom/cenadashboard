@@ -408,6 +408,97 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: rgba(79,124,255,.06);
 }
 
+.field-panel {
+  margin-bottom: 14px;
+}
+.field-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.field-search {
+  width: min(320px, 100%);
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--t1);
+  padding: 0 12px;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 11.5px;
+  outline: none;
+}
+.field-search:focus {
+  border-color: var(--green);
+}
+.field-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.field-metric {
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.015);
+}
+.field-metric-label {
+  font-size: 10px;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 5px;
+}
+.field-metric-value {
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--t1);
+}
+.field-metric-sub {
+  margin-top: 4px;
+  font-size: 10.5px;
+  color: var(--t2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.field-table td {
+  vertical-align: top;
+}
+.field-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.field-badge.ok {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.field-badge.wn {
+  background: var(--yellow-bg);
+  color: var(--yellow);
+}
+.field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field-list span {
+  display: inline-block;
+}
+
 /* ═══════════════════════════════════════════════════════
    KPI CARDS
 ═══════════════════════════════════════════════════════ */
@@ -577,6 +668,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .fctl.span-3,
   .fctl.span-4,
   .fctl.span-6 { grid-column: span 1; }
+  .field-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -584,6 +676,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .filter-grid { grid-template-columns: 1fr; }
   .seg { width: 100%; justify-content: stretch; }
   .seg-btn { flex: 1; min-width: 0; }
+  .field-metrics { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -996,6 +1089,55 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Medição Enviada</div><div class="kc-val" style="color:var(--blue)">116</div><div class="kc-sub up"><i class="ti ti-send" style="font-size:11px"></i>39.1% do total</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-send" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor Faturado</div><div class="kc-val" style="color:var(--green);font-size:18px">R$ 2,38M</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>de R$ 4,45M medido</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
   </div>
+  <div class="card field-panel">
+    <div class="field-toolbar">
+      <div>
+        <div class="ct">Obras em Campo</div>
+        <div class="csub" id="field-work-subtitle">Status de conclusão por nota, com equipes e supervisores envolvidos</div>
+      </div>
+      <input class="field-search" id="field-work-search" type="search" placeholder="Buscar nota, equipe ou município">
+    </div>
+    <div class="field-metrics">
+      <div class="field-metric">
+        <div class="field-metric-label">Concluídas em campo</div>
+        <div class="field-metric-value" id="field-work-complete">0</div>
+        <div class="field-metric-sub"><i class="ti ti-circle-check" style="font-size:11px"></i>obra finalizada no campo</div>
+      </div>
+      <div class="field-metric">
+        <div class="field-metric-label">Em andamento</div>
+        <div class="field-metric-value" id="field-work-open">0</div>
+        <div class="field-metric-sub"><i class="ti ti-progress" style="font-size:11px"></i>pendente de conclusão</div>
+      </div>
+      <div class="field-metric">
+        <div class="field-metric-label">Equipes envolvidas</div>
+        <div class="field-metric-value" id="field-work-teams">0</div>
+        <div class="field-metric-sub"><i class="ti ti-users" style="font-size:11px"></i>participação por obra</div>
+      </div>
+      <div class="field-metric">
+        <div class="field-metric-label">Registros analisados</div>
+        <div class="field-metric-value" id="field-work-records">0</div>
+        <div class="field-metric-sub"><i class="ti ti-database" style="font-size:11px"></i>linhas da base publicada</div>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="dtable field-table">
+        <thead>
+          <tr>
+            <th style="min-width:120px">Nota / Obra</th>
+            <th style="min-width:120px">Município</th>
+            <th style="min-width:140px">Status em campo</th>
+            <th>Equipes</th>
+            <th>Supervisores</th>
+            <th style="min-width:90px">Registros</th>
+            <th style="min-width:110px">Último registro</th>
+          </tr>
+        </thead>
+        <tbody id="field-work-table-body">
+          <tr><td colspan="7" style="color:var(--t2)">Carregando resumo de campo...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
   <div class="g3">
     <div class="card">
       <div class="ch"><div class="ct">Situação por Status</div><div class="csub">297 notas · valores em R$</div></div>
@@ -1226,12 +1368,14 @@ function extractRows(parsedRows) {
     .filter((row) => row['Carimbo de data/hora'] && row['Qual Número da Equipe?'])
     .map((row) => {
       const date = parseDateBR(row['DATA'] || row['Carimbo de data/hora']);
+      const conclusao = row['CONCLUSÃO'] || row['CONCLUSAO'] || row['Conclusão'] || '';
       return {
         timestamp: row['Carimbo de data/hora'],
         supervisor: row['Supervisor'] || '',
         equipe: row['Qual Número da Equipe?'] || 'Sem equipe',
         nota: row['Qual Numero da Nota?'] || '',
         municipio: row['Qual Município do trabalho da Equipe?'] || '',
+        conclusao,
         valor: parseMoney(row['VALOR TOTAL']),
         postes: parseInteger(row['Quantos POSTES IMPLANTADOS (R$ 944,71 por poste)']),
         data: date,
@@ -1387,6 +1531,108 @@ function getFilteredProductionRows() {
   });
 }
 
+function isFieldCompleted(value) {
+  const normalized = String(value || '').toLowerCase();
+  return normalized.includes('sim') || normalized.includes('conclu');
+}
+
+function getFieldWorkSummaries(rows) {
+  const map = new Map();
+  rows.forEach((row) => {
+    const key = row.nota || 'Sem nota';
+    if (!map.has(key)) {
+      map.set(key, {
+        nota: key,
+        municipios: new Set(),
+        equipes: new Set(),
+        supervisores: new Set(),
+        registros: 0,
+        concluidas: 0,
+        lastDate: null,
+        concluiuCampo: false,
+      });
+    }
+    const item = map.get(key);
+    item.registros += 1;
+    if (row.municipio) item.municipios.add(row.municipio);
+    if (row.equipe) item.equipes.add(row.equipe);
+    if (row.supervisor) item.supervisores.add(row.supervisor);
+    if (row.data instanceof Date && !Number.isNaN(row.data.getTime())) {
+      if (!item.lastDate || row.data > item.lastDate) item.lastDate = row.data;
+    }
+    if (isFieldCompleted(row.conclusao)) {
+      item.concluidas += 1;
+      item.concluiuCampo = true;
+    }
+  });
+
+  return Array.from(map.values())
+    .map((item) => ({
+      nota: item.nota,
+      municipio: Array.from(item.municipios).slice(0, 2).join(' · ') || 'Não informado',
+      equipes: Array.from(item.equipes),
+      supervisores: Array.from(item.supervisores),
+      registros: item.registros,
+      concluidas: item.concluidas,
+      concluidaCampo: item.concluiuCampo,
+      lastDate: item.lastDate,
+    }))
+    .sort((a, b) => (b.lastDate?.getTime?.() || 0) - (a.lastDate?.getTime?.() || 0));
+}
+
+function renderFieldWorkPanel() {
+  const summaries = getFieldWorkSummaries(prodRows);
+  const query = String(document.getElementById('field-work-search')?.value || '').trim().toLowerCase();
+  const filtered = summaries.filter((item) => {
+    if (!query) return true;
+    return [
+      item.nota,
+      item.municipio,
+      item.equipes.join(' '),
+      item.supervisores.join(' '),
+      item.concluidaCampo ? 'concluida' : 'em andamento',
+    ].join(' ').toLowerCase().includes(query);
+  });
+
+  const totalComplete = summaries.filter((item) => item.concluidaCampo).length;
+  const totalOpen = Math.max(0, summaries.length - totalComplete);
+  const totalTeams = new Set(summaries.flatMap((item) => item.equipes)).size;
+
+  setText('field-work-complete', fmtNumber(totalComplete));
+  setText('field-work-open', fmtNumber(totalOpen));
+  setText('field-work-teams', fmtNumber(totalTeams));
+  setText('field-work-records', fmtNumber(prodRows.length));
+  setText('field-work-subtitle', `${fmtNumber(filtered.length)} obras visíveis de ${fmtNumber(summaries.length)} na base publicada`);
+
+  const tbody = document.getElementById('field-work-table-body');
+  if (!tbody) return;
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:var(--t2)">Nenhuma obra encontrada para o filtro informado.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((item) => {
+    const statusClass = item.concluidaCampo ? 'ok' : 'wn';
+    const statusText = item.concluidaCampo ? 'Concluída em campo' : 'Em campo';
+    const teams = item.equipes.length ? item.equipes.join(', ') : 'Sem equipe';
+    const supervisors = item.supervisores.length ? item.supervisores.join(', ') : 'Sem supervisor';
+    const dateText = item.lastDate instanceof Date && !Number.isNaN(item.lastDate.getTime())
+      ? formatDateLabel(item.lastDate)
+      : 'Sem data';
+
+    return `<tr>
+      <td style="color:var(--t1);font-weight:500">${item.nota}</td>
+      <td>${item.municipio}</td>
+      <td><span class="field-badge ${statusClass}">${statusText}</span></td>
+      <td><div class="field-list">${teams.split(', ').map((team) => `<span>${team}</span>`).join('')}</div></td>
+      <td><div class="field-list">${supervisors.split(', ').map((supervisor) => `<span>${supervisor}</span>`).join('')}</div></td>
+      <td>${fmtNumber(item.registros)}</td>
+      <td>${dateText}</td>
+    </tr>`;
+  }).join('');
+}
+
 function bindProductionFilters() {
   if (prodFiltersBound) return;
   prodFiltersBound = true;
@@ -1453,6 +1699,8 @@ function bindProductionFilters() {
     prodState.targets = { day: 6500, week: 32500, month: 140000 };
     updateProductionDashboard();
   });
+
+  document.getElementById('field-work-search')?.addEventListener('input', renderFieldWorkPanel);
 }
 
 function buildLiveData(rows) {
@@ -1571,6 +1819,7 @@ function renderLiveSummary(data) {
 function getProductionExportBundle() {
   const rows = getFilteredProductionRows();
   const data = buildLiveData(rows);
+  const fieldRows = getFieldWorkSummaries(prodRows);
   const modeLabel = getPeriodDescriptor(data.mode);
 
   const filters = [
@@ -1610,7 +1859,19 @@ function getProductionExportBundle() {
     Timestamp: row.timestamp || '',
   }));
 
-  return { data, filters, rawRows, teamRows };
+  const fieldSummaryRows = fieldRows.map((item) => ({
+    Nota: item.nota,
+    Município: item.municipio,
+    Status: item.concluidaCampo ? 'Concluída em campo' : 'Em campo',
+    Equipes: item.equipes.join(', '),
+    Supervisores: item.supervisores.join(', '),
+    Registros: item.registros,
+    'Último registro': item.lastDate instanceof Date && !Number.isNaN(item.lastDate.getTime())
+      ? formatDateLabel(item.lastDate)
+      : '',
+  }));
+
+  return { data, filters, rawRows, teamRows, fieldSummaryRows };
 }
 
 function exportProductionXlsx() {
@@ -1632,6 +1893,7 @@ function exportProductionXlsx() {
   ]);
   const equipesSheet = XLSX.utils.json_to_sheet(bundle.teamRows);
   const registrosSheet = XLSX.utils.json_to_sheet(bundle.rawRows);
+  const campoSheet = XLSX.utils.json_to_sheet(bundle.fieldSummaryRows);
 
   resumoSheet['!cols'] = [{ wch: 30 }, { wch: 26 }];
   equipesSheet['!cols'] = [
@@ -1640,10 +1902,14 @@ function exportProductionXlsx() {
   registrosSheet['!cols'] = [
     { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 10 }, { wch: 18 }, { wch: 20 },
   ];
+  campoSheet['!cols'] = [
+    { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 30 }, { wch: 24 }, { wch: 10 }, { wch: 16 },
+  ];
 
   XLSX.utils.book_append_sheet(wb, resumoSheet, 'Resumo');
   XLSX.utils.book_append_sheet(wb, equipesSheet, 'Equipes');
   XLSX.utils.book_append_sheet(wb, registrosSheet, 'Registros');
+  XLSX.utils.book_append_sheet(wb, campoSheet, 'Campo');
 
   const slug = String(bundle.data.periodLabel).replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, '_');
   const fileName = `Cena_Producao_${slug}_${new Date().toISOString().slice(0, 10)}.xlsx`;
@@ -1655,6 +1921,7 @@ function updateProductionDashboard() {
   updateFilterControls();
   liveData = buildLiveData(getFilteredProductionRows());
   renderLiveSummary(liveData);
+  renderFieldWorkPanel();
   rebuildCharts();
 }
 
