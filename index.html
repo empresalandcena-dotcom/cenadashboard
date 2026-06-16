@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
    TOKENS — dark mode (default)
@@ -280,6 +281,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-bottom: 14px;
   flex-wrap: wrap;
 }
+.filter-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .filter-title {
   font-size: 13px;
   font-weight: 600;
@@ -381,11 +388,31 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-color: var(--green);
   color: var(--green);
 }
+.filter-export {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--t1);
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.filter-export:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(79,124,255,.06);
+}
 
 /* ═══════════════════════════════════════════════════════
    KPI CARDS
 ═══════════════════════════════════════════════════════ */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+.prod-kpi-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .kcard {
   background: var(--card);
   border: 1px solid var(--border);
@@ -860,10 +887,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <div class="filter-title">Filtros de Produção</div>
         <div class="filter-subtitle">Troque o período, ajuste metas e filtre por equipe ou município.</div>
       </div>
-      <div class="seg" id="prod-mode-seg">
-        <button class="seg-btn on" type="button" data-mode="day">Meta Diária</button>
-        <button class="seg-btn" type="button" data-mode="week">Meta Semanal</button>
-        <button class="seg-btn" type="button" data-mode="month">Meta Mensal</button>
+      <div class="filter-toolbar-actions">
+        <div class="seg" id="prod-mode-seg">
+          <button class="seg-btn on" type="button" data-mode="day">Meta Diária</button>
+          <button class="seg-btn" type="button" data-mode="week">Meta Semanal</button>
+          <button class="seg-btn" type="button" data-mode="month">Meta Mensal</button>
+        </div>
+        <button class="filter-export" id="prod-export-xlsx" type="button"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Exportar Excel</button>
       </div>
     </div>
     <div class="filter-grid">
@@ -904,8 +934,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       </div>
     </div>
   </div>
-  <div class="kpi-grid">
+  <div class="kpi-grid prod-kpi-grid">
     <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-value-label">Prod. Valor Semana</div><div class="kc-val" id="prod-kpi-value" style="color:var(--green);font-size:18px">R$ 439.982</div><div class="kc-sub up" id="prod-kpi-value-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>S20/2026</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Acumulado filtrado</div><div class="kc-val" id="prod-kpi-acc" style="color:var(--blue);font-size:18px">R$ 439.982,00</div><div class="kc-sub up" id="prod-kpi-acc-sub"><i class="ti ti-layers-subtract" style="font-size:11px"></i>somatório dos registros</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-layers-subtract" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-notes-label">Total Notas</div><div class="kc-val" id="prod-kpi-notes">77</div><div class="kc-sub up" id="prod-kpi-notes-sub"><i class="ti ti-notes" style="font-size:11px"></i>executadas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-notes" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-posts-label">Total Postes</div><div class="kc-val" id="prod-kpi-posts">88</div><div class="kc-sub up" id="prod-kpi-posts-sub"><i class="ti ti-bolt" style="font-size:11px"></i>na semana</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-bolt" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Equipes Atingiram</div><div class="kc-val" id="prod-kpi-teams-hit" style="color:var(--green)">4 / 13</div><div class="kc-sub up" id="prod-kpi-teams-hit-sub"><i class="ti ti-users" style="font-size:11px"></i>meta atingida</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-users" aria-hidden="true"></i></div></div>
@@ -1080,15 +1111,24 @@ function fmtCurrency(value) {
   }).format(value || 0);
 }
 
+function fmtCurrencyExact(value) {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value || 0);
+}
+
 function fmtCurrencyCompact(value) {
   if (!value) return 'R$ 0';
   if (value >= 1000000) {
-    return `R$ ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(value / 1000000)}M`;
+    return `R$ ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(value / 1000000)}M`;
   }
   if (value >= 1000) {
-    return `R$ ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(value / 1000)}k`;
+    return `R$ ${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(value / 1000)}k`;
   }
-  return fmtCurrency(value);
+  return fmtCurrencyExact(value);
 }
 
 function parseMoney(value) {
@@ -1390,6 +1430,8 @@ function bindProductionFilters() {
     updateProductionDashboard();
   });
 
+  document.getElementById('prod-export-xlsx')?.addEventListener('click', exportProductionXlsx);
+
   ['day', 'week', 'month'].forEach((mode) => {
     const input = document.getElementById(`prod-target-${mode}`);
     if (!input) return;
@@ -1468,11 +1510,14 @@ function renderLiveSummary(data) {
   if (!data) return;
   const modeLabel = getPeriodDescriptor(data.mode);
   const target = data.target;
+  const accumulated = data.producao.totalValue;
   setText('prod-breadcrumb-week', data.periodLabel);
-  setHTML('prod-live-pill', `<div class="live-dot"></div>Meta ${modeLabel.toLowerCase()}: ${fmtCurrency(target)}`);
+  setHTML('prod-live-pill', `<div class="live-dot"></div>Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)}`);
   setText('prod-kpi-value-label', `Prod. Valor ${modeLabel}`);
-  setText('prod-kpi-value', fmtCurrency(data.producao.totalValue));
+  setText('prod-kpi-value', fmtCurrencyExact(accumulated));
   setHTML('prod-kpi-value-sub', `<i class="ti ti-arrow-up-right" style="font-size:11px"></i>${data.periodLabel}`);
+  setText('prod-kpi-acc', fmtCurrencyExact(accumulated));
+  setHTML('prod-kpi-acc-sub', `<i class="ti ti-layers-subtract" style="font-size:11px"></i>${data.producao.teams.length} equipes filtradas`);
   setText('prod-kpi-notes-label', 'Total Notas');
   setText('prod-kpi-notes', fmtNumber(data.producao.totalNotes));
   setHTML('prod-kpi-notes-sub', `<i class="ti ti-notes" style="font-size:11px"></i>notas no ${modeLabel.toLowerCase()}`);
@@ -1482,8 +1527,8 @@ function renderLiveSummary(data) {
   setText('prod-kpi-teams-hit', `${fmtNumber(data.producao.teamsHit)} / ${fmtNumber(data.producao.teamsTotal)}`);
   setHTML('prod-kpi-teams-hit-sub', `<i class="ti ti-users" style="font-size:11px"></i>meta atingida`);
   setText('prod-chart-title', `Meta por Equipe — ${data.periodLabel}`);
-  setText('prod-chart-subtitle', `Meta ${modeLabel.toLowerCase()}: ${fmtCurrency(target)} · linha vermelha tracejada`);
-  setText('prod-table-subtitle', `${data.periodLabel} · Meta ${modeLabel.toLowerCase()}: ${fmtCurrency(target)} / equipe`);
+  setText('prod-chart-subtitle', `Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)} · acumulado filtrado: ${fmtCurrencyExact(accumulated)} · linha vermelha tracejada`);
+  setText('prod-table-subtitle', `${data.periodLabel} · Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)} / equipe · acumulado: ${fmtCurrencyExact(accumulated)}`);
 
   const body = document.getElementById('prod-team-table-body');
   if (!body) return;
@@ -1505,7 +1550,7 @@ function renderLiveSummary(data) {
       <td${strongStyle}>${team.equipe}</td>
       <td>${fmtNumber(team.notas)}</td>
       <td>${fmtNumber(team.postes)}</td>
-      <td${isHit ? ' style="color:var(--green)"' : ''}>${fmtCurrency(team.valor)}</td>
+      <td${isHit ? ' style="color:var(--green)"' : ''}>${fmtCurrencyExact(team.valor)}</td>
       <td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:${pct}%;background:${color}"></div></div><span class="pct" style="color:${color}">${team.pct}%</span></div></td>
       <td><span class="pill ${pillClass}">${pillText}</span></td>
     </tr>`;
@@ -1517,10 +1562,92 @@ function renderLiveSummary(data) {
       <td>Total</td>
       <td>${fmtNumber(data.producao.totalNotes)}</td>
       <td>${fmtNumber(data.producao.totalPosts)}</td>
-      <td style="color:var(--green)">${fmtCurrency(data.producao.totalValue)}</td>
+      <td style="color:var(--green)">${fmtCurrencyExact(data.producao.totalValue)}</td>
       <td><div class="pbwrap"><div class="pb"><div class="pbf" style="width:${totalPct}%;background:var(--green)"></div></div><span class="pct" style="color:var(--green)">${fmtNumber(data.producao.teamsHit)} equipes</span></div></td>
       <td><span class="pill ok">Base ao vivo</span></td>
     </tr>`;
+}
+
+function getProductionExportBundle() {
+  const rows = getFilteredProductionRows();
+  const data = buildLiveData(rows);
+  const modeLabel = getPeriodDescriptor(data.mode);
+
+  const filters = [
+    ['Modo', `Meta ${modeLabel}`],
+    ['Período', data.periodLabel],
+    ['Ano', prodState.year === 'all' ? 'Todos os anos' : prodState.year],
+    ['Mês', prodState.month === 'all' ? 'Todos os meses' : getMonthName(Number(prodState.month))],
+    ['Equipe', prodState.team === 'all' ? 'Todas as equipes' : prodState.team],
+    ['Município', prodState.municipality === 'all' ? 'Todos os municípios' : titleCase(prodState.municipality)],
+    ['Meta diária', fmtCurrencyExact(prodState.targets.day)],
+    ['Meta semanal', fmtCurrencyExact(prodState.targets.week)],
+    ['Meta mensal', fmtCurrencyExact(prodState.targets.month)],
+    ['Valor acumulado', fmtCurrencyExact(data.producao.totalValue)],
+    ['Notas', fmtNumber(data.producao.totalNotes)],
+    ['Postes', fmtNumber(data.producao.totalPosts)],
+    ['Equipes atingiram meta', `${fmtNumber(data.producao.teamsHit)} / ${fmtNumber(data.producao.teamsTotal)}`],
+  ];
+
+  const teamRows = data.producao.teams.map((team) => ({
+    Equipe: team.equipe,
+    Notas: team.notas,
+    Postes: team.postes,
+    'Prod. Total': team.valor,
+    '% Meta': team.pct / 100,
+    Status: team.valor >= data.target ? 'Atingiu' : team.valor >= data.target * 0.9 ? 'Próximo' : 'Não atingiu',
+  }));
+
+  const rawRows = rows.map((row) => ({
+    Data: row.data ? formatDateLabel(row.data) : '',
+    Semana: row.semana || '',
+    Equipe: row.equipe || '',
+    Nota: row.nota || '',
+    Município: row.municipio || '',
+    Valor: row.valor || 0,
+    Postes: row.postes || 0,
+    Supervisor: row.supervisor || '',
+    Timestamp: row.timestamp || '',
+  }));
+
+  return { data, filters, rawRows, teamRows };
+}
+
+function exportProductionXlsx() {
+  if (!window.XLSX) {
+    console.error('Biblioteca XLSX não carregada.');
+    return;
+  }
+
+  const bundle = getProductionExportBundle();
+  if (!bundle.rawRows.length) {
+    alert('Nenhum dado disponível para exportar com os filtros atuais.');
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+  const resumoSheet = XLSX.utils.aoa_to_sheet([
+    ['Campo', 'Valor'],
+    ...bundle.filters,
+  ]);
+  const equipesSheet = XLSX.utils.json_to_sheet(bundle.teamRows);
+  const registrosSheet = XLSX.utils.json_to_sheet(bundle.rawRows);
+
+  resumoSheet['!cols'] = [{ wch: 30 }, { wch: 26 }];
+  equipesSheet['!cols'] = [
+    { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 10 }, { wch: 14 },
+  ];
+  registrosSheet['!cols'] = [
+    { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 10 }, { wch: 18 }, { wch: 20 },
+  ];
+
+  XLSX.utils.book_append_sheet(wb, resumoSheet, 'Resumo');
+  XLSX.utils.book_append_sheet(wb, equipesSheet, 'Equipes');
+  XLSX.utils.book_append_sheet(wb, registrosSheet, 'Registros');
+
+  const slug = String(bundle.data.periodLabel).replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, '_');
+  const fileName = `Cena_Producao_${slug}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  XLSX.writeFile(wb, fileName, { compression: true });
 }
 
 function updateProductionDashboard() {
@@ -1699,7 +1826,7 @@ function build() {
           datasetIndex: 0,
           color: C.text,
           fontSize: 9,
-          formatter: (value) => fmtCurrencyCompact(value)
+          formatter: (value) => fmtCurrencyExact(value)
         }
       },
       scales: {
