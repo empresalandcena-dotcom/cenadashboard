@@ -436,7 +436,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .field-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 14px;
 }
@@ -468,6 +468,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
+}
+.field-list .muted {
+  color: var(--t3);
+  font-size: 10px;
+  line-height: 1.3;
 }
 .field-table td {
   vertical-align: top;
@@ -1099,6 +1104,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     </div>
     <div class="field-metrics">
       <div class="field-metric">
+        <div class="field-metric-label">Obras analisadas</div>
+        <div class="field-metric-value" id="field-work-notes">0</div>
+        <div class="field-metric-sub"><i class="ti ti-database" style="font-size:11px"></i>notas distintas na base</div>
+      </div>
+      <div class="field-metric">
         <div class="field-metric-label">Concluídas em campo</div>
         <div class="field-metric-value" id="field-work-complete">0</div>
         <div class="field-metric-sub"><i class="ti ti-circle-check" style="font-size:11px"></i>obra finalizada no campo</div>
@@ -1114,9 +1124,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <div class="field-metric-sub"><i class="ti ti-users" style="font-size:11px"></i>participação por obra</div>
       </div>
       <div class="field-metric">
-        <div class="field-metric-label">Registros analisados</div>
+        <div class="field-metric-label">Última atualização</div>
         <div class="field-metric-value" id="field-work-records">0</div>
-        <div class="field-metric-sub"><i class="ti ti-database" style="font-size:11px"></i>linhas da base publicada</div>
+        <div class="field-metric-sub"><i class="ti ti-clock" style="font-size:11px"></i>último registro na base</div>
       </div>
     </div>
     <div class="tbl-wrap">
@@ -1298,6 +1308,25 @@ function parseDateBR(value) {
   return Number.isNaN(dt.getTime()) ? null : dt;
 }
 
+function parseDateTimeBR(value) {
+  if (!value) return null;
+  const text = String(value).trim();
+  const match = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!match) return null;
+  const [, day, month, year, hour = '0', minute = '0', second = '0'] = match;
+  const dt = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+  return Number.isNaN(dt.getTime()) ? null : dt;
+}
+
+function formatDateTimeLabel(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return 'Sem data';
+  const dateLabel = formatDateLabel(date);
+  const timeLabel = [date.getHours(), date.getMinutes(), date.getSeconds()]
+    .map((part) => String(part).padStart(2, '0'))
+    .join(':');
+  return `${dateLabel} ${timeLabel}`;
+}
+
 function titleCase(text) {
   return String(text || '')
     .toLowerCase()
@@ -1368,9 +1397,11 @@ function extractRows(parsedRows) {
     .filter((row) => row['Carimbo de data/hora'] && row['Qual Número da Equipe?'])
     .map((row) => {
       const date = parseDateBR(row['DATA'] || row['Carimbo de data/hora']);
+      const timestampDate = parseDateTimeBR(row['Carimbo de data/hora'] || row['DATA']);
       const conclusao = row['CONCLUSÃO'] || row['CONCLUSAO'] || row['Conclusão'] || '';
       return {
         timestamp: row['Carimbo de data/hora'],
+        timestampDate,
         supervisor: row['Supervisor'] || '',
         equipe: row['Qual Número da Equipe?'] || 'Sem equipe',
         nota: row['Qual Numero da Nota?'] || '',
@@ -1512,9 +1543,11 @@ function getFallbackProductionRows() {
       equipe,
       nota: `${equipe}-${index + 1}`,
       municipio: '',
+      conclusao: '',
       valor,
       postes,
       data: fallbackDate,
+      timestampDate: fallbackDate,
       semana: 20,
     };
   });
@@ -1551,9 +1584,12 @@ function getFieldWorkSummaries(rows) {
         equipes: new Set(),
         supervisores: new Set(),
         registros: 0,
-        concluidas: 0,
         lastDate: null,
-        concluiuCampo: false,
+        lastTimestamp: '',
+        lastTeam: '',
+        lastSupervisor: '',
+        lastMunicipio: '',
+        lastConclusao: '',
       });
     }
     const item = map.get(key);
@@ -1561,25 +1597,34 @@ function getFieldWorkSummaries(rows) {
     if (row.municipio) item.municipios.add(row.municipio);
     if (row.equipe) item.equipes.add(row.equipe);
     if (row.supervisor) item.supervisores.add(row.supervisor);
-    if (row.data instanceof Date && !Number.isNaN(row.data.getTime())) {
-      if (!item.lastDate || row.data > item.lastDate) item.lastDate = row.data;
-    }
-    if (isFieldCompleted(row.conclusao)) {
-      item.concluidas += 1;
-      item.concluiuCampo = true;
+    const rowDate = row.timestampDate instanceof Date && !Number.isNaN(row.timestampDate.getTime())
+      ? row.timestampDate
+      : row.data;
+    if (rowDate instanceof Date && !Number.isNaN(rowDate.getTime())) {
+      if (!item.lastDate || rowDate > item.lastDate) {
+        item.lastDate = rowDate;
+        item.lastTimestamp = row.timestamp || '';
+        item.lastTeam = row.equipe || '';
+        item.lastSupervisor = row.supervisor || '';
+        item.lastMunicipio = row.municipio || '';
+        item.lastConclusao = row.conclusao || '';
+      }
     }
   });
 
   return Array.from(map.values())
     .map((item) => ({
       nota: item.nota,
-      municipio: Array.from(item.municipios).slice(0, 2).join(' · ') || 'Não informado',
+      municipio: item.lastMunicipio || Array.from(item.municipios).slice(0, 2).join(' · ') || 'Não informado',
       equipes: Array.from(item.equipes),
       supervisores: Array.from(item.supervisores),
       registros: item.registros,
-      concluidas: item.concluidas,
-      concluidaCampo: item.concluiuCampo,
+      concluidaCampo: isFieldCompleted(item.lastConclusao),
+      statusLabel: item.lastConclusao || 'Sem conclusão',
+      lastTeam: item.lastTeam || Array.from(item.equipes)[0] || 'Sem equipe',
+      lastSupervisor: item.lastSupervisor || Array.from(item.supervisores)[0] || 'Sem supervisor',
       lastDate: item.lastDate,
+      lastTimestamp: item.lastTimestamp || '',
     }))
     .sort((a, b) => (b.lastDate?.getTime?.() || 0) - (a.lastDate?.getTime?.() || 0));
 }
@@ -1601,12 +1646,14 @@ function renderFieldWorkPanel() {
   const totalComplete = summaries.filter((item) => item.concluidaCampo).length;
   const totalOpen = Math.max(0, summaries.length - totalComplete);
   const totalTeams = new Set(summaries.flatMap((item) => item.equipes)).size;
+  const latestUpdate = summaries[0]?.lastDate || null;
 
+  setText('field-work-notes', fmtNumber(summaries.length));
   setText('field-work-complete', fmtNumber(totalComplete));
   setText('field-work-open', fmtNumber(totalOpen));
   setText('field-work-teams', fmtNumber(totalTeams));
-  setText('field-work-records', fmtNumber(prodRows.length));
-  setText('field-work-subtitle', `${fmtNumber(filtered.length)} obras visíveis de ${fmtNumber(summaries.length)} na base publicada`);
+  setText('field-work-records', latestUpdate ? formatDateTimeLabel(latestUpdate) : 'Sem data');
+  setText('field-work-subtitle', `${fmtNumber(filtered.length)} obras visíveis de ${fmtNumber(summaries.length)} na base publicada · ${fmtNumber(prodRows.length)} registros publicados`);
 
   const tbody = document.getElementById('field-work-table-body');
   if (!tbody) return;
@@ -1618,19 +1665,19 @@ function renderFieldWorkPanel() {
 
   tbody.innerHTML = filtered.map((item) => {
     const statusClass = item.concluidaCampo ? 'ok' : 'wn';
-    const statusText = item.concluidaCampo ? 'Concluída em campo' : 'Em campo';
+    const statusText = item.concluidaCampo ? 'Concluída em campo' : 'Em andamento';
     const teams = item.equipes.length ? item.equipes.join(', ') : 'Sem equipe';
     const supervisors = item.supervisores.length ? item.supervisores.join(', ') : 'Sem supervisor';
     const dateText = item.lastDate instanceof Date && !Number.isNaN(item.lastDate.getTime())
-      ? formatDateLabel(item.lastDate)
+      ? formatDateTimeLabel(item.lastDate)
       : 'Sem data';
 
     return `<tr>
       <td style="color:var(--t1);font-weight:500">${item.nota}</td>
       <td>${item.municipio}</td>
-      <td><span class="field-badge ${statusClass}">${statusText}</span></td>
-      <td><div class="field-list">${teams.split(', ').map((team) => `<span>${team}</span>`).join('')}</div></td>
-      <td><div class="field-list">${supervisors.split(', ').map((supervisor) => `<span>${supervisor}</span>`).join('')}</div></td>
+      <td><span class="field-badge ${statusClass}">${statusText}</span><div class="field-list" style="margin-top:6px"><span>${item.statusLabel}</span></div></td>
+      <td><div class="field-list"><span>${item.lastTeam}</span><span class="muted">Histórico: ${teams}</span></div></td>
+      <td><div class="field-list"><span>${item.lastSupervisor}</span><span class="muted">Histórico: ${supervisors}</span></div></td>
       <td>${fmtNumber(item.registros)}</td>
       <td>${dateText}</td>
     </tr>`;
@@ -1868,11 +1915,13 @@ function getProductionExportBundle() {
     Nota: item.nota,
     Município: item.municipio,
     Status: item.concluidaCampo ? 'Concluída em campo' : 'Em campo',
+    'Última equipe': item.lastTeam,
+    'Último supervisor': item.lastSupervisor,
     Equipes: item.equipes.join(', '),
     Supervisores: item.supervisores.join(', '),
     Registros: item.registros,
     'Último registro': item.lastDate instanceof Date && !Number.isNaN(item.lastDate.getTime())
-      ? formatDateLabel(item.lastDate)
+      ? formatDateTimeLabel(item.lastDate)
       : '',
   }));
 
