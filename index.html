@@ -1029,7 +1029,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </div>
   <div class="kpi-grid prod-kpi-grid">
     <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-value-label">Prod. Valor Semana</div><div class="kc-val" id="prod-kpi-value" style="color:var(--green);font-size:18px">R$ 439.982</div><div class="kc-sub up" id="prod-kpi-value-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>S20/2026</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Acumulado filtrado</div><div class="kc-val" id="prod-kpi-acc" style="color:var(--blue);font-size:18px">R$ 439.982,00</div><div class="kc-sub up" id="prod-kpi-acc-sub"><i class="ti ti-layers-subtract" style="font-size:11px"></i>somatório dos registros</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-layers-subtract" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total geral da base</div><div class="kc-val" id="prod-kpi-acc" style="color:var(--blue);font-size:18px">R$ 439.982,00</div><div class="kc-sub up" id="prod-kpi-acc-sub"><i class="ti ti-layers-subtract" style="font-size:11px"></i>base completa, sem filtros</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-layers-subtract" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-notes-label">Total Notas</div><div class="kc-val" id="prod-kpi-notes">77</div><div class="kc-sub up" id="prod-kpi-notes-sub"><i class="ti ti-notes" style="font-size:11px"></i>executadas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-notes" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label" id="prod-kpi-posts-label">Total Postes</div><div class="kc-val" id="prod-kpi-posts">88</div><div class="kc-sub up" id="prod-kpi-posts-sub"><i class="ti ti-bolt" style="font-size:11px"></i>na semana</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-bolt" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Equipes Atingiram</div><div class="kc-val" id="prod-kpi-teams-hit" style="color:var(--green)">4 / 13</div><div class="kc-sub up" id="prod-kpi-teams-hit-sub"><i class="ti ti-users" style="font-size:11px"></i>meta atingida</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-users" aria-hidden="true"></i></div></div>
@@ -1531,6 +1531,10 @@ function getFilteredProductionRows() {
   });
 }
 
+function getGrandProductionTotal() {
+  return prodRows.reduce((sum, row) => sum + row.valor, 0);
+}
+
 function isFieldCompleted(value) {
   const normalized = String(value || '').toLowerCase();
   return normalized.includes('sim') || normalized.includes('conclu');
@@ -1759,13 +1763,14 @@ function renderLiveSummary(data) {
   const modeLabel = getPeriodDescriptor(data.mode);
   const target = data.target;
   const accumulated = data.producao.totalValue;
+  const grandTotal = getGrandProductionTotal();
   setText('prod-breadcrumb-week', data.periodLabel);
   setHTML('prod-live-pill', `<div class="live-dot"></div>Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)}`);
   setText('prod-kpi-value-label', `Prod. Valor ${modeLabel}`);
   setText('prod-kpi-value', fmtCurrencyExact(accumulated));
   setHTML('prod-kpi-value-sub', `<i class="ti ti-arrow-up-right" style="font-size:11px"></i>${data.periodLabel}`);
-  setText('prod-kpi-acc', fmtCurrencyExact(accumulated));
-  setHTML('prod-kpi-acc-sub', `<i class="ti ti-layers-subtract" style="font-size:11px"></i>${data.producao.teams.length} equipes filtradas`);
+  setText('prod-kpi-acc', fmtCurrencyExact(grandTotal));
+  setHTML('prod-kpi-acc-sub', `<i class="ti ti-layers-subtract" style="font-size:11px"></i>base completa, sem filtros`);
   setText('prod-kpi-notes-label', 'Total Notas');
   setText('prod-kpi-notes', fmtNumber(data.producao.totalNotes));
   setHTML('prod-kpi-notes-sub', `<i class="ti ti-notes" style="font-size:11px"></i>notas no ${modeLabel.toLowerCase()}`);
@@ -1775,8 +1780,8 @@ function renderLiveSummary(data) {
   setText('prod-kpi-teams-hit', `${fmtNumber(data.producao.teamsHit)} / ${fmtNumber(data.producao.teamsTotal)}`);
   setHTML('prod-kpi-teams-hit-sub', `<i class="ti ti-users" style="font-size:11px"></i>meta atingida`);
   setText('prod-chart-title', `Meta por Equipe — ${data.periodLabel}`);
-  setText('prod-chart-subtitle', `Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)} · acumulado filtrado: ${fmtCurrencyExact(accumulated)} · linha vermelha tracejada`);
-  setText('prod-table-subtitle', `${data.periodLabel} · Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)} / equipe · acumulado: ${fmtCurrencyExact(accumulated)}`);
+  setText('prod-chart-subtitle', `Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)} · acumulado filtrado: ${fmtCurrencyExact(accumulated)} · total geral: ${fmtCurrencyExact(grandTotal)} · linha vermelha tracejada`);
+  setText('prod-table-subtitle', `${data.periodLabel} · Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)} / equipe · total geral: ${fmtCurrencyExact(grandTotal)}`);
 
   const body = document.getElementById('prod-team-table-body');
   if (!body) return;
