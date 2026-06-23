@@ -262,9 +262,9 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
     data: {
       labels: situacaoEntries.map((item) => item.label),
       datasets: [
-        { label: 'MO', data: situacaoEntries.map((item) => item.mo), backgroundColor: C.blue + 'cc', borderRadius: 2 },
-        { label: 'Medido', data: situacaoEntries.map((item) => item.medido), backgroundColor: C.green + 'cc', borderRadius: 2 },
-        { label: 'Faturado', data: situacaoEntries.map((item) => item.faturado), backgroundColor: C.yellow + 'cc', borderRadius: 2 },
+        { label: 'MO', data: situacaoEntries.map((item) => item.mo), backgroundColor: C.blue + 'cc', borderRadius: 2, minBarLength: 2 },
+        { label: 'Medido', data: situacaoEntries.map((item) => item.medido), backgroundColor: C.green + 'cc', borderRadius: 2, minBarLength: 2 },
+        { label: 'Faturado', data: situacaoEntries.map((item) => item.faturado), backgroundColor: C.yellow + 'cc', borderRadius: 2, minBarLength: 2 },
       ],
     },
     options: {
