@@ -791,8 +791,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #fs-content .card { background: transparent; border: none; box-shadow: none; padding: 0; height: 100%; }
 #fs-content .ct { font-size: 20px; }
 #fs-content .csub { font-size: 13px; }
-#fs-content .cw { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-#fs-content canvas, #fs-content .cw canvas { max-height: none !important; }
+#fs-content .cw { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+#fs-content .cw canvas { max-height: 100% !important; }
 #fs-content .kc-val { font-size: 32px; }
 #fs-content .kc-sub { font-size: 13px; }
 #fs-content .val-num { font-size: 18px; }
@@ -804,9 +804,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #fs-content .hrow { gap: 12px; }
 #fs-content .kpi-row { gap: 16px; }
 #fs-content .kcard { padding: 16px 20px; }
+#fs-content .cw { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+#fs-content .cw canvas { max-height: 100% !important; }
 .fs-only { display: none; }
-#fs-content .fs-only { display: flex; flex-direction: column; flex: 1; min-height: 300px; }
-#fs-content .fs-only canvas { flex: 1; }
+#fs-content .fs-only { display: flex; flex-direction: column; flex: 1; min-height: 280px; max-height: 55vh; }
+#fs-content .fs-only canvas { flex: 1; min-height: 0; }
 </style>
 </head>
 <body>
@@ -2699,9 +2701,9 @@ const valueLabelPlugin = {
           ctx.save();
           ctx.translate(props.x, y);
           ctx.rotate(rad);
-          ctx.textAlign = pluginOptions.rotate === -90 ? 'right' : 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(text, 0, 0);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(text, 0, pluginOptions.rotate === -90 ? 4 : 0);
           ctx.restore();
         } else {
           ctx.fillText(text, props.x, y);
@@ -2860,7 +2862,13 @@ function expandCard(card) {
       const ch = Chart.getChart(c);
       if (ch) ch.resize();
     });
-  }, 80);
+  }, 200);
+  setTimeout(() => {
+    card.querySelectorAll('canvas').forEach((c) => {
+      const ch = Chart.getChart(c);
+      if (ch) ch.resize();
+    });
+  }, 500);
 }
 
 function collapseCard() {
