@@ -15,6 +15,7 @@ const viabState = {
   carteira: 'all',
   pi: 'all',
   status: 'all',
+  licenciamento: 'all',
   nota: '',
 };
 
@@ -153,6 +154,7 @@ function viabGetFilteredRows() {
     if (viabState.carteira !== 'all' && row.carteira !== viabState.carteira) return false;
     if (viabState.pi !== 'all' && row.pi !== viabState.pi) return false;
     if (viabState.status !== 'all' && row.statusKey !== viabState.status) return false;
+    if (viabState.licenciamento !== 'all' && row.licenciamento !== viabState.licenciamento) return false;
     if (viabState.nota) {
       const query = viabState.nota.trim().toLowerCase();
       if (query && !String(row.nota).toLowerCase().includes(query)) return false;
@@ -478,6 +480,7 @@ function viabGetExportBundle() {
     ['Carteira', viabState.carteira === 'all' ? 'Todas' : titleCase(viabState.carteira)],
     ['PI', viabState.pi === 'all' ? 'Todos' : viabState.pi],
     ['Status', viabState.status === 'all' ? 'Todos' : VIAB_STATUS_LABELS[viabState.status] || viabState.status],
+    ['Licenciamento', viabState.licenciamento === 'all' ? 'Todos' : viabState.licenciamento],
     ['Total de notas', fmtNumber(rows.length)],
     ['Aptas', fmtNumber(counts.apto)],
     ['Viabilizadas', fmtNumber(counts.viabilizado)],
@@ -577,6 +580,10 @@ function viabBindFilters() {
     viabState.status = event.target.value;
     viabUpdateDashboard();
   });
+  document.getElementById('viab-licenciamento-select')?.addEventListener('change', (event) => {
+    viabState.licenciamento = event.target.value;
+    viabUpdateDashboard();
+  });
   document.getElementById('viab-nota-input')?.addEventListener('input', (event) => {
     viabState.nota = event.target.value;
     viabUpdateDashboard();
@@ -587,9 +594,12 @@ function viabBindFilters() {
     viabState.carteira = 'all';
     viabState.pi = 'all';
     viabState.status = 'all';
+    viabState.licenciamento = 'all';
     viabState.nota = '';
     const notaInput = document.getElementById('viab-nota-input');
     if (notaInput) notaInput.value = '';
+    const licenciamentoSelect = document.getElementById('viab-licenciamento-select');
+    if (licenciamentoSelect) licenciamentoSelect.value = 'all';
     viabTableFilters.municipio = 'all';
     viabTableFilters.carteira = 'all';
     viabTableFilters.pi = 'all';
