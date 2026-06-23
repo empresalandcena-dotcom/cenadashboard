@@ -201,17 +201,15 @@ function encRenderResumo(rows) {
     const pct = Math.round((item.count / total) * 1000) / 10;
     const badgeColor = isFaturada(item.situacao) ? 'var(--green)' : 'var(--blue)';
     const badgeBg = isFaturada(item.situacao) ? 'var(--green-bg)' : 'var(--blue-bg)';
-    return `<div style="background:var(--bg);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:11px;color:${badgeColor};background:${badgeBg};padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.situacao}</span>
-        <span style="font-size:11px;color:var(--t2)">${pct}%</span>
+    return `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:6px;height:100%">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:10.5px;color:${badgeColor};background:${badgeBg};padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px" title="${item.situacao}">${item.situacao}</span>
+        <span style="font-size:11px;color:var(--t2);margin-left:auto;flex-shrink:0">${pct}%</span>
       </div>
-      <div style="font-size:22px;font-weight:700;color:var(--t1)">${fmtNumber(item.count)}</div>
-      <div style="font-size:10px;color:var(--t2)">
+      <div style="font-size:24px;font-weight:700;color:var(--t1);line-height:1.1">${fmtNumber(item.count)}</div>
+      <div style="font-size:10px;color:var(--t2);display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;text-align:center">
         <span title="MO total">MO ${fmtCurrencyCompact(item.mo)}</span>
-        <span style="margin:0 6px">·</span>
         <span title="Medido total">Med ${fmtCurrencyCompact(item.medido)}</span>
-        <span style="margin:0 6px">·</span>
         <span title="Faturado total">Fat ${fmtCurrencyCompact(item.faturado)}</span>
       </div>
     </div>`;
