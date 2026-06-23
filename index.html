@@ -791,7 +791,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #fs-content .card { background: transparent; border: none; box-shadow: none; padding: 0; height: 100%; }
 #fs-content .ct { font-size: 20px; }
 #fs-content .csub { font-size: 13px; }
-#fs-content .cw { flex: 1; min-height: 0; }
+#fs-content .cw { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 #fs-content canvas, #fs-content .cw canvas { max-height: none !important; }
 #fs-content .kc-val { font-size: 32px; }
 #fs-content .kc-sub { font-size: 13px; }
@@ -805,7 +805,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #fs-content .kpi-row { gap: 16px; }
 #fs-content .kcard { padding: 16px 20px; }
 .fs-only { display: none; }
-#fs-content .fs-only { display: block; }
+#fs-content .fs-only { display: flex; flex-direction: column; flex: 1; min-height: 300px; }
+#fs-content .fs-only canvas { flex: 1; }
 </style>
 </head>
 <body>
@@ -1647,10 +1648,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     </div>
     <div class="card">
       <div class="ch"><div class="ct">Cascata Status Resumo</div><div class="csub" id="enc-cascata-subtitle">0 registros</div></div>
-      <div class="cw" style="height:200px">
+      <div class="cw" style="height:220px">
         <canvas id="ch12" role="img" aria-label="Cascata de status de encerramento"></canvas>
       </div>
-      <div class="cw fs-only" style="height:220px;margin-top:14px">
+      <div class="cw fs-only" style="margin-top:14px">
         <canvas id="ch13" role="img" aria-label="Colunas de status de encerramento por quantidade"></canvas>
       </div>
     </div>

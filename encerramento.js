@@ -279,7 +279,7 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, datasetIndexes: [0, 1, 2], formatter: (value) => fmtCurrencyCompact(value) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 12, datasetIndexes: [0, 1, 2], formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 35, font: { family: 'Poppins', size: 11 } } },
@@ -387,13 +387,14 @@ function encRenderCascataStatus(C) {
         data,
         backgroundColor: (ctx) => isTotal(ctx) ? C.green : C.blue + 'cc',
         borderRadius: 3,
+        minBarLength: 2,
       }],
     },
     options: {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 12, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 10 } } },
@@ -414,10 +415,10 @@ function encRenderCascataStatus(C) {
     },
     options: {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      layout: { padding: { top: 24, bottom: 8 } },
+      layout: { padding: { top: 28, bottom: 12 } },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 10, datasetIndexes: [0, 1, 2], rotate: -90, formatter: (value) => fmtCurrencyCompact(value) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 13, datasetIndexes: [0, 1, 2], rotate: -90, formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 11 } } },
