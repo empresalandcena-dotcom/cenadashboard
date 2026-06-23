@@ -805,7 +805,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #fs-content .kpi-row { gap: 16px; }
 #fs-content .kcard { padding: 16px 20px; }
 #fs-content .cw { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-#fs-content .cw canvas { max-height: 100% !important; }
+#fs-content .cw canvas { width: 100% !important; height: 100% !important; }
 .fs-only { display: none; }
 #fs-content .fs-only { display: flex; flex-direction: column; flex: 1; min-height: 280px; max-height: 55vh; }
 #fs-content .fs-only canvas { flex: 1; min-height: 0; }
@@ -2857,18 +2857,13 @@ function expandCard(card) {
   backdrop.classList.add('on');
   document.body.style.overflow = 'hidden';
 
+  // Resize charts after layout settles
   setTimeout(() => {
     card.querySelectorAll('canvas').forEach((c) => {
       const ch = Chart.getChart(c);
       if (ch) ch.resize();
     });
-  }, 200);
-  setTimeout(() => {
-    card.querySelectorAll('canvas').forEach((c) => {
-      const ch = Chart.getChart(c);
-      if (ch) ch.resize();
-    });
-  }, 500);
+  }, 300);
 }
 
 function collapseCard() {
@@ -2877,25 +2872,25 @@ function collapseCard() {
   document.body.style.overflow = '';
 
   if (fsCard && fsCardParent) {
+    // destroy charts before moving back to avoid size bugs
+    fsCard.querySelectorAll('canvas').forEach((c) => {
+      const ch = Chart.getChart(c);
+      if (ch) ch.destroy();
+    });
+
     if (fsCardNext) {
       fsCardParent.insertBefore(fsCard, fsCardNext);
     } else {
       fsCardParent.appendChild(fsCard);
     }
   }
+  fsCard = null;
+  fsCardParent = null;
+  fsCardNext = null;
 
   setTimeout(() => {
-    if (fsCard) {
-      fsCard.querySelectorAll('canvas').forEach((c) => {
-        const ch = Chart.getChart(c);
-        if (ch) ch.resize();
-      });
-    }
-    fsCard = null;
-    fsCardParent = null;
-    fsCardNext = null;
-    window.dispatchEvent(new Event('resize'));
-  }, 150);
+    if (typeof rebuildCharts === 'function') rebuildCharts();
+  }, 200);
 }
 
 document.getElementById('fs-close').addEventListener('click', collapseCard);
