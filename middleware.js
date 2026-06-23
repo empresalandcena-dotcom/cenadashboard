@@ -1,5 +1,5 @@
 export const config = {
-  matcher: '/((?!login\\.html|api/login|favicon.ico).*)',
+  matcher: '/((?!login\\.html|api/login|_next|favicon\\.ico|\\.(?:png|jpe?g|gif|svg|ico|js|css|woff2?|docx|xlsx|pdf)).*)',
 };
 
 function parseCookie(header, name) {

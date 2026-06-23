@@ -2031,8 +2031,10 @@ const THEME_PRESETS = ['dark', 'dark-ocean', 'dark-forest', 'dark-sunset', 'ligh
 function applyTheme(name) {
   document.documentElement.dataset.theme = name;
   const icon = document.getElementById('theme-icon');
-  const isDark = name.startsWith('dark');
-  icon.className = isDark ? 'ti ti-sun' : 'ti ti-moon';
+  if (icon) {
+    const isDark = name.startsWith('dark');
+    icon.className = isDark ? 'ti ti-sun' : 'ti ti-moon';
+  }
   localStorage.setItem('cena-theme', name);
   updateLogo(name);
   updateThemeModalActive();
