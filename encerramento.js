@@ -269,7 +269,10 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
     },
     options: {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 9, datasetIndexes: [0, 1, 2], formatter: (value) => fmtCurrencyCompact(value) },
+      },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 30 } },
         y: { ...axCfg(C), ticks: { ...axCfg(C).ticks, callback: (v) => v >= 1e6 ? 'R$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? 'R$' + (v / 1e3).toFixed(0) + 'k' : v } },
