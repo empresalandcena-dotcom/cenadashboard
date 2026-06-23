@@ -21,8 +21,9 @@ let pepsFunnelMode = 'fluxo';
 
 const PEPS_FLOW_ORDER = [
   'ABER // ABER', 'ABER // LOG',
-  'LIB // LOG', 'LIB // ATEC', 'LIB // ENER', 'LIB // CONC', 'LIB // PEND', 'LIB // MED', 'LIB // DEV', 'LIB // ENTE', 'LIB // CKCP',
-  'ENCE // ENCE', 'ENTE // ANCE',
+  'LIB // LOG', 'LIB // ATEC', 'LIB // ENER', 'LIB // CONC', 'LIB // PEND', 'LIB // COMS', 'LIB // DFEC', 'LIB // MED', 'LIB // DEV', 'LIB // ENTE', 'LIB // CKCP',
+  'ENTE // CKCP', 'ENTE // ANCE',
+  'ENCE // ENCE',
   'Sem PEP',
 ];
 
