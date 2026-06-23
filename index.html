@@ -114,6 +114,30 @@
   --red-bg:    #c0403812; --purple-bg: #9060a012;
 }
 
+/* ═══ PALETTE: Cinza Escuro + Branco ═══ */
+[data-theme="gray-white"] {
+  --bg:      #1a1d26;   --sb:      #161920;   --card:    #ffffff;
+  --border:  #d8e0ea;   --track:   #f0f3f8;
+  --t1:      #1d2733;   --t2:      #657487;   --t3:      #9aa7b6;
+  --shadow:  0 1px 6px rgba(0,0,0,.08);
+  --green:   #1ea896;   --blue:    #4f7cff;   --yellow:  #d7a13d;
+  --red:     #df6a4f;   --purple:  #7c6cf2;   --cyan:    #2c8fb8;
+  --green-bg:  #1ea8961a; --blue-bg:   #4f7cff1a; --yellow-bg: #d7a13d1a;
+  --red-bg:    #df6a4f1a; --purple-bg: #7c6cf21a;
+}
+
+/* ═══ PALETTE: Cinza Claro + Escuro ═══ */
+[data-theme="light-gray"] {
+  --bg:      #e8ecf2;   --sb:      #dce1e8;   --card:    #1d232b;
+  --border:  #2a3340;   --track:   #252d38;
+  --t1:      #d8dee6;   --t2:      #93a0ad;   --t3:      #5d6976;
+  --shadow:  0 1px 4px rgba(0,0,0,.35);
+  --green:   #0f766e;   --blue:    #315fca;   --yellow:  #b67f18;
+  --red:     #c45843;   --purple:  #6357c8;   --cyan:    #1f7aa5;
+  --green-bg:  #0f766e12; --blue-bg:   #315fca12; --yellow-bg: #b67f1812;
+  --red-bg:    #c4584312; --purple-bg: #6357c812;
+}
+
 /* ═══ RESET ═══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
@@ -825,6 +849,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   cursor: pointer; transition: background .12s;
 }
 .tb-dropdown .dd-item:hover { background: var(--track); color: var(--t1); }
+.tb-dropdown .dd-item.has-select:hover { background: transparent; color: var(--t2); }
+.tb-dropdown .dd-item select { cursor: pointer; }
 .tb-dropdown .dd-item .dd-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .tb-dropdown .dd-item .dd-val { margin-left: auto; font-weight: 600; color: var(--t1); font-size: 12px; }
 .tb-dropdown .dd-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
@@ -853,6 +879,20 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .tb-dropdown .palette-swatch.light-ocean { background: #c8e8f0; color: #178076; }
 .tb-dropdown .palette-swatch.light-forest { background: #c8e8d0; color: #2e7d32; }
 .tb-dropdown .palette-swatch.light-sunset { background: #f0e0c8; color: #c07030; }
+.tb-dropdown .palette-swatch.gray-white { background: #1a1d26; border: 1px solid #555; }
+.tb-dropdown .palette-swatch.light-gray { background: #e8ecf2; color: #1d232b; border: 1px solid #ccc; }
+
+/* density compact */
+[data-density="compact"] .card { padding: 12px; }
+[data-density="compact"] .ct { font-size: 11.5px; }
+[data-density="compact"] .csub { font-size: 9.5px; }
+[data-density="compact"] .kc-val { font-size: 20px; }
+[data-density="compact"] .kc-sub { font-size: 10px; }
+[data-density="compact"] .kc-label { font-size: 10px; }
+[data-density="compact"] .ch { margin-bottom: 10px; }
+[data-density="compact"] .kpi-row { gap: 12px; }
+[data-density="compact"] .kcard { padding: 14px 16px; }
+[data-density="compact"] .g2, [data-density="compact"] .g3 { gap: 10px; }
 
 #notif-dropdown .dd-updated { font-size: 10px; color: var(--t3); margin-bottom: 4px; }
 #notif-dropdown .dd-updated.stale { color: var(--red); }
@@ -1018,6 +1058,38 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <div class="dd-divider"></div>
           <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Paleta de cores</div>
           <div class="palette-grid" id="palette-grid"></div>
+          <div class="dd-divider"></div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:8px">Preferências</div>
+          <div class="dd-item has-select" id="pref-density">
+            <span>Densidade</span>
+            <select style="margin-left:auto;background:var(--track);color:var(--t1);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px">
+              <option value="comfortable">Confortável</option>
+              <option value="compact">Compacto</option>
+            </select>
+          </div>
+          <div class="dd-item has-select" id="pref-period">
+            <span>Período padrão</span>
+            <select style="margin-left:auto;background:var(--track);color:var(--t1);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px">
+              <option value="month">Mês</option>
+              <option value="week">Semana</option>
+              <option value="day">Dia</option>
+            </select>
+          </div>
+          <div class="dd-item has-select" id="pref-anim">
+            <span>Animações</span>
+            <select style="margin-left:auto;background:var(--track);color:var(--t1);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px">
+              <option value="on">Ligadas</option>
+              <option value="off">Desligadas</option>
+            </select>
+          </div>
+          <div class="dd-item has-select" id="pref-refresh">
+            <span>Auto-refresh</span>
+            <select style="margin-left:auto;background:var(--track);color:var(--t1);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px">
+              <option value="off">Desligado</option>
+              <option value="5">A cada 5 min</option>
+              <option value="15">A cada 15 min</option>
+            </select>
+          </div>
           <div class="dd-divider"></div>
           <a class="dd-btn" href="/docs/changelog.md" target="_blank" style="text-decoration:none">
             <i class="ti ti-file-text"></i> Documentação
@@ -1909,7 +1981,7 @@ function go(id, el) {
 }
 
 /* ═══ THEME TOGGLE ═══ */
-const THEME_PRESETS = ['dark', 'dark-ocean', 'dark-forest', 'dark-sunset', 'light', 'light-ocean', 'light-forest', 'light-sunset'];
+const THEME_PRESETS = ['dark', 'dark-ocean', 'dark-forest', 'dark-sunset', 'light', 'light-ocean', 'light-forest', 'light-sunset', 'gray-white', 'light-gray'];
 
 function applyTheme(name) {
   document.documentElement.dataset.theme = name;
@@ -2974,6 +3046,13 @@ function mkChart(id, cfg) {
   if (charts[id]) { charts[id].destroy(); }
   const el = document.getElementById(id);
   if (!el) return;
+  // respect animation preference
+  if (localStorage.getItem('cena-anim') === 'off') {
+    cfg = JSON.parse(JSON.stringify(cfg));
+    cfg.options = cfg.options || {};
+    cfg.options.animation = cfg.options.animation || {};
+    if (typeof cfg.options.animation === 'object') cfg.options.animation.duration = 0;
+  }
   charts[id] = new Chart(el, cfg);
 }
 
@@ -3079,7 +3158,8 @@ function setupDropdowns() {
   const grid = document.getElementById('palette-grid');
   if (grid) {
     const labels = { 'dark':'Escuro','dark-ocean':'Ocean','dark-forest':'Floresta','dark-sunset':'Pôr do Sol',
-                     'light':'Claro','light-ocean':'Ocean','light-forest':'Floresta','light-sunset':'Pôr do Sol' };
+                     'light':'Claro','light-ocean':'Ocean','light-forest':'Floresta','light-sunset':'Pôr do Sol',
+                     'gray-white':'Cinza+Bco','light-gray':'Claro+Esc' };
     THEME_PRESETS.forEach(name => {
       const sw = document.createElement('div');
       sw.className = `palette-swatch ${name}`;
@@ -3146,8 +3226,87 @@ function updateNotifications() {
   if (badge) badge.style.display = hasStale ? 'flex' : 'none';
 }
 
+function setupPreferences() {
+  const prefs = {
+    density: localStorage.getItem('cena-density') || 'comfortable',
+    period: localStorage.getItem('cena-period') || 'month',
+    anim: localStorage.getItem('cena-anim') || 'on',
+    refresh: localStorage.getItem('cena-refresh') || 'off',
+    tab: localStorage.getItem('cena-tab') || '',
+  };
+
+  function applyDensity(val) {
+    if (val === 'compact') document.documentElement.dataset.density = 'compact';
+    else delete document.documentElement.dataset.density;
+    localStorage.setItem('cena-density', val);
+  }
+
+  function applyAnim(val) {
+    localStorage.setItem('cena-anim', val);
+    if (typeof rebuildCharts === 'function') rebuildCharts();
+  }
+
+  function applyPeriod(val) {
+    localStorage.setItem('cena-period', val);
+  }
+
+  let refreshTimer = null;
+  function applyRefresh(val) {
+    localStorage.setItem('cena-refresh', val);
+    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+    const min = parseInt(val);
+    if (min > 0) {
+      refreshTimer = setInterval(async () => {
+        try {
+          await fetch('/api/controle-geral?refresh=1');
+          if (window.initViabilidade) window.initViabilidade();
+          if (window.initPeps) window.initPeps();
+          if (window.initEncerramento) window.initEncerramento();
+          if (window.initProgramacao) window.initProgramacao();
+          if (window.initMapa) window.initMapa();
+        } catch (e) {}
+      }, min * 60 * 1000);
+    }
+  }
+
+  // apply stored prefs on load
+  applyDensity(prefs.density);
+  applyAnim(prefs.anim);
+  applyRefresh(prefs.refresh);
+
+  // wire selects
+  const densitySel = document.querySelector('#pref-density select');
+  if (densitySel) {
+    densitySel.value = prefs.density;
+    densitySel.addEventListener('change', () => applyDensity(densitySel.value));
+  }
+
+  const animSel = document.querySelector('#pref-anim select');
+  if (animSel) {
+    animSel.value = prefs.anim;
+    animSel.addEventListener('change', () => applyAnim(animSel.value));
+  }
+
+  const periodSel = document.querySelector('#pref-period select');
+  if (periodSel) {
+    periodSel.value = prefs.period;
+    periodSel.addEventListener('change', () => applyPeriod(periodSel.value));
+  }
+
+  const refreshSel = document.querySelector('#pref-refresh select');
+  if (refreshSel) {
+    refreshSel.value = prefs.refresh;
+    refreshSel.addEventListener('change', () => applyRefresh(refreshSel.value));
+  }
+
+  // expose for external modules
+  window.getPref = (key) => localStorage.getItem(`cena-${key}`) || '';
+  window.prefs = prefs;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   setupDropdowns();
+  setupPreferences();
   /* injeta botao expandir em todos os cards com header */
   document.querySelectorAll('.card > .ch').forEach((header) => {
     const card = header.closest('.card');
