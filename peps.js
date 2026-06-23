@@ -15,6 +15,7 @@ const pepsState = {
   pi: 'all',
   status: 'all',
   licenciamento: 'all',
+  encerSituacao: 'all',
   nota: '',
 };
 let pepsFunnelMode = 'fluxo';
@@ -49,6 +50,7 @@ function extractPepsRows(rows) {
       municipio: row['MUNICIPIO'] || 'Sem município',
       pi: row['PI'] || 'Sem PI',
       licenciamento: row['LICENCIAMENTO'] || 'Sem informação',
+      encerSituacao: row['ENCER_SITUAÇÃO'] && row['ENCER_SITUAÇÃO'] !== '-' ? row['ENCER_SITUAÇÃO'] : 'Sem situação',
       valorMaoObra: typeof row['VALOR MÃO DE OBRA'] === 'number' ? row['VALOR MÃO DE OBRA'] : 0,
       dataEnvio: row['DATA_DE_ENVIO'] ? new Date(`${row['DATA_DE_ENVIO']}T00:00:00`) : null,
       temPep: Boolean(row['STATUS RESUMO'] && row['STATUS RESUMO'] !== '-'),
@@ -111,6 +113,7 @@ function pepsGetNonPeriodFilteredRows() {
     if (pepsState.pi !== 'all' && row.pi !== pepsState.pi) return false;
     if (pepsState.status !== 'all' && row.statusResumo !== pepsState.status) return false;
     if (pepsState.licenciamento !== 'all' && row.licenciamento !== pepsState.licenciamento) return false;
+    if (pepsState.encerSituacao !== 'all' && row.encerSituacao !== pepsState.encerSituacao) return false;
     if (pepsState.nota) {
       const query = pepsState.nota.trim().toLowerCase();
       if (query && !`${row.nota} ${row.pep}`.toLowerCase().includes(query)) return false;
@@ -138,6 +141,9 @@ function pepsUpdateFilterControls() {
 
   const statusOptions = pepsUniqueValues(pepsRows, 'statusResumo').map((value) => ({ value, label: value }));
   buildSelectOptions('peps-status-select', statusOptions, pepsState.status, 'Todos os status');
+
+  const encerSituacaoOptions = pepsUniqueValues(pepsRows, 'encerSituacao').map((value) => ({ value, label: value }));
+  buildSelectOptions('peps-encer-situacao-select', encerSituacaoOptions, pepsState.encerSituacao, 'Todas');
 
   document.querySelectorAll('#peps-mode-seg .seg-btn').forEach((btn) => btn.classList.toggle('on', btn.dataset.mode === pepsState.mode));
 
@@ -440,6 +446,18 @@ function pepsGenerateInsights(rows) {
     }
   }
 
+  const encerComSituacao = rows.filter((row) => row.encerSituacao !== 'Sem situação');
+  const pendenciaTotal = encerComSituacao.filter((row) => row.encerSituacao.toUpperCase().includes('PENDENC')).length;
+  if (pendenciaTotal > 0) {
+    const pendenciaRate = pendenciaTotal / total;
+    insights.push({ severity: pendenciaRate >= 0.1 ? 'high' : 'medium', icon: 'ti-alert-triangle', title: `${fmtNumber(pendenciaTotal)} notas com pendência no encerramento`, desc: 'Situação de encerramento indica pendência (ex: concessionária) antes da quitação final.' });
+  }
+  if (encerComSituacao.length > 0) {
+    const faturadas = encerComSituacao.filter((row) => row.encerSituacao.toUpperCase().includes('FATURADA')).length;
+    const faturadaRate = faturadas / encerComSituacao.length;
+    insights.push({ severity: faturadaRate >= 0.5 ? 'good' : 'medium', icon: 'ti-receipt', title: `${fmtNumber(faturadas)} de ${fmtNumber(encerComSituacao.length)} notas com situação de encerramento já faturadas`, desc: `${(faturadaRate * 100).toFixed(1)}% das notas com encerramento registrado estão faturadas.` });
+  }
+
   if (!insights.some((item) => item.severity === 'high')) {
     insights.push({ severity: 'good', icon: 'ti-circle-check', title: 'Nenhum ponto crítico identificado', desc: 'Os indicadores estão dentro da faixa esperada para os filtros atuais.' });
   }
@@ -588,6 +606,10 @@ function pepsBindFilters() {
     pepsState.licenciamento = event.target.value;
     pepsUpdateDashboard();
   });
+  document.getElementById('peps-encer-situacao-select')?.addEventListener('change', (event) => {
+    pepsState.encerSituacao = event.target.value;
+    pepsUpdateDashboard();
+  });
   document.getElementById('peps-nota-input')?.addEventListener('input', (event) => {
     pepsState.nota = event.target.value;
     pepsUpdateDashboard();
@@ -606,6 +628,7 @@ function pepsBindFilters() {
     pepsState.pi = 'all';
     pepsState.status = 'all';
     pepsState.licenciamento = 'all';
+    pepsState.encerSituacao = 'all';
     pepsState.nota = '';
     const notaInput = document.getElementById('peps-nota-input');
     if (notaInput) notaInput.value = '';
