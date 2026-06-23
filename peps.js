@@ -201,10 +201,10 @@ window.renderPepsCharts = function renderPepsCharts(C) {
     },
     options: {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      layout: { padding: { top: 16 } },
+      layout: { padding: { top: 22 } },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 9, formatter: (value) => fmtNumber(value) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 13, formatter: (value) => fmtNumber(value) },
       },
       scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), beginAtZero: true } },
     },
@@ -219,10 +219,10 @@ window.renderPepsCharts = function renderPepsCharts(C) {
     },
     options: {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      layout: { padding: { top: 16 } },
+      layout: { padding: { top: 22 } },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 9, formatter: (value) => fmtNumber(Math.abs(value)) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 13, formatter: (value) => fmtNumber(Math.abs(value)) },
       },
       scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), display: false } },
     },
