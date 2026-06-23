@@ -369,7 +369,7 @@ function encRenderCascataStatus(C) {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, rotate: -90, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 9 } } },
