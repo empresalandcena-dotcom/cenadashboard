@@ -202,8 +202,13 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
   });
 
   const respMap = new Map();
-  rows.forEach((row) => { respMap.set(row.responsavel, (respMap.get(row.responsavel) || 0) + 1); });
-  const respEntries = Array.from(respMap.entries()).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+  rows.forEach((row) => {
+    if (!respMap.has(row.responsavel)) respMap.set(row.responsavel, { count: 0, valorFaturado: 0 });
+    const item = respMap.get(row.responsavel);
+    item.count += 1;
+    item.valorFaturado += row.valorFaturado;
+  });
+  const respEntries = Array.from(respMap.entries()).map(([label, item]) => ({ label, value: item.count, valorFaturado: item.valorFaturado })).sort((a, b) => b.value - a.value);
   const respMax = respEntries[0]?.value || 1;
   const respColors = [C.green, C.blue, C.yellow, C.purple, C.gray, C.cyan];
   const respContainer = document.getElementById('enc-resp-hbars');
@@ -211,7 +216,8 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
     respContainer.innerHTML = respEntries.length
       ? respEntries.map((item, index) => {
           const pct = Math.max(2, Math.round((item.value / respMax) * 100));
-          return `<div class="hrow"><div class="hlbl" style="width:92px;text-align:right">${titleCase(item.label)}</div><div class="htrack"><div class="hfill" style="width:${pct}%;background:${respColors[index % respColors.length]}"></div></div><div class="hnum">${fmtNumber(item.value)}</div></div>`;
+          const fullLabel = titleCase(item.label);
+          return `<div class="hrow"><div class="hlbl" style="width:120px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${fullLabel}">${fullLabel}</div><div class="htrack"><div class="hfill" style="width:${pct}%;background:${respColors[index % respColors.length]}"></div></div><div class="hnum">${fmtNumber(item.value)}</div><div style="width:62px;text-align:right;font-size:10.5px;color:var(--t2);flex-shrink:0">${fmtCurrencyCompact(item.valorFaturado)}</div></div>`;
         }).join('')
       : '<div style="color:var(--t2);font-size:11px">Sem dados para os filtros atuais.</div>';
   }
@@ -356,6 +362,27 @@ function encGenerateInsights(rows) {
   if (valorMedido > 0) {
     const faturamentoRate = valorFaturado / valorMedido;
     insights.push({ severity: faturamentoRate >= 0.7 ? 'good' : faturamentoRate >= 0.4 ? 'medium' : 'high', icon: 'ti-currency-dollar', title: `${(faturamentoRate * 100).toFixed(1)}% do valor medido já foi faturado`, desc: `${fmtCurrencyCompact(valorFaturado)} faturados de ${fmtCurrencyCompact(valorMedido)} medidos.` });
+  }
+
+  const pendentesFaturamento = rows.filter((row) => row.situacao.toUpperCase() !== 'OBRA FATURADA');
+  const carteiraPendenteMap = new Map();
+  pendentesFaturamento.forEach((row) => { carteiraPendenteMap.set(row.carteira, (carteiraPendenteMap.get(row.carteira) || 0) + 1); });
+  const topCarteiraPendente = Array.from(carteiraPendenteMap.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (topCarteiraPendente && topCarteiraPendente[1] >= 3) {
+    insights.push({ severity: 'medium', icon: 'ti-folder-exclamation', title: `${titleCase(topCarteiraPendente[0])} concentra ${fmtNumber(topCarteiraPendente[1])} notas ainda não faturadas`, desc: `De ${fmtNumber(pendentesFaturamento.length)} notas pendentes de faturamento no recorte atual.` });
+  }
+
+  const faturadas = rows.filter((row) => row.situacao.toUpperCase() === 'OBRA FATURADA' && row.valorFaturado > 0);
+  if (faturadas.length > 0) {
+    const ticketMedio = faturadas.reduce((sum, row) => sum + row.valorFaturado, 0) / faturadas.length;
+    insights.push({ severity: 'good', icon: 'ti-receipt-2', title: `Ticket médio de ${fmtCurrencyCompact(ticketMedio)} por nota faturada`, desc: `Calculado sobre ${fmtNumber(faturadas.length)} notas com "Obra Faturada" no recorte atual.` });
+  }
+
+  const respValorMap = new Map();
+  rows.forEach((row) => { respValorMap.set(row.responsavel, (respValorMap.get(row.responsavel) || 0) + row.valorFaturado); });
+  const topRespValor = Array.from(respValorMap.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (topRespValor && topRespValor[1] > 0 && valorFaturado > 0 && topRespValor[1] / valorFaturado >= 0.3) {
+    insights.push({ severity: 'medium', icon: 'ti-coin', title: `${titleCase(topRespValor[0])} responde por ${fmtCurrencyCompact(topRespValor[1])} do valor faturado`, desc: `${((topRespValor[1] / valorFaturado) * 100).toFixed(1)}% do total faturado no recorte atual.` });
   }
 
   const dated = rows.filter(encHasValidDate);
