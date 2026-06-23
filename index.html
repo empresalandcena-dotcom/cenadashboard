@@ -2675,8 +2675,11 @@ const valueLabelPlugin = {
     if (!pluginOptions?.enabled) return;
     const indexes = pluginOptions.datasetIndexes || [pluginOptions.datasetIndex ?? 0];
     const { ctx, chartArea } = chart;
+    const isFS = chart.canvas && chart.canvas.closest('#fs-content');
+    const fsScale = isFS ? 1.5 : 1;
+    const fontSize = Math.round((pluginOptions.fontSize || 10) * fsScale);
     ctx.save();
-    ctx.font = `600 ${pluginOptions.fontSize || 10}px Poppins, sans-serif`;
+    ctx.font = `600 ${fontSize}px Poppins, sans-serif`;
     ctx.fillStyle = pluginOptions.color || '#d8dee6';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
@@ -2690,7 +2693,7 @@ const valueLabelPlugin = {
         const rawValue = dataset.data[index];
         if (!rawValue) return;
         const props = element.getProps(['x', 'y'], true);
-        const yOff = pluginOptions.rotate ? (pluginOptions.rotateYOffset || 14) : 6;
+        const yOff = (pluginOptions.rotate ? (pluginOptions.rotateYOffset || 14) : 6) * fsScale;
         const y = Math.max(props.y - yOff, chartArea.top + 10);
         const text = typeof pluginOptions.formatter === 'function'
           ? pluginOptions.formatter(rawValue, index, chart, datasetIndex)
