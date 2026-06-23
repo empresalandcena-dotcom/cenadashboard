@@ -27,7 +27,10 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const maxAge = 60 * 60 * 24 * 7;
+  // expira no fim do dia (forca login diario)
+  const now = new Date();
+  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  const maxAge = Math.max(0, Math.floor((endOfDay.getTime() - now.getTime()) / 1000));
   res.setHeader('Set-Cookie', `cena_session=${sessionToken}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`);
   res.status(200).json({ ok: true });
 };

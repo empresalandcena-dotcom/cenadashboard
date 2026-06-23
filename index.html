@@ -245,6 +245,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .tb-uname { font-size: 12.5px; font-weight: 500; color: var(--t1); white-space: nowrap; }
 .tb-urole { font-size: 10px; color: var(--t2); white-space: nowrap; }
 .tb-chevron { font-size: 13px; color: var(--t2); margin-left: 2px; }
+.tb-logout {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 8px; background: transparent;
+  color: var(--t3); font-size: 17px; cursor: pointer; transition: all .15s;
+  margin-left: 2px;
+}
+.tb-logout:hover { background: var(--red); color: #fff; }
 
 /* ═══════════════════════════════════════════════════════
    MAIN / CONTENT
@@ -910,8 +917,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <div class="tb-uname">Gestor de Dados</div>
           <div class="tb-urole">CENA Engenharia</div>
         </div>
-        <i class="ti ti-chevron-down tb-chevron" aria-hidden="true"></i>
       </div>
+
+      <button class="tb-logout" id="btn-logout" title="Sair">
+        <i class="ti ti-logout" aria-hidden="true"></i>
+      </button>
     </div>
   </header>
 
@@ -2936,6 +2946,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     setHTML('prod-live-pill', '<div class="live-dot"></div>Usando ultima composicao visual');
   }
+});
+
+document.getElementById('btn-logout').addEventListener('click', () => {
+  document.cookie = 'cena_session=; Path=/; Max-Age=0; Secure; SameSite=Lax';
+  window.location.href = '/login.html';
 });
 </script>
 <script src="cg-data.js"></script>
