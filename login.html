@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CENA Engenharia — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg:      #171b20;
+  --sb:      #1d232b;
+  --card:    #222a33;
+  --border:  #303a45;
+  --t1:      #d8dee6;
+  --t2:      #93a0ad;
+  --t3:      #5d6976;
+  --green:   #1ea896;
+  --red:     #df6a4f;
+  --green-bg:#1ea8961a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Poppins', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--t1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 36px 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+.login-logo {
+  margin-bottom: 32px;
+}
+.brand-cena {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #b7c389;
+  line-height: 1;
+}
+.brand-sub {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 7px;
+  color: #b7c389;
+  margin-top: 8px;
+}
+.login-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.login-subtitle { font-size: 12px; color: var(--t2); margin-bottom: 24px; }
+.login-field { margin-bottom: 16px; }
+.login-field label {
+  display: block; font-size: 10.5px; color: var(--t2);
+  text-transform: uppercase; letter-spacing: .6px; margin-bottom: 7px;
+}
+.login-field input {
+  width: 100%; height: 42px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--t1); padding: 0 14px; outline: none;
+  font-family: 'Poppins', sans-serif; font-size: 13px;
+}
+.login-field input:focus { border-color: var(--green); }
+.login-btn {
+  width: 100%; height: 44px; border-radius: 8px; border: none;
+  background: var(--green); color: #fff; font-family: 'Poppins', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 6px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity .15s;
+}
+.login-btn:hover { opacity: .9; }
+.login-btn:disabled { opacity: .6; cursor: default; }
+.login-error {
+  display: none; align-items: center; gap: 6px;
+  background: #df6a4f1a; color: var(--red); border: 1px solid #df6a4f33;
+  border-radius: 8px; padding: 10px 12px; font-size: 12px; margin-bottom: 16px;
+}
+.login-error.on { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-logo">
+    <div class="brand-cena">CENA</div>
+    <div class="brand-sub">ENGENHARIA</div>
+  </div>
+  <div class="login-title">Painel Operacional</div>
+  <div class="login-subtitle">Entre com as credenciais da equipe para continuar.</div>
+
+  <div class="login-error" id="login-error">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span id="login-error-text">Usuário ou senha incorretos.</span>
+  </div>
+
+  <form id="login-form">
+    <div class="login-field">
+      <label for="login-user">Usuário</label>
+      <input id="login-user" type="text" autocomplete="username" required>
+    </div>
+    <div class="login-field">
+      <label for="login-pass">Senha</label>
+      <input id="login-pass" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="login-btn" type="submit" id="login-btn">
+      <i class="ti ti-login-2" aria-hidden="true"></i>Entrar
+    </button>
+  </form>
+</div>
+
+<script>
+const form = document.getElementById('login-form');
+const btn = document.getElementById('login-btn');
+const errorBox = document.getElementById('login-error');
+const errorText = document.getElementById('login-error-text');
+
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  errorBox.classList.remove('on');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" aria-hidden="true"></i>Entrando...';
+
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user, pass }),
+    });
+    if (response.ok) {
+      const params = new URLSearchParams(window.location.search);
+      window.location.href = params.get('redirect') || '/';
+      return;
+    }
+    errorText.textContent = 'Usuário ou senha incorretos.';
+    errorBox.classList.add('on');
+  } catch (error) {
+    errorText.textContent = 'Falha ao conectar. Tente novamente.';
+    errorBox.classList.add('on');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-login-2" aria-hidden="true"></i>Entrar';
+});
+</script>
+</body>
+</html>
