@@ -272,7 +272,7 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 9, datasetIndexes: [0, 1, 2], formatter: (value) => fmtCurrencyCompact(value) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, datasetIndexes: [0, 1, 2], formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 30 } },
@@ -367,10 +367,10 @@ function encRenderCascataStatus(C) {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 9, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
       },
       scales: {
-        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 8 } } },
+        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 9 } } },
         y: { ...axCfg(C), beginAtZero: true, ticks: { ...axCfg(C).ticks, callback: (v) => v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v } },
       },
     },
