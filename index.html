@@ -1114,28 +1114,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Aptos c/ PEP</div><div class="kc-val" id="peps-kpi-com" style="color:var(--green)">0</div><div class="kc-sub up" id="peps-kpi-com-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>0% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-file-certificate" aria-hidden="true"></i></div></div>
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Média Semanal</div><div class="kc-val" id="peps-kpi-media" style="color:var(--green)">0</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>PEPs/semana</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-chart-line" aria-hidden="true"></i></div></div>
   </div>
-  <div class="card" style="margin-bottom:14px">
-    <div class="ch" style="align-items:flex-start">
-      <div>
-        <div class="ct">Distribuição por Status SAP</div>
-        <div class="csub" id="peps-funnel-subtitle">0 PEPs ativos</div>
-      </div>
-      <div class="seg" id="peps-funnel-mode-seg">
-        <button class="seg-btn on" type="button" data-funnel-mode="fluxo">Fluxo SAP</button>
-        <button class="seg-btn" type="button" data-funnel-mode="mdo">Maior MDO</button>
-        <button class="seg-btn" type="button" data-funnel-mode="aptas">Somente Aptas</button>
-      </div>
-    </div>
-    <div class="leg" id="peps-funnel-badges" style="margin-bottom:10px"></div>
-    <div class="frows-head" style="display:flex;justify-content:flex-end;gap:0;font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
-      <div style="width:72px;text-align:right">MDO</div>
-      <div style="width:42px;text-align:right;margin-left:8px">%</div>
-    </div>
-    <div class="frows" id="peps-funnel-rows"></div>
-    <div class="divider"></div>
-    <div class="csub" id="peps-funnel-total" style="font-weight:600;color:var(--t1)"></div>
-  </div>
   <div class="g2">
+    <div class="card">
+      <div class="ch" style="align-items:flex-start">
+        <div>
+          <div class="ct">Distribuição por Status SAP</div>
+          <div class="csub" id="peps-funnel-subtitle">0 PEPs ativos</div>
+        </div>
+        <div class="seg" id="peps-funnel-mode-seg">
+          <button class="seg-btn on" type="button" data-funnel-mode="fluxo">Fluxo SAP</button>
+          <button class="seg-btn" type="button" data-funnel-mode="mdo">Maior MDO</button>
+          <button class="seg-btn" type="button" data-funnel-mode="aptas">Somente Aptas</button>
+        </div>
+      </div>
+      <div class="leg" id="peps-funnel-badges" style="margin-bottom:10px"></div>
+      <div class="frows-head" style="display:flex;justify-content:flex-end;gap:0;font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
+        <div style="width:72px;text-align:right">MDO</div>
+        <div style="width:42px;text-align:right;margin-left:8px">%</div>
+      </div>
+      <div class="frows" id="peps-funnel-rows"></div>
+      <div class="divider"></div>
+      <div class="csub" id="peps-funnel-total" style="font-weight:600;color:var(--t1)"></div>
+    </div>
     <div class="card">
       <div class="ch"><div class="ct">PEPs por Período</div><div class="csub" id="peps-trend-subtitle">Sem dados</div></div>
       <div class="cw" style="height:200px">
