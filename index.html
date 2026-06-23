@@ -193,12 +193,20 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   flex-shrink: 0;
 }
 .sb-logo-icon {
-  width: 32px; height: 32px;
-  background: var(--green);
+  width: 36px; height: 36px;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 700; color: #fff;
-  flex-shrink: 0;
+  flex-shrink: 0; overflow: hidden;
+}
+.sb-logo-icon img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.sb-logo-icon .sb-logo-fallback {
+  width: 100%; height: 100%;
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
 }
 .sb-logo-name { font-size: 17px; font-weight: 700; color: var(--t1-bg); letter-spacing: .3px; line-height: 1.1; }
 .sb-logo-sub  { font-size: 9px; color: var(--t2-bg); text-transform: uppercase; letter-spacing: 1.5px; }
@@ -1006,7 +1014,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ═══════════════════════════════════════════════════════ -->
 <aside class="sb">
   <div class="sb-logo">
-    <div class="sb-logo-icon">C</div>
+    <div class="sb-logo-icon">
+      <img id="logo-img" src="/logo.png" alt="CENA" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex'">
+      <span class="sb-logo-fallback" id="logo-fallback" style="display:none">C</span>
+    </div>
     <div>
       <div class="sb-logo-name">CENA</div>
       <div class="sb-logo-sub">Engenharia</div>
@@ -2023,8 +2034,19 @@ function applyTheme(name) {
   const isDark = name.startsWith('dark');
   icon.className = isDark ? 'ti ti-sun' : 'ti ti-moon';
   localStorage.setItem('cena-theme', name);
+  updateLogo(name);
   updateThemeModalActive();
   rebuildCharts();
+}
+
+function updateLogo(themeName) {
+  const img = document.getElementById('logo-img');
+  if (!img) return;
+  const isDark = themeName.startsWith('dark');
+  // gray-white has --bg dark -> usa logo branco; light-gray has --bg light -> usa logo escuro
+  if (themeName === 'gray-white') img.src = '/logo_white.png';
+  else if (themeName === 'light-gray') img.src = '/logo.png';
+  else img.src = isDark ? '/logo_white.png' : '/logo.png';
 }
 
 function cycleTheme() {
@@ -2039,6 +2061,8 @@ function cycleTheme() {
   if (saved && THEME_PRESETS.includes(saved)) {
     applyTheme(saved);
   }
+  // always sync logo with current theme (including default dark)
+  updateLogo(document.documentElement.dataset.theme || 'dark');
 })();
 
 /* ═══ CHART.JS HELPERS ═══ */
