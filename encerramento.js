@@ -242,7 +242,7 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
         legend: { display: false },
         valueLabelPlugin: { enabled: true, color: C.text, fontSize: 13, formatter: (value) => fmtNumber(value) },
       },
-      scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), beginAtZero: true } },
+      scales: { x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, font: { family: 'Poppins', size: 11 } } }, y: { ...axCfg(C), beginAtZero: true } },
     },
   });
 
@@ -275,7 +275,7 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
         valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, datasetIndexes: [0, 1, 2], formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
-        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 30 } },
+        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 35, font: { family: 'Poppins', size: 11 } } },
         y: { ...axCfg(C), ticks: { ...axCfg(C).ticks, callback: (v) => v >= 1e6 ? 'R$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? 'R$' + (v / 1e3).toFixed(0) + 'k' : v } },
       },
     },
@@ -377,7 +377,7 @@ function encRenderCascataStatus(C) {
         valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
       },
       scales: {
-        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 9 } } },
+        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 10 } } },
         y: { ...axCfg(C), beginAtZero: true, ticks: { ...axCfg(C).ticks, callback: (v) => v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v } },
       },
     },
@@ -401,7 +401,7 @@ function encRenderCascataStatus(C) {
         valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, rotate: -90, formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
-        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 10 } } },
+        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 11 } } },
         y: { ...axCfg(C), beginAtZero: true, display: false },
       },
     },
