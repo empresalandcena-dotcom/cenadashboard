@@ -512,32 +512,18 @@ function viabGetExportBundle() {
 }
 
 function viabExportXlsx() {
-  if (!window.XLSX) {
-    console.error('Biblioteca XLSX não carregada.');
-    return;
-  }
-
   const bundle = viabGetExportBundle();
   if (!bundle.detailRows.length) {
     alert('Nenhum dado disponível para exportar com os filtros atuais.');
     return;
   }
 
-  const wb = XLSX.utils.book_new();
-  const resumoSheet = XLSX.utils.aoa_to_sheet([['Campo', 'Valor'], ...bundle.filtersInfo]);
-  const statusSheet = XLSX.utils.json_to_sheet(bundle.statusRows);
-  const detailSheet = XLSX.utils.json_to_sheet(bundle.detailRows);
-
-  resumoSheet['!cols'] = [{ wch: 22 }, { wch: 26 }];
-  statusSheet['!cols'] = [{ wch: 20 }, { wch: 12 }];
-  detailSheet['!cols'] = [{ wch: 12 }, { wch: 18 }, { wch: 20 }, { wch: 16 }, { wch: 8 }, { wch: 20 }, { wch: 22 }, { wch: 14 }, { wch: 10 }];
-
-  XLSX.utils.book_append_sheet(wb, resumoSheet, 'Resumo');
-  XLSX.utils.book_append_sheet(wb, statusSheet, 'Status');
-  XLSX.utils.book_append_sheet(wb, detailSheet, 'Registros');
-
   const fileName = `Cena_Viabilidade_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  XLSX.writeFile(wb, fileName, { compression: true });
+  exportStyledXlsx([
+    { name: 'Resumo',   data: [['Campo', 'Valor'], ...bundle.filtersInfo], type: 'aoa',  widths: [22, 26] },
+    { name: 'Status',   data: bundle.statusRows,  type: 'json', widths: [20, 12] },
+    { name: 'Registros',data: bundle.detailRows,   type: 'json', widths: [12, 18, 20, 16, 8, 20, 22, 14, 10] },
+  ], fileName, { autoFilter: true });
 }
 
 function viabUpdateDashboard() {

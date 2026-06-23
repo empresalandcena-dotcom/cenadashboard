@@ -619,41 +619,21 @@ function progGetExportBundle() {
 }
 
 function progExportXlsx() {
-  if (!window.XLSX) {
-    console.error('Biblioteca XLSX não carregada.');
-    return;
-  }
-
   const bundle = progGetExportBundle();
   if (!bundle.detailRows.length) {
     alert('Nenhum dado disponível para exportar com os filtros atuais.');
     return;
   }
 
-  const wb = XLSX.utils.book_new();
-  const resumoSheet = XLSX.utils.aoa_to_sheet([['Campo', 'Valor'], ...bundle.filtersInfo]);
-  const statusSheet = XLSX.utils.json_to_sheet(bundle.statusRows);
-  const equipesSheet = XLSX.utils.json_to_sheet(bundle.teamRows);
-  const cidadesSheet = XLSX.utils.json_to_sheet(bundle.cityRows);
-  const registrosSheet = XLSX.utils.json_to_sheet(bundle.detailRows);
-
-  resumoSheet['!cols'] = [{ wch: 32 }, { wch: 26 }];
-  statusSheet['!cols'] = [{ wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
-  equipesSheet['!cols'] = [{ wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 12 }];
-  cidadesSheet['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 16 }];
-  registrosSheet['!cols'] = [
-    { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 20 }, { wch: 14 }, { wch: 14 }, { wch: 14 },
-    { wch: 10 }, { wch: 9 }, { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 16 },
-  ];
-
-  XLSX.utils.book_append_sheet(wb, resumoSheet, 'Resumo');
-  XLSX.utils.book_append_sheet(wb, statusSheet, 'Status');
-  XLSX.utils.book_append_sheet(wb, equipesSheet, 'Equipes');
-  XLSX.utils.book_append_sheet(wb, cidadesSheet, 'Cidades');
-  XLSX.utils.book_append_sheet(wb, registrosSheet, 'Registros');
-
+  const moneyCols = ['valor'];
   const fileName = `Cena_Programacao_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  XLSX.writeFile(wb, fileName, { compression: true });
+  exportStyledXlsx([
+    { name: 'Resumo',    data: [['Campo', 'Valor'], ...bundle.filtersInfo], type: 'aoa',  widths: [32, 26] },
+    { name: 'Status',    data: bundle.statusRows,  type: 'json', widths: [16, 12, 16, 16, 16], moneyCols },
+    { name: 'Equipes',   data: bundle.teamRows,    type: 'json', widths: [18, 12, 16, 16, 16, 12], moneyCols },
+    { name: 'Cidades',   data: bundle.cityRows,    type: 'json', widths: [20, 12, 16], moneyCols },
+    { name: 'Registros', data: bundle.detailRows,   type: 'json', widths: [12, 18, 18, 14, 20, 14, 14, 14, 10, 9, 10, 16, 16, 16], moneyCols },
+  ], fileName, { autoFilter: true });
 }
 
 function progGenerateInsights(rows) {

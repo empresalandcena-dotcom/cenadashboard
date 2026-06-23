@@ -675,32 +675,18 @@ function encGetExportBundle() {
 }
 
 function encExportXlsx() {
-  if (!window.XLSX) {
-    console.error('Biblioteca XLSX não carregada.');
-    return;
-  }
-
   const bundle = encGetExportBundle();
   if (!bundle.detailRows.length) {
     alert('Nenhum dado disponível para exportar com os filtros atuais.');
     return;
   }
 
-  const wb = XLSX.utils.book_new();
-  const resumoSheet = XLSX.utils.aoa_to_sheet([['Campo', 'Valor'], ...bundle.filtersInfo]);
-  const situacaoSheet = XLSX.utils.json_to_sheet(bundle.situacaoRows);
-  const detailSheet = XLSX.utils.json_to_sheet(bundle.detailRows);
-
-  resumoSheet['!cols'] = [{ wch: 22 }, { wch: 26 }];
-  situacaoSheet['!cols'] = [{ wch: 24 }, { wch: 12 }];
-  detailSheet['!cols'] = [{ wch: 12 }, { wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 16 }, { wch: 8 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
-
-  XLSX.utils.book_append_sheet(wb, resumoSheet, 'Resumo');
-  XLSX.utils.book_append_sheet(wb, situacaoSheet, 'Situação');
-  XLSX.utils.book_append_sheet(wb, detailSheet, 'Registros');
-
   const fileName = `Cena_Encerramento_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  XLSX.writeFile(wb, fileName, { compression: true });
+  exportStyledXlsx([
+    { name: 'Resumo',   data: [['Campo', 'Valor'], ...bundle.filtersInfo], type: 'aoa',  widths: [22, 26] },
+    { name: 'Situação', data: bundle.situacaoRows, type: 'json', widths: [24, 12] },
+    { name: 'Registros',data: bundle.detailRows,   type: 'json', widths: [12, 20, 18, 20, 16, 8, 14, 14, 14, 14, 14], moneyCols: ['valor mo', 'valor medido', 'valor faturado', 'divergência'] },
+  ], fileName, { autoFilter: true });
 }
 
 function encUpdateDashboard() {

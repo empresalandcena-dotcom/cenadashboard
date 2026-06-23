@@ -66,6 +66,54 @@
   --purple-bg: #6357c812;
 }
 
+/* ═══ PALETTE: Ocean (dark) ═══ */
+[data-theme="dark-ocean"] {
+  --green:   #20b2aa;   --blue:    #5b9bd5;   --yellow: #f0c060;
+  --red:     #e06060;   --purple: #8899dd;   --cyan:    #4db8d0;
+  --green-bg:  #20b2aa1a; --blue-bg:   #5b9bd51a; --yellow-bg: #f0c0601a;
+  --red-bg:    #e060601a; --purple-bg: #8899dd1a;
+}
+
+/* ═══ PALETTE: Forest (dark) ═══ */
+[data-theme="dark-forest"] {
+  --green:   #4caf50;   --blue:    #66a060;   --yellow: #c0ca40;
+  --red:     #e07050;   --purple: #9070c0;   --cyan:    #50a090;
+  --green-bg:  #4caf501a; --blue-bg:   #66a0601a; --yellow-bg: #c0ca401a;
+  --red-bg:    #e070501a; --purple-bg: #9070c01a;
+}
+
+/* ═══ PALETTE: Sunset (dark) ═══ */
+[data-theme="dark-sunset"] {
+  --green:   #e09050;   --blue:    #c07060;   --yellow: #f0b040;
+  --red:     #e85848;   --purple: #b880c0;   --cyan:    #d89050;
+  --green-bg:  #e090501a; --blue-bg:   #c070601a; --yellow-bg: #f0b0401a;
+  --red-bg:    #e858481a; --purple-bg: #b880c01a;
+}
+
+/* ═══ PALETTE: Ocean (light) ═══ */
+[data-theme="light-ocean"] {
+  --green:   #178076;   --blue:    #2e6ab0;   --yellow: #c08020;
+  --red:     #c04840;   --purple: #6058b0;   --cyan:    #1f7090;
+  --green-bg:  #17807612; --blue-bg:   #2e6ab012; --yellow-bg: #c0802012;
+  --red-bg:    #c0484012; --purple-bg: #6058b012;
+}
+
+/* ═══ PALETTE: Forest (light) ═══ */
+[data-theme="light-forest"] {
+  --green:   #2e7d32;   --blue:    #408050;   --yellow: #909030;
+  --red:     #c05540;   --purple: #7050a0;   --cyan:    #308060;
+  --green-bg:  #2e7d3212; --blue-bg:   #40805012; --yellow-bg: #90903012;
+  --red-bg:    #c0554012; --purple-bg: #7050a012;
+}
+
+/* ═══ PALETTE: Sunset (light) ═══ */
+[data-theme="light-sunset"] {
+  --green:   #c07030;   --blue:    #a05040;   --yellow: #d09020;
+  --red:     #c04038;   --purple: #9060a0;   --cyan:    #b07030;
+  --green-bg:  #c0703012; --blue-bg:   #a0504012; --yellow-bg: #d0902012;
+  --red-bg:    #c0403812; --purple-bg: #9060a012;
+}
+
 /* ═══ RESET ═══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
@@ -760,6 +808,56 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 
 /* ═══════════════════════════════════════════════════════
+   DROPDOWNS (notificações + configurações)
+═══════════════════════════════════════════════════════ */
+.tb-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 200;
+  min-width: 300px; max-width: 380px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.5);
+  padding: 16px; display: none;
+}
+.tb-dropdown.on { display: block; }
+.tb-dropdown .dd-title { font-size: 12px; font-weight: 600; color: var(--t1); margin-bottom: 12px; }
+.tb-dropdown .dd-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  border-radius: 6px; font-size: 11.5px; color: var(--t2);
+  cursor: pointer; transition: background .12s;
+}
+.tb-dropdown .dd-item:hover { background: var(--track); color: var(--t1); }
+.tb-dropdown .dd-item .dd-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.tb-dropdown .dd-item .dd-val { margin-left: auto; font-weight: 600; color: var(--t1); font-size: 12px; }
+.tb-dropdown .dd-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.tb-dropdown .dd-btn {
+  width: 100%; padding: 9px; border-radius: 6px; background: var(--track);
+  color: var(--t1); font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: background .15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.tb-dropdown .dd-btn:hover { background: var(--green); color: #fff; }
+.tb-dropdown .dd-btn.loading { pointer-events: none; opacity: .6; }
+.tb-dropdown .palette-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px;
+}
+.tb-dropdown .palette-swatch {
+  height: 28px; border-radius: 5px; border: 2px solid transparent; cursor: pointer;
+  transition: border-color .15s, transform .1s; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #fff; font-weight: 600;
+}
+.tb-dropdown .palette-swatch:hover { transform: scale(1.05); }
+.tb-dropdown .palette-swatch.active { border-color: var(--t1); }
+.tb-dropdown .palette-swatch.dark { background: #1a1e24; }
+.tb-dropdown .palette-swatch.dark-ocean { background: #20b2aa; }
+.tb-dropdown .palette-swatch.dark-forest { background: #4caf50; }
+.tb-dropdown .palette-swatch.dark-sunset { background: #e09050; }
+.tb-dropdown .palette-swatch.light { background: #f0f4f8; color: #333; }
+.tb-dropdown .palette-swatch.light-ocean { background: #c8e8f0; color: #178076; }
+.tb-dropdown .palette-swatch.light-forest { background: #c8e8d0; color: #2e7d32; }
+.tb-dropdown .palette-swatch.light-sunset { background: #f0e0c8; color: #c07030; }
+
+#notif-dropdown .dd-updated { font-size: 10px; color: var(--t3); margin-bottom: 4px; }
+#notif-dropdown .dd-updated.stale { color: var(--red); }
+
+/* ═══════════════════════════════════════════════════════
    FULLSCREEN CARD EXPAND
 ═══════════════════════════════════════════════════════ */
 .card-expand-btn {
@@ -897,16 +995,34 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
     <div class="tb-right">
       <!-- Theme toggle -->
-      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" title="Alternar claro / escuro">
+      <button class="theme-toggle" onclick="cycleTheme()" aria-label="Alternar tema" title="Alternar paleta de cores">
         <i class="ti ti-sun" id="theme-icon" aria-hidden="true"></i>
       </button>
 
-      <div class="tb-icon" title="Notificações">
+      <div class="tb-icon" title="Notificações" id="btn-notif" style="position:relative">
         <i class="ti ti-bell" aria-hidden="true"></i>
-        <div class="tb-badge-dot">3</div>
+        <div class="tb-badge-dot" id="notif-badge" style="display:none">!</div>
+        <div class="tb-dropdown" id="notif-dropdown">
+          <div class="dd-title">Status da Base</div>
+          <div class="dd-updated" id="notif-updated">Verificando...</div>
+          <div id="notif-summary"></div>
+        </div>
       </div>
-      <div class="tb-icon" title="Configurações">
+      <div class="tb-icon" title="Configurações" id="btn-settings" style="position:relative">
         <i class="ti ti-settings" aria-hidden="true"></i>
+        <div class="tb-dropdown" id="settings-dropdown">
+          <div class="dd-title">Configurações</div>
+          <button class="dd-btn" id="btn-refresh-data">
+            <i class="ti ti-refresh"></i> Atualizar base agora
+          </button>
+          <div class="dd-divider"></div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Paleta de cores</div>
+          <div class="palette-grid" id="palette-grid"></div>
+          <div class="dd-divider"></div>
+          <a class="dd-btn" href="/docs/changelog.md" target="_blank" style="text-decoration:none">
+            <i class="ti ti-file-text"></i> Documentação
+          </a>
+        </div>
       </div>
 
       <div class="tb-divider"></div>
@@ -1793,18 +1909,31 @@ function go(id, el) {
 }
 
 /* ═══ THEME TOGGLE ═══ */
-function toggleTheme() {
-  const html = document.documentElement;
+const THEME_PRESETS = ['dark', 'dark-ocean', 'dark-forest', 'dark-sunset', 'light', 'light-ocean', 'light-forest', 'light-sunset'];
+
+function applyTheme(name) {
+  document.documentElement.dataset.theme = name;
   const icon = document.getElementById('theme-icon');
-  if (html.dataset.theme === 'dark') {
-    html.dataset.theme = 'light';
-    icon.className = 'ti ti-moon';
-  } else {
-    html.dataset.theme = 'dark';
-    icon.className = 'ti ti-sun';
-  }
+  const isDark = name.startsWith('dark');
+  icon.className = isDark ? 'ti ti-sun' : 'ti ti-moon';
+  localStorage.setItem('cena-theme', name);
+  updatePaletteActive();
   rebuildCharts();
 }
+
+function cycleTheme() {
+  const current = document.documentElement.dataset.theme || 'dark';
+  const idx = THEME_PRESETS.indexOf(current);
+  const next = THEME_PRESETS[(idx + 1) % THEME_PRESETS.length];
+  applyTheme(next);
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('cena-theme');
+  if (saved && THEME_PRESETS.includes(saved)) {
+    applyTheme(saved);
+  }
+})();
 
 /* ═══ CHART.JS HELPERS ═══ */
 const charts = {};
@@ -2916,7 +3045,109 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && document.getElementById('fs-backdrop').classList.contains('on')) collapseCard();
 });
 
+/* ═══════════════════ DROPDOWNS ═══════════════════ */
+function setupDropdowns() {
+  const notifBtn = document.getElementById('btn-notif');
+  const notifDD = document.getElementById('notif-dropdown');
+  const settBtn = document.getElementById('btn-settings');
+  const settDD = document.getElementById('settings-dropdown');
+
+  function closeAll(except) {
+    [notifDD, settDD].forEach(dd => { if (dd !== except) dd.classList.remove('on'); });
+  }
+
+  if (notifBtn && notifDD) {
+    notifBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const wasOn = notifDD.classList.toggle('on');
+      if (wasOn) updateNotifications();
+      closeAll(wasOn ? notifDD : null);
+    });
+  }
+
+  if (settBtn && settDD) {
+    settBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settDD.classList.toggle('on');
+      closeAll(settDD.classList.contains('on') ? settDD : null);
+    });
+  }
+
+  document.addEventListener('click', () => closeAll(null));
+
+  // palette grid
+  const grid = document.getElementById('palette-grid');
+  if (grid) {
+    const labels = { 'dark':'Escuro','dark-ocean':'Ocean','dark-forest':'Floresta','dark-sunset':'Pôr do Sol',
+                     'light':'Claro','light-ocean':'Ocean','light-forest':'Floresta','light-sunset':'Pôr do Sol' };
+    THEME_PRESETS.forEach(name => {
+      const sw = document.createElement('div');
+      sw.className = `palette-swatch ${name}`;
+      sw.title = labels[name] || name;
+      sw.textContent = (labels[name] || name).charAt(0);
+      sw.addEventListener('click', (e) => { e.stopPropagation(); applyTheme(name); updatePaletteActive(); });
+      grid.appendChild(sw);
+    });
+    updatePaletteActive();
+  }
+
+  // refresh button
+  document.getElementById('btn-refresh-data')?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="ti ti-loader-2"></i> Atualizando...';
+    try {
+      await fetch('/api/controle-geral?refresh=1');
+      if (window.initViabilidade) window.initViabilidade();
+      if (window.initPeps) window.initPeps();
+      if (window.initEncerramento) window.initEncerramento();
+      if (window.initProgramacao) window.initProgramacao();
+      if (window.initMapa) window.initMapa();
+    } catch (err) { console.error('Falha ao atualizar base', err); }
+    btn.classList.remove('loading');
+    btn.innerHTML = '<i class="ti ti-refresh"></i> Atualizar base agora';
+  });
+}
+
+function updatePaletteActive() {
+  const current = document.documentElement.dataset.theme || 'dark';
+  document.querySelectorAll('#palette-grid .palette-swatch').forEach(sw => {
+    sw.classList.toggle('active', sw.classList.contains(current));
+  });
+}
+
+function updateNotifications() {
+  const pillIds = ['enc-live-pill','peps-live-pill','viab-live-pill','prog-live-pill','map-live-pill','prod-live-pill'];
+  const labels = { 'enc-live-pill':'Encerramento','peps-live-pill':'PEPs','viab-live-pill':'Viabilidade','prog-live-pill':'Programação','map-live-pill':'Mapa','prod-live-pill':'Produção Diária' };
+  const colors = { 'enc-live-pill':'var(--green)','peps-live-pill':'var(--blue)','viab-live-pill':'var(--yellow)','prog-live-pill':'var(--purple)','map-live-pill':'var(--cyan)','prod-live-pill':'var(--green)' };
+
+  const summary = document.getElementById('notif-summary');
+  const updated = document.getElementById('notif-updated');
+  const badge = document.getElementById('notif-badge');
+  if (!summary || !updated) return;
+
+  let hasStale = false;
+  summary.innerHTML = pillIds.map(id => {
+    const el = document.getElementById(id);
+    const text = el?.textContent?.trim() || 'Carregando...';
+    const isStale = text.includes('Falha') || text.includes('parado');
+    if (isStale) hasStale = true;
+    return `<div class="dd-item">
+      <span class="dd-dot" style="background:${colors[id]}"></span>
+      ${labels[id] || id}
+      <span class="dd-val" style="color:${isStale ? 'var(--red)' : 'var(--t1)'}">${text.replace(/<[^>]*>/g,'')}</span>
+    </div>`;
+  }).join('');
+
+  const now = new Date();
+  updated.textContent = hasStale ? 'Alguns dados desatualizados' : `Atualizado ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  updated.className = hasStale ? 'dd-updated stale' : 'dd-updated';
+  if (badge) badge.style.display = hasStale ? 'flex' : 'none';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  setupDropdowns();
   /* injeta botao expandir em todos os cards com header */
   document.querySelectorAll('.card > .ch').forEach((header) => {
     const card = header.closest('.card');
@@ -2952,6 +3183,53 @@ document.getElementById('btn-logout').addEventListener('click', () => {
   document.cookie = 'cena_session=; Path=/; Max-Age=0; Secure; SameSite=Lax';
   window.location.href = '/login.html';
 });
+
+/* ═══════════════════ EXPORT HELPER ═══════════════════ */
+function exportStyledXlsx(sheets, fileName, opts = {}) {
+  if (!window.XLSX) { console.error('XLSX indisponivel'); return; }
+
+  const wb = XLSX.utils.book_new();
+
+  sheets.forEach(({ name, data, type, widths, moneyCols }) => {
+    let sheet;
+    if (type === 'aoa') {
+      sheet = XLSX.utils.aoa_to_sheet(data);
+    } else {
+      sheet = XLSX.utils.json_to_sheet(data);
+    }
+
+    if (widths) sheet['!cols'] = widths.map(w => ({ wch: w }));
+
+    if (opts.autoFilter && type !== 'aoa') {
+      const range = XLSX.utils.decode_range(sheet['!ref']);
+      sheet['!autofilter'] = { ref: XLSX.utils.encode_range(range) };
+    }
+
+    if (moneyCols && moneyCols.length) {
+      const range = XLSX.utils.decode_range(sheet['!ref']);
+      for (let r = range.s.r; r <= range.e.r; r++) {
+        for (let c = range.s.c; c <= range.e.c; c++) {
+          const addr = XLSX.utils.encode_cell({ r, c });
+          const cell = sheet[addr];
+          if (!cell) continue;
+          const headerCell = sheet[XLSX.utils.encode_cell({ r: range.s.r, c })];
+          const header = headerCell ? String(headerCell.v || '').toLowerCase() : '';
+          if (moneyCols.some(mc => header.includes(mc.toLowerCase()))) {
+            if (typeof cell.v === 'number' || !isNaN(Number(cell.v))) {
+              cell.z = '#,##0.00';
+              if (typeof cell.v !== 'number') cell.v = Number(cell.v);
+              cell.t = 'n';
+            }
+          }
+        }
+      }
+    }
+
+    XLSX.utils.book_append_sheet(wb, sheet, name);
+  });
+
+  XLSX.writeFile(wb, fileName, { compression: true, bookType: 'xlsx' });
+}
 </script>
 <script src="cg-data.js"></script>
 <script src="programacao.js"></script>
