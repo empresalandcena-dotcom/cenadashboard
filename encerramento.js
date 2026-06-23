@@ -322,21 +322,26 @@ function encRenderCascataStatus(C) {
   ];
 
   const countMap = new Map();
+  const valorMap = new Map();
   rows.forEach((row) => {
     const status = row['STATUS RESUMO'];
     const encerSituacao = row['ENCER_SITUAÇÃO'];
     if (!status || status === '-') return;
     if (!encerSituacao || encerSituacao === '-') return;
     countMap.set(status, (countMap.get(status) || 0) + 1);
+    const valor = typeof row['VALOR FATURADO'] === 'number' ? row['VALOR FATURADO'] : 0;
+    valorMap.set(status, (valorMap.get(status) || 0) + valor);
   });
 
   const labels = [];
   const counts = [];
+  const valores = [];
   STATUS_ORDER.forEach((status) => {
     const count = countMap.get(status) || 0;
     if (count === 0) return;
     labels.push(status);
     counts.push(count);
+    valores.push(valorMap.get(status) || 0);
   });
 
   if (!counts.length) return;
@@ -351,7 +356,7 @@ function encRenderCascataStatus(C) {
   labels.push('Total');
   data.push([0, runningTotal]);
 
-  setText('enc-cascata-subtitle', `${fmtNumber(countMap.size)} status · ${fmtNumber(counts.reduce((a, b) => a + b, 0))} registros`);
+  setText('enc-cascata-subtitle', `${fmtNumber(countMap.size)} status · ${fmtNumber(counts.reduce((a, b) => a + b, 0))} registros · ${fmtCurrencyCompact(valores.reduce((a, b) => a + b, 0))} faturado`);
 
   const isTotal = (ctx) => ctx.dataIndex === labels.length - 1;
 
@@ -383,7 +388,7 @@ function encRenderCascataStatus(C) {
     data: {
       labels,
       datasets: [{
-        data: counts.concat(counts.reduce((a, b) => a + b, 0)),
+        data: valores.concat(valores.reduce((a, b) => a + b, 0)),
         backgroundColor: (ctx) => ctx.dataIndex === labels.length - 1 ? C.green : C.blue + '99',
         borderRadius: 4,
       }],
@@ -393,7 +398,7 @@ function encRenderCascataStatus(C) {
       layout: { padding: { top: 30 } },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 12, rotate: -90, formatter: (value) => fmtNumber(value) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, rotate: -90, formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 10 } } },
