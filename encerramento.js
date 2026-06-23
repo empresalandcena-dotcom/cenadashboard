@@ -419,7 +419,7 @@ function encRenderCascataStatus(C) {
       layout: { padding: { top: 40, bottom: 8 } },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 15, datasetIndexes: [0, 1, 2], rotate: -90, rotateYOffset: 30, formatter: (value) => fmtCurrencyCompact(value) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 12, datasetIndexes: [0, 1, 2], rotate: -90, rotateYOffset: 38, totalInside: true, totalInsideOffset: 4, formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 11 } } },
