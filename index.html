@@ -2688,7 +2688,8 @@ const valueLabelPlugin = {
         const rawValue = dataset.data[index];
         if (!rawValue) return;
         const props = element.getProps(['x', 'y'], true);
-        const y = Math.max(props.y - 6, chartArea.top + 10);
+        const yOff = pluginOptions.rotate ? (pluginOptions.rotateYOffset || 14) : 6;
+        const y = Math.max(props.y - yOff, chartArea.top + 10);
         const text = typeof pluginOptions.formatter === 'function'
           ? pluginOptions.formatter(rawValue, index, chart, datasetIndex)
           : String(rawValue);
