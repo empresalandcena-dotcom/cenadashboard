@@ -377,6 +377,30 @@ function encRenderCascataStatus(C) {
       },
     },
   });
+
+  mkChart('ch13', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: counts.concat(counts.reduce((a, b) => a + b, 0)),
+        backgroundColor: (ctx) => ctx.dataIndex === labels.length - 1 ? C.green : C.blue + '99',
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      layout: { padding: { top: 30 } },
+      plugins: {
+        legend: { display: false },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 12, rotate: -90, formatter: (value) => fmtNumber(value) },
+      },
+      scales: {
+        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 10 } } },
+        y: { ...axCfg(C), beginAtZero: true, display: false },
+      },
+    },
+  });
 }
 
 function encPopulateTableFilters(rows) {
