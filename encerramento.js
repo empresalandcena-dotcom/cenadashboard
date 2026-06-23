@@ -128,9 +128,8 @@ function encUpdateFilterControls() {
   setText('enc-breadcrumb-period', periodSelect?.selectedOptions?.[0]?.textContent || 'Encerramento');
 }
 
-function encGetFilteredRows() {
-  const periodRows = encGetPeriodRows(encRows, encState.mode, encState.periodKey);
-  const filtered = periodRows.filter((row) => {
+function encGetNonPeriodFilteredRows() {
+  return encRows.filter((row) => {
     if (encState.carteira !== 'all' && row.carteira !== encState.carteira) return false;
     if (encState.pi !== 'all' && row.pi !== encState.pi) return false;
     if (encState.situacao !== 'all' && row.situacao !== encState.situacao) return false;
@@ -141,6 +140,11 @@ function encGetFilteredRows() {
     }
     return true;
   });
+}
+
+function encGetFilteredRows() {
+  const nonPeriodRows = encGetNonPeriodFilteredRows();
+  const filtered = encGetPeriodRows(nonPeriodRows, encState.mode, encState.periodKey);
   return filtered.slice().sort((a, b) => {
     const aTime = encHasValidDate(a) ? a.dataEnvio.getTime() : -Infinity;
     const bTime = encHasValidDate(b) ? b.dataEnvio.getTime() : -Infinity;
@@ -168,6 +172,32 @@ function encRenderKpis(rows) {
 
 window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
   const rows = encLastRows;
+
+  const nonPeriodRows = encGetNonPeriodFilteredRows();
+  const trendOptions = encGetPeriodOptions(nonPeriodRows, encState.mode).slice().sort((a, b) => a.order - b.order);
+  const trendCounts = trendOptions.map((option) => nonPeriodRows.filter((row) => encPeriodInfo(row, encState.mode).key === option.key).length);
+  setText('enc-trend-subtitle', trendOptions.length ? `${trendOptions[0].label} → ${trendOptions[trendOptions.length - 1].label}` : 'Sem dados');
+  mkChart('ch10', {
+    type: 'line',
+    data: {
+      labels: trendOptions.map((option) => option.label),
+      datasets: [{
+        data: trendCounts,
+        borderColor: C.green, backgroundColor: C.green + '22',
+        pointBackgroundColor: C.green, pointRadius: 2.5,
+        tension: .4, fill: true, borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      layout: { padding: { top: 22 } },
+      plugins: {
+        legend: { display: false },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 13, formatter: (value) => fmtNumber(value) },
+      },
+      scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), beginAtZero: true } },
+    },
+  });
 
   const situacaoMap = new Map();
   rows.forEach((row) => {
