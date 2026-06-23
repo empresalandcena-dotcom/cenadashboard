@@ -509,6 +509,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ═══════════════════════════════════════════════════════ */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
 .prod-kpi-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.prog-kpi-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .kcard {
   background: var(--card);
   border: 1px solid var(--border);
@@ -596,6 +597,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .dtable tr:last-child td { border-bottom: none; }
 .dtable tr.tot td { background: rgba(10,179,156,.06); font-weight: 600; }
+.dtable-filter-row th { padding: 0 6px 10px; }
+.dtable-col-filter {
+  width: 100%;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--t2);
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 0 6px;
+  outline: none;
+}
+.dtable-col-filter:focus { border-color: var(--green); color: var(--t1); }
 .dtable tr:hover:not(.tot) td { background: rgba(10,179,156,.04); }
 
 /* ═══════════════════════════════════════════════════════
@@ -662,6 +680,55 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .val-lbl { font-size: 10px; color: var(--t2); margin-bottom: 4px; }
 .val-num { font-size: 14px; font-weight: 600; }
 
+/* ═══════════════════════════════════════════════════════
+   MAPA DE PROGRAMAÇÃO (heatmap)
+═══════════════════════════════════════════════════════ */
+.map-wrap { overflow-x: auto; max-height: 640px; overflow-y: auto; }
+.maptable { border-collapse: collapse; font-size: 11px; white-space: nowrap; width: 100%; min-width: 100%; }
+.maptable th, .maptable td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
+.maptable th.row-label, .maptable td.row-label { min-width: 130px; }
+.maptable thead th { position: sticky; top: 0; background: var(--card); font-size: 9px; color: var(--t2); text-transform: uppercase; letter-spacing: .4px; z-index: 2; line-height: 1.5; }
+.maptable th.weekend-col, .maptable td.weekend-col { background: rgba(255,255,255,.025); }
+.maptable td.cell-0 { color: var(--t3); }
+.maptable td.cell-1 { background: var(--green-bg); color: var(--green); font-weight: 500; }
+.maptable td.cell-2 { background: rgba(30,168,150,.30); color: var(--green); font-weight: 600; }
+.maptable td.cell-3 { background: rgba(30,168,150,.55); color: #fff; font-weight: 700; }
+.maptable .row-label { position: sticky; left: 0; background: var(--card); text-align: left; font-weight: 500; color: var(--t1); z-index: 1; }
+.maptable thead th.row-label { z-index: 3; }
+.maptable tr.map-total td { background: rgba(79,124,255,.08); font-weight: 600; color: var(--t1); }
+
+/* ═══════════════════════════════════════════════════════
+   INSIGHTS TOGGLE
+═══════════════════════════════════════════════════════ */
+.insights-toggle {
+  height: 36px; padding: 0 14px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--card); color: var(--t2);
+  font-size: 11.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.insights-toggle:hover { border-color: var(--yellow); color: var(--yellow); }
+.insights-toggle.on { background: var(--yellow-bg); border-color: var(--yellow); color: var(--yellow); }
+.page-body.hidden { display: none; }
+.page-insights { display: none; }
+.page-insights.on { display: block; }
+.insight-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px;
+}
+.insight-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.insight-item { display: flex; gap: 12px; padding: 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); }
+.insight-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.insight-title { font-size: 12.5px; font-weight: 600; color: var(--t1); margin-bottom: 3px; }
+.insight-desc { font-size: 11px; color: var(--t2); line-height: 1.4; }
+.insight-sev-high .insight-icon { background: var(--red-bg); color: var(--red); }
+.insight-sev-medium .insight-icon { background: var(--yellow-bg); color: var(--yellow); }
+.insight-sev-low .insight-icon { background: var(--blue-bg); color: var(--blue); }
+.insight-sev-good .insight-icon { background: var(--green-bg); color: var(--green); }
+
+@media (max-width: 900px) {
+  .insight-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 1180px) {
   .filter-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
@@ -711,6 +778,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="sb-item" onclick="go('prog',this)">
     <i class="ti ti-calendar-stats" aria-hidden="true"></i>Programação
   </div>
+  <div class="sb-item" onclick="go('mapa',this)">
+    <i class="ti ti-calendar-event" aria-hidden="true"></i>Mapa de Programação
+    <span class="sb-badge new">Live</span>
+  </div>
   <div class="sb-item" onclick="go('prod',this)">
     <i class="ti ti-trending-up" aria-hidden="true"></i>Prod. Diária
     <span class="sb-badge new">Live</span>
@@ -734,7 +805,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </div>
 
   <div class="sb-foot">
-    <div class="sb-foot-date">Semana S20 · 02/06/2026</div>
+    <div class="sb-foot-date">Dados em tempo real</div>
     <div class="sb-foot-live">Sistema online</div>
   </div>
 </aside>
@@ -790,10 +861,57 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <div class="page-title">Viabilidade</div>
       <div class="breadcrumb">
         Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i>
-        <span>Viabilidade</span>
+        <span id="viab-breadcrumb-period">Viabilidade</span><span id="viab-period-range" style="color:var(--t2);margin-left:6px"></span>
       </div>
     </div>
-    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="live-pill" id="viab-live-pill"><div class="live-dot"></div>Carregando base ao vivo...</div>
+      <button class="insights-toggle" id="viab-insights-toggle" type="button"><i class="ti ti-bulb" aria-hidden="true"></i>Insights</button>
+    </div>
+  </div>
+  <div class="page-insights" id="viab-insights"></div>
+  <div class="page-body" id="viab-page-body">
+
+  <div class="filter-card">
+    <div class="filter-toolbar">
+      <div>
+        <div class="filter-title">Filtros de Viabilidade</div>
+        <div class="filter-subtitle">Troque o período (dia/semana/mês) e filtre por carteira, PI, técnico ou status.</div>
+      </div>
+      <div class="filter-toolbar-actions">
+        <div class="seg" id="viab-mode-seg">
+          <button class="seg-btn" type="button" data-mode="day">Dia</button>
+          <button class="seg-btn" type="button" data-mode="week">Semana</button>
+          <button class="seg-btn on" type="button" data-mode="month">Mês</button>
+        </div>
+        <button class="filter-export" id="viab-export-xlsx" type="button"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Exportar Excel</button>
+      </div>
+    </div>
+    <div class="filter-grid">
+      <div class="fctl span-3">
+        <label for="viab-period-select">Período</label>
+        <select id="viab-period-select"></select>
+      </div>
+      <div class="fctl span-3">
+        <label for="viab-carteira-select">Carteira</label>
+        <select id="viab-carteira-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="viab-pi-select">PI</label>
+        <select id="viab-pi-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="viab-status-select">Status</label>
+        <select id="viab-status-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="viab-nota-input">Nota</label>
+        <input id="viab-nota-input" type="search" placeholder="Buscar nota...">
+      </div>
+      <div class="fctl filter-actions span-12" style="justify-content:flex-end">
+        <button class="filter-reset" id="viab-reset-filters" type="button">Limpar filtros</button>
+      </div>
+    </div>
   </div>
 
   <!-- KPIs row 1 -->
@@ -801,31 +919,31 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     <div class="kcard">
       <div style="min-width:0">
         <div class="kc-label">Total Notas</div>
-        <div class="kc-val">1.281</div>
-        <div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>Carteiras 1–4</div>
+        <div class="kc-val" id="viab-kpi-total">0</div>
+        <div class="kc-sub up" id="viab-kpi-total-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>Carteiras 1–5</div>
       </div>
       <div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-notes" aria-hidden="true"></i></div>
     </div>
     <div class="kcard">
       <div style="min-width:0">
         <div class="kc-label">Total Aptos</div>
-        <div class="kc-val" style="color:var(--green)">410</div>
-        <div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>405 com PEP</div>
+        <div class="kc-val" id="viab-kpi-aptos" style="color:var(--green)">0</div>
+        <div class="kc-sub up" id="viab-kpi-aptos-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>0 com PEP</div>
       </div>
       <div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
     </div>
     <div class="kcard">
       <div style="min-width:0">
         <div class="kc-label">Expurgos</div>
-        <div class="kc-val" style="color:var(--red)">462</div>
-        <div class="kc-sub dn"><i class="ti ti-arrow-down-right" style="font-size:11px"></i>36.1% do total</div>
+        <div class="kc-val" id="viab-kpi-expurgo" style="color:var(--red)">0</div>
+        <div class="kc-sub dn" id="viab-kpi-expurgo-sub"><i class="ti ti-arrow-down-right" style="font-size:11px"></i>0% do total</div>
       </div>
       <div class="kc-icon" style="background:var(--red-bg);color:var(--red)"><i class="ti ti-trash" aria-hidden="true"></i></div>
     </div>
     <div class="kcard">
       <div style="min-width:0">
         <div class="kc-label">Falta Viabilizar</div>
-        <div class="kc-val" style="color:var(--yellow)">233</div>
+        <div class="kc-val" id="viab-kpi-falta" style="color:var(--yellow)">0</div>
         <div class="kc-sub wn"><i class="ti ti-alert-triangle" style="font-size:11px"></i>Ação necessária</div>
       </div>
       <div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-clock-exclamation" aria-hidden="true"></i></div>
@@ -835,49 +953,84 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <!-- KPIs row 2 -->
   <div class="kpi-grid">
     <div class="kcard">
-      <div style="min-width:0"><div class="kc-label">Devoluções</div><div class="kc-val">72</div></div>
+      <div style="min-width:0"><div class="kc-label">Devoluções</div><div class="kc-val" id="viab-kpi-devolucao">0</div></div>
       <div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-arrow-back-up" aria-hidden="true"></i></div>
     </div>
     <div class="kcard">
-      <div style="min-width:0"><div class="kc-label">Dev. Campo</div><div class="kc-val">31</div></div>
+      <div style="min-width:0"><div class="kc-label">Dev. Campo</div><div class="kc-val" id="viab-kpi-devcampo">0</div></div>
       <div class="kc-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-map-pin" aria-hidden="true"></i></div>
     </div>
     <div class="kcard">
-      <div style="min-width:0"><div class="kc-label">Pendente</div><div class="kc-val">21</div></div>
+      <div style="min-width:0"><div class="kc-label">Pendente</div><div class="kc-val" id="viab-kpi-pendente">0</div></div>
       <div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-hourglass" aria-hidden="true"></i></div>
     </div>
     <div class="kcard">
-      <div style="min-width:0"><div class="kc-label">Em Análise</div><div class="kc-val">45</div></div>
-      <div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-eye" aria-hidden="true"></i></div>
+      <div style="min-width:0"><div class="kc-label">Viabilizado</div><div class="kc-val" id="viab-kpi-viabilizado" style="color:var(--cyan)">0</div></div>
+      <div class="kc-icon" style="background:rgba(44,143,184,.12);color:var(--cyan)"><i class="ti ti-rosette-discount-check" aria-hidden="true"></i></div>
     </div>
   </div>
 
   <!-- Charts -->
   <div class="g2">
     <div class="card">
-      <div class="ch"><div class="ct">Status de Viabilidade</div><div class="csub">Total: 1.281 notas</div></div>
+      <div class="ch"><div class="ct">Status de Viabilidade</div><div class="csub" id="viab-status-chart-subtitle">Total: 0 notas</div></div>
       <div class="cw" style="height:220px">
-        <canvas id="ch1" role="img" aria-label="Barras horizontais com status de viabilidade das notas">
-          Expurgo 462, Apto 410, Falta Viabilizar 233, Devolução 72, Em Análise 45, Dev Campo 31, Pendente 21.
-        </canvas>
+        <canvas id="ch1" role="img" aria-label="Barras horizontais com status de viabilidade das notas"></canvas>
       </div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">Registros por Mês</div><div class="csub">out/25 → jun/26</div></div>
+      <div class="ch"><div class="ct">Registros por Mês</div><div class="csub" id="viab-month-chart-subtitle">Por data de envio</div></div>
       <div class="cw" style="height:120px">
-        <canvas id="ch2" role="img" aria-label="Barras mensais de registros">Out 135, Fev 133, Mar 144, Abr 67, Mai 31.</canvas>
+        <canvas id="ch2" role="img" aria-label="Barras mensais de registros"></canvas>
       </div>
       <div class="divider"></div>
       <div class="ch" style="margin-bottom:10px"><div class="ct">Total PI</div></div>
-      <div class="hbars">
-        <div class="hrow"><div class="hlbl">LPT</div><div class="htrack"><div class="hfill" style="width:86%;background:var(--green)">338</div></div><div class="hnum">338</div></div>
-        <div class="hrow"><div class="hlbl">UNR</div><div class="htrack"><div class="hfill" style="width:26%;background:var(--blue)">101</div></div><div class="hnum">101</div></div>
-        <div class="hrow"><div class="hlbl">UNI</div><div class="htrack"><div class="hfill" style="width:10.5%;background:var(--blue)">41</div></div><div class="hnum">41</div></div>
-        <div class="hrow"><div class="hlbl">ERD</div><div class="htrack"><div class="hfill" style="width:3.1%;background:var(--yellow)"></div></div><div class="hnum">12</div></div>
-        <div class="hrow"><div class="hlbl">MTP</div><div class="htrack"><div class="hfill" style="width:2%;background:var(--t3)"></div></div><div class="hnum">8</div></div>
-      </div>
+      <div class="hbars" id="viab-pi-hbars"></div>
     </div>
   </div>
+
+  <div class="card field-panel">
+    <div class="field-toolbar">
+      <div>
+        <div class="ct">Detalhe de Viabilidade</div>
+        <div class="csub" id="viab-table-subtitle">Carregando registros...</div>
+      </div>
+      <input class="field-search" id="viab-table-search" type="search" placeholder="Buscar nota, município, técnico...">
+    </div>
+    <div class="tbl-wrap">
+      <table class="dtable">
+        <thead><tr>
+          <th style="min-width:100px">Nota</th>
+          <th style="min-width:110px">Município</th>
+          <th style="min-width:100px">Carteira</th>
+          <th style="min-width:70px">PI</th>
+          <th style="min-width:130px">Status</th>
+          <th style="min-width:140px">Técnico</th>
+          <th style="min-width:100px">Envio</th>
+          <th style="min-width:90px">Tem PEP</th>
+          <th style="min-width:140px">PEP</th>
+        </tr>
+        <tr class="dtable-filter-row">
+          <th></th>
+          <th><select class="dtable-col-filter" id="viab-col-municipio"></select></th>
+          <th><select class="dtable-col-filter" id="viab-col-carteira"></select></th>
+          <th><select class="dtable-col-filter" id="viab-col-pi"></select></th>
+          <th><select class="dtable-col-filter" id="viab-col-status"></select></th>
+          <th><select class="dtable-col-filter" id="viab-col-tecnico"></select></th>
+          <th></th>
+          <th><select class="dtable-col-filter" id="viab-col-pep">
+            <option value="all">Todas</option>
+            <option value="sim">Com PEP</option>
+            <option value="nao">Sem PEP</option>
+          </select></th>
+          <th></th>
+        </tr></thead>
+        <tbody id="viab-table-body"><tr><td colspan="9" style="color:var(--t2)">Carregando base de viabilidade...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /viab-page-body -->
 </div><!-- /viab -->
 
 <!-- ══════════════════════════════════════════════════════
@@ -887,46 +1040,148 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="page-head">
     <div>
       <div class="page-title">PEP's</div>
-      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>PEP's</span></div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span id="peps-breadcrumb-period">PEP's</span><span id="peps-period-range" style="color:var(--t2);margin-left:6px"></span></div>
     </div>
-    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="live-pill" id="peps-live-pill"><div class="live-dot"></div>Carregando base ao vivo...</div>
+      <button class="insights-toggle" id="peps-insights-toggle" type="button"><i class="ti ti-bulb" aria-hidden="true"></i>Insights</button>
+    </div>
   </div>
+  <div class="page-insights" id="peps-insights"></div>
+  <div class="page-body" id="peps-page-body">
+
+  <div class="filter-card">
+    <div class="filter-toolbar">
+      <div>
+        <div class="filter-title">Filtros de PEP's</div>
+        <div class="filter-subtitle">Troque o período (dia/semana/mês) e filtre por carteira, PI ou status do pipeline.</div>
+      </div>
+      <div class="filter-toolbar-actions">
+        <div class="seg" id="peps-mode-seg">
+          <button class="seg-btn" type="button" data-mode="day">Dia</button>
+          <button class="seg-btn" type="button" data-mode="week">Semana</button>
+          <button class="seg-btn on" type="button" data-mode="month">Mês</button>
+        </div>
+        <button class="filter-export" id="peps-export-xlsx" type="button"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Exportar Excel</button>
+      </div>
+    </div>
+    <div class="filter-grid">
+      <div class="fctl span-3">
+        <label for="peps-period-select">Período</label>
+        <select id="peps-period-select"></select>
+      </div>
+      <div class="fctl span-3">
+        <label for="peps-carteira-select">Carteira</label>
+        <select id="peps-carteira-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="peps-pi-select">PI</label>
+        <select id="peps-pi-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="peps-status-select">Status Resumo</label>
+        <select id="peps-status-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="peps-licenciamento-select">Licenciamento</label>
+        <select id="peps-licenciamento-select">
+          <option value="all">Todos</option>
+          <option value="Disponivel para execução">Disponível p/ Execução</option>
+          <option value="Em Licenciamento">Em Licenciamento</option>
+        </select>
+      </div>
+      <div class="fctl span-2">
+        <label for="peps-nota-input">Nota / PEP</label>
+        <input id="peps-nota-input" type="search" placeholder="Buscar...">
+      </div>
+      <div class="fctl filter-actions span-12" style="justify-content:flex-end">
+        <button class="filter-reset" id="peps-reset-filters" type="button">Limpar filtros</button>
+      </div>
+    </div>
+  </div>
+
   <div class="kpi-grid">
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Aptos</div><div class="kc-val" style="color:var(--blue)">421</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>registrados</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-circle-check" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Aptos s/ PEP</div><div class="kc-val" style="color:var(--yellow)">16</div><div class="kc-sub wn"><i class="ti ti-alert-triangle" style="font-size:11px"></i>aguardando</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-file-off" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Aptos c/ PEP</div><div class="kc-val" style="color:var(--green)">405</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>96.2% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-file-certificate" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Média Semanal</div><div class="kc-val" style="color:var(--green)">9.4</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>PEPs/semana</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-chart-line" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Aptos</div><div class="kc-val" id="peps-kpi-total" style="color:var(--blue)">0</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>registrados</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-circle-check" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Aptos s/ PEP</div><div class="kc-val" id="peps-kpi-sem" style="color:var(--yellow)">0</div><div class="kc-sub wn"><i class="ti ti-alert-triangle" style="font-size:11px"></i>aguardando</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-file-off" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Aptos c/ PEP</div><div class="kc-val" id="peps-kpi-com" style="color:var(--green)">0</div><div class="kc-sub up" id="peps-kpi-com-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>0% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-file-certificate" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Média Semanal</div><div class="kc-val" id="peps-kpi-media" style="color:var(--green)">0</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>PEPs/semana</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-chart-line" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch" style="align-items:flex-start">
+      <div>
+        <div class="ct">Distribuição por Status SAP</div>
+        <div class="csub" id="peps-funnel-subtitle">0 PEPs ativos</div>
+      </div>
+      <div class="seg" id="peps-funnel-mode-seg">
+        <button class="seg-btn on" type="button" data-funnel-mode="fluxo">Fluxo SAP</button>
+        <button class="seg-btn" type="button" data-funnel-mode="mdo">Maior MDO</button>
+        <button class="seg-btn" type="button" data-funnel-mode="aptas">Somente Aptas</button>
+      </div>
+    </div>
+    <div class="leg" id="peps-funnel-badges" style="margin-bottom:10px"></div>
+    <div class="frows-head" style="display:flex;justify-content:flex-end;gap:0;font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
+      <div style="width:72px;text-align:right">MDO</div>
+      <div style="width:42px;text-align:right;margin-left:8px">%</div>
+    </div>
+    <div class="frows" id="peps-funnel-rows"></div>
+    <div class="divider"></div>
+    <div class="csub" id="peps-funnel-total" style="font-weight:600;color:var(--t1)"></div>
   </div>
   <div class="g2">
     <div class="card">
-      <div class="ch"><div class="ct">Pipeline de Status Resumo</div><div class="csub">405 PEPs ativos</div></div>
-      <div class="frows">
-        <div class="fr"><div class="fl">ABER // ABER</div><div class="ft"><div class="ff" style="width:0.5%;background:var(--t3)"></div></div><div class="fn">2</div></div>
-        <div class="fr"><div class="fl">ABER // LOG</div><div class="ft"><div class="ff" style="width:2.5%;background:var(--t3)"></div></div><div class="fn">10</div></div>
-        <div class="fr"><div class="fl">LIB // LOG</div><div class="ft"><div class="ff" style="width:13.8%;background:var(--blue)"></div></div><div class="fn">56</div></div>
-        <div class="fr"><div class="fl">LIB // ATEC</div><div class="ft"><div class="ff" style="width:9.1%;background:var(--blue)"></div></div><div class="fn">37</div></div>
-        <div class="fr"><div class="fl">LIB // ENER</div><div class="ft"><div class="ff" style="width:10.4%;background:var(--blue)"></div></div><div class="fn">42</div></div>
-        <div class="fr"><div class="fl">LIB // CONC</div><div class="ft"><div class="ff" style="width:8.6%;background:var(--blue)"></div></div><div class="fn">35</div></div>
-        <div class="fr"><div class="fl">LIB // PEND</div><div class="ft"><div class="ff" style="width:3.5%;background:var(--yellow)"></div></div><div class="fn">14</div></div>
-        <div class="fr"><div class="fl">LIB // MED</div><div class="ft"><div class="ff" style="width:17%;background:var(--yellow)"></div></div><div class="fn">69</div></div>
-        <div class="fr"><div class="fl">LIB // DEV</div><div class="ft"><div class="ff" style="width:0.3%;background:var(--t3)"></div></div><div class="fn">1</div></div>
-        <div class="fr"><div class="fl">LIB // CKCP</div><div class="ft"><div class="ff" style="width:13.3%;background:var(--purple)"></div></div><div class="fn">54</div></div>
-        <div class="fr"><div class="fl">ENTE // ANCE</div><div class="ft"><div class="ff" style="width:0.3%;background:var(--green)"></div></div><div class="fn">1</div></div>
-        <div class="fr"><div class="fl" style="color:var(--green);font-weight:500">ENCE // ENCE</div><div class="ft"><div class="ff" style="width:20%;background:var(--green)"></div></div><div class="fn" style="color:var(--green)">81</div></div>
+      <div class="ch"><div class="ct">PEPs por Período</div><div class="csub" id="peps-trend-subtitle">Sem dados</div></div>
+      <div class="cw" style="height:200px">
+        <canvas id="ch3" role="img" aria-label="Linha de tendência de PEPs criados por período"></canvas>
       </div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">PEPs por Semana</div><div class="csub">S35/25 → S13/26</div></div>
-      <div class="cw" style="height:140px">
-        <canvas id="ch3" role="img" aria-label="Linha de tendência de PEPs criados por semana">Tendência semanal com média de 9.4 PEPs por semana.</canvas>
-      </div>
-      <div class="divider"></div>
-      <div class="ch" style="margin-bottom:10px"><div class="ct">Aptos por PEP</div><div class="csub">421 aptos · 405 c/ PEP</div></div>
-      <div class="cw" style="height:80px">
-        <canvas id="ch4" role="img" aria-label="Barras: aptos 421, sem PEP -16, total 405">Aptos 421, Sem PEP -16, Total 405.</canvas>
+      <div class="ch"><div class="ct">Aptos por PEP</div><div class="csub" id="peps-bar-subtitle">0 aptos · 0 c/ PEP</div></div>
+      <div class="cw" style="height:200px">
+        <canvas id="ch4" role="img" aria-label="Barras: aptos, sem PEP, total"></canvas>
       </div>
     </div>
   </div>
+
+  <div class="card field-panel">
+    <div class="field-toolbar">
+      <div>
+        <div class="ct">Detalhe de PEP's</div>
+        <div class="csub" id="peps-table-subtitle">Carregando registros...</div>
+      </div>
+      <input class="field-search" id="peps-table-search" type="search" placeholder="Buscar nota, PEP, município...">
+    </div>
+    <div class="tbl-wrap">
+      <table class="dtable">
+        <thead><tr>
+          <th style="min-width:100px">Nota</th>
+          <th style="min-width:140px">PEP</th>
+          <th style="min-width:110px">Município</th>
+          <th style="min-width:100px">Carteira</th>
+          <th style="min-width:70px">PI</th>
+          <th style="min-width:140px">Status Resumo</th>
+          <th style="min-width:100px">Envio</th>
+          <th style="min-width:90px">Tem PEP</th>
+        </tr>
+        <tr class="dtable-filter-row">
+          <th></th>
+          <th></th>
+          <th><select class="dtable-col-filter" id="peps-col-municipio"></select></th>
+          <th><select class="dtable-col-filter" id="peps-col-carteira"></select></th>
+          <th><select class="dtable-col-filter" id="peps-col-pi"></select></th>
+          <th><select class="dtable-col-filter" id="peps-col-status"></select></th>
+          <th></th>
+          <th><select class="dtable-col-filter" id="peps-col-pep">
+            <option value="all">Todas</option>
+            <option value="sim">Com PEP</option>
+            <option value="nao">Sem PEP</option>
+          </select></th>
+        </tr></thead>
+        <tbody id="peps-table-body"><tr><td colspan="8" style="color:var(--t2)">Carregando base de PEP's...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /peps-page-body -->
 </div><!-- /peps -->
 
 <!-- ══════════════════════════════════════════════════════
@@ -936,36 +1191,168 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="page-head">
     <div>
       <div class="page-title">Programação</div>
-      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>Programação</span></div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span id="prog-breadcrumb-period">Programação</span><span id="prog-period-range" style="color:var(--t2);margin-left:6px"></span></div>
     </div>
-    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="live-pill" id="prog-live-pill"><div class="live-dot"></div>Carregando base ao vivo...</div>
+      <button class="insights-toggle" id="prog-insights-toggle" type="button"><i class="ti ti-bulb" aria-hidden="true"></i>Insights</button>
+    </div>
   </div>
-  <div class="kpi-grid">
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Prog. Concluídas</div><div class="kc-val" style="color:var(--green)">297</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>73.5% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-check" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Programadas</div><div class="kc-val" style="color:var(--blue)">70</div><div class="kc-sub up"><i class="ti ti-calendar" style="font-size:11px"></i>em andamento</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-calendar-stats" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Reprogramadas</div><div class="kc-val" style="color:var(--yellow)">10</div><div class="kc-sub wn"><i class="ti ti-refresh" style="font-size:11px"></i>reagendadas</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-refresh" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Canceladas</div><div class="kc-val" style="color:var(--red)">27</div><div class="kc-sub dn"><i class="ti ti-x" style="font-size:11px"></i>6.7% do total</div></div><div class="kc-icon" style="background:var(--red-bg);color:var(--red)"><i class="ti ti-x" aria-hidden="true"></i></div></div>
+  <div class="page-insights" id="prog-insights"></div>
+  <div class="page-body" id="prog-page-body">
+  <div class="filter-card">
+    <div class="filter-toolbar">
+      <div>
+        <div class="filter-title">Filtros de Programação</div>
+        <div class="filter-subtitle">Troque o período e filtre por equipe, supervisor, cidade, status ou bloqueio.</div>
+      </div>
+      <div class="filter-toolbar-actions">
+        <div class="seg" id="prog-mode-seg">
+          <button class="seg-btn" type="button" data-mode="day">Dia</button>
+          <button class="seg-btn on" type="button" data-mode="week">Semana</button>
+          <button class="seg-btn" type="button" data-mode="month">Mês</button>
+        </div>
+        <div class="seg" id="prog-block-seg">
+          <button class="seg-btn on" type="button" data-block="all">Todas</button>
+          <button class="seg-btn" type="button" data-block="blocked">Bloqueadas</button>
+        </div>
+        <button class="filter-export" id="prog-export-xlsx" type="button"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Exportar Excel</button>
+      </div>
+    </div>
+    <div class="filter-grid">
+      <div class="fctl span-2">
+        <label for="prog-period-select">Período</label>
+        <select id="prog-period-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="prog-year-select">Ano</label>
+        <select id="prog-year-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="prog-month-select">Mês</label>
+        <select id="prog-month-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="prog-team-select">Equipe</label>
+        <select id="prog-team-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="prog-supervisor-select">Supervisor</label>
+        <select id="prog-supervisor-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="prog-city-select">Cidade</label>
+        <select id="prog-city-select"></select>
+      </div>
+      <div class="fctl span-3">
+        <label for="prog-status-select">Status</label>
+        <select id="prog-status-select"></select>
+      </div>
+      <div class="fctl span-3">
+        <label for="prog-nota-input">Nota / PEP</label>
+        <input id="prog-nota-input" type="search" placeholder="Buscar nota ou PEP...">
+      </div>
+      <div class="fctl filter-actions span-3">
+        <button class="filter-reset" id="prog-reset-filters" type="button">Limpar filtros</button>
+      </div>
+    </div>
+  </div>
+  <div class="kpi-grid prog-kpi-grid">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Prog. Concluídas</div><div class="kc-val" id="prog-kpi-concluidas" style="color:var(--green)">0</div><div class="kc-sub up" id="prog-kpi-concluidas-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>0% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-check" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Programadas</div><div class="kc-val" id="prog-kpi-programadas" style="color:var(--blue)">0</div><div class="kc-sub up"><i class="ti ti-calendar" style="font-size:11px"></i>em andamento</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-calendar-stats" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Reprogramadas</div><div class="kc-val" id="prog-kpi-reprogramadas" style="color:var(--yellow)">0</div><div class="kc-sub wn"><i class="ti ti-refresh" style="font-size:11px"></i>reagendadas</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-refresh" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Canceladas</div><div class="kc-val" id="prog-kpi-canceladas" style="color:var(--red)">0</div><div class="kc-sub dn" id="prog-kpi-canceladas-sub"><i class="ti ti-x" style="font-size:11px"></i>0% do total</div></div><div class="kc-icon" style="background:var(--red-bg);color:var(--red)"><i class="ti ti-x" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Expurgo</div><div class="kc-val" id="prog-kpi-expurgo" style="color:var(--cyan)">0</div><div class="kc-sub wn"><i class="ti ti-trash" style="font-size:11px"></i>descartadas</div></div><div class="kc-icon" style="background:rgba(44,143,184,.12);color:var(--cyan)"><i class="ti ti-trash" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Bloqueadas</div><div class="kc-val" id="prog-kpi-bloqueadas" style="color:var(--purple)">0</div><div class="kc-sub wn"><i class="ti ti-lock" style="font-size:11px"></i>BLOK/PD ativo</div></div><div class="kc-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-lock" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor da Obra (total)</div><div class="kc-val" id="prog-kpi-valor-obra" style="color:var(--green);font-size:17px">R$ 0</div><div class="kc-sub up"><i class="ti ti-receipt" style="font-size:11px"></i>contratado</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-receipt" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor de Serviços Prev.</div><div class="kc-val" id="prog-kpi-valor-prev" style="color:var(--blue);font-size:17px">R$ 0</div><div class="kc-sub up"><i class="ti ti-clock-hour-4" style="font-size:11px"></i>previsto</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-clock-hour-4" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor Real por Dia</div><div class="kc-val" id="prog-kpi-valor-real" style="color:var(--yellow);font-size:17px">R$ 0</div><div class="kc-sub up"><i class="ti ti-bolt" style="font-size:11px"></i>executado</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-bolt" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="ct">Valor por Status (R$)</div><div class="csub" id="prog-value-chart-subtitle">Obra · Previsto · Real, por status</div></div>
+    <div class="cw" style="height:220px">
+      <canvas id="ch10" role="img" aria-label="Barras agrupadas de valor por status: obra, previsto e real"></canvas>
+    </div>
   </div>
   <div class="g2">
     <div class="card">
-      <div class="ch"><div class="ct">Programação por Status</div><div class="csub">Total: 404 obras</div></div>
-      <div class="leg">
-        <div class="leg-item"><div class="leg-sq" style="background:var(--green)"></div>Concluídas (297)</div>
-        <div class="leg-item"><div class="leg-sq" style="background:var(--blue)"></div>Programadas (70)</div>
-        <div class="leg-item"><div class="leg-sq" style="background:var(--red)"></div>Canceladas (27)</div>
-        <div class="leg-item"><div class="leg-sq" style="background:var(--yellow)"></div>Reprogramadas (10)</div>
-      </div>
+      <div class="ch"><div class="ct">Programação por Status</div><div class="csub" id="prog-donut-subtitle">Total: 0 obras</div></div>
+      <div class="leg" id="prog-donut-legend"></div>
       <div class="cw" style="height:160px">
-        <canvas id="ch5" role="img" aria-label="Donut de programação por status">Concluídas 297, Programadas 70, Canceladas 27, Reprogramadas 10.</canvas>
+        <canvas id="ch5" role="img" aria-label="Donut de programação por status"></canvas>
       </div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">Valor por Status</div><div class="csub">Total: R$ 5,44M</div></div>
+      <div class="ch"><div class="ct">Top Equipes por Nº de Programações</div><div class="csub" id="prog-bar-subtitle">Total: 0 registros</div></div>
       <div class="cw" style="height:180px">
-        <canvas id="ch6" role="img" aria-label="Barras de valor por status de programação">Concluídas R$3,31M, Programadas R$1,78M, Canceladas R$209k, Reprogramadas R$137k.</canvas>
+        <canvas id="ch6" role="img" aria-label="Barras de programações por equipe"></canvas>
       </div>
     </div>
   </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct">Pipeline de Status SAP</div><div class="csub" id="prog-funnel-subtitle">0 registros</div></div>
+      <div class="frows" id="prog-funnel-rows"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Programações por Cidade</div><div class="csub" id="prog-city-chart-subtitle">Top 8 cidades</div></div>
+      <div class="cw" style="height:220px">
+        <canvas id="ch9" role="img" aria-label="Barras de programações por cidade"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="card field-panel">
+    <div class="field-toolbar">
+      <div>
+        <div class="ct">Detalhe de Programações</div>
+        <div class="csub" id="prog-table-subtitle">Carregando registros...</div>
+      </div>
+      <input class="field-search" id="prog-table-search" type="search" placeholder="Buscar nota, PEP, equipe, cidade...">
+    </div>
+    <div class="tbl-wrap">
+      <table class="dtable">
+        <thead><tr>
+          <th style="min-width:100px">Nota / PEP</th>
+          <th style="min-width:110px">Cidade</th>
+          <th style="min-width:120px">Equipe</th>
+          <th style="min-width:120px">Supervisor</th>
+          <th style="min-width:130px">Status SAP</th>
+          <th style="min-width:110px">Status Fis</th>
+          <th style="min-width:100px">Execução</th>
+          <th style="min-width:110px">Progresso</th>
+          <th style="min-width:80px">Postes</th>
+          <th style="min-width:100px">Bloqueio</th>
+          <th style="min-width:110px">Valor Obra</th>
+          <th style="min-width:110px">Valor Prev.</th>
+          <th style="min-width:110px">Valor Real</th>
+        </tr>
+        <tr class="dtable-filter-row">
+          <th></th>
+          <th><select class="dtable-col-filter" id="prog-col-cidade"></select></th>
+          <th><select class="dtable-col-filter" id="prog-col-equipe"></select></th>
+          <th><select class="dtable-col-filter" id="prog-col-supervisor"></select></th>
+          <th><select class="dtable-col-filter" id="prog-col-statussap"></select></th>
+          <th><select class="dtable-col-filter" id="prog-col-statusfis"></select></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th><select class="dtable-col-filter" id="prog-col-bloqueio">
+            <option value="all">Todas</option>
+            <option value="bloqueada">Bloqueada</option>
+            <option value="livre">Livre</option>
+          </select></th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody id="prog-table-body"><tr><td colspan="13" style="color:var(--t2)">Carregando base de programação...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  </div><!-- /prog-page-body -->
 </div><!-- /prog -->
 
 <!-- ══════════════════════════════════════════════════════
@@ -975,10 +1362,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="page-head">
     <div>
       <div class="page-title">Produção Diária</div>
-      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span id="prod-breadcrumb-week">S20/2026</span></div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span id="prod-breadcrumb-week">S20/2026</span><span id="prod-period-range" style="color:var(--t2);margin-left:6px"></span></div>
     </div>
-    <div class="live-pill" id="prod-live-pill"><div class="live-dot"></div>Meta semanal: R$ 32.500,00</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="live-pill" id="prod-live-pill"><div class="live-dot"></div>Meta semanal: R$ 32.500,00</div>
+      <button class="insights-toggle" id="prod-insights-toggle" type="button"><i class="ti ti-bulb" aria-hidden="true"></i>Insights</button>
+    </div>
   </div>
+  <div class="page-insights" id="prod-insights"></div>
+  <div class="page-body" id="prod-page-body">
   <div class="filter-card">
     <div class="filter-toolbar">
       <div>
@@ -1075,6 +1467,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       </table>
     </div>
   </div>
+  </div><!-- /prod-page-body -->
 </div><!-- /prod -->
 
 <!-- ══════════════════════════════════════════════════════
@@ -1192,6 +1585,71 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     </div>
   </div>
 </div><!-- /enc -->
+
+<!-- ══════════════════════════════════════════════════════
+     PANE: MAPA DE PROGRAMAÇÃO
+══════════════════════════════════════════════════════ -->
+<div id="p-mapa" class="pane">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Mapa de Programação</div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span id="map-breadcrumb-month">Mapa de Programação</span><span id="map-period-range" style="color:var(--t2);margin-left:6px"></span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="live-pill" id="map-live-pill"><div class="live-dot"></div>Carregando base ao vivo...</div>
+      <button class="insights-toggle" id="map-insights-toggle" type="button"><i class="ti ti-bulb" aria-hidden="true"></i>Insights</button>
+    </div>
+  </div>
+  <div class="page-insights" id="map-insights"></div>
+  <div class="page-body" id="map-page-body">
+  <div class="filter-card">
+    <div class="filter-toolbar">
+      <div>
+        <div class="filter-title">Filtros do Mapa</div>
+        <div class="filter-subtitle">Navegue pelo mês e filtre por equipe ou encarregado.</div>
+      </div>
+      <div class="filter-toolbar-actions">
+        <div class="seg" id="map-month-nav">
+          <button class="seg-btn" type="button" id="map-month-prev" title="Mês anterior"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+          <button class="seg-btn" type="button" id="map-month-next" title="Mês seguinte"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="filter-grid">
+      <div class="fctl span-3">
+        <label for="map-month-select">Mês</label>
+        <select id="map-month-select"></select>
+      </div>
+      <div class="fctl span-3">
+        <label for="map-team-select">Equipe</label>
+        <select id="map-team-select"></select>
+      </div>
+      <div class="fctl span-3">
+        <label for="map-foreman-select">Encarregado</label>
+        <select id="map-foreman-select"></select>
+      </div>
+      <div class="fctl filter-actions span-3">
+        <button class="filter-reset" id="map-reset-filters" type="button">Limpar filtros</button>
+      </div>
+    </div>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total no mês</div><div class="kc-val" id="map-kpi-total" style="color:var(--green)">0</div><div class="kc-sub up"><i class="ti ti-calendar-stats" style="font-size:11px"></i>programações</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-calendar-stats" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Média diária</div><div class="kc-val" id="map-kpi-avg" style="color:var(--blue)">0</div><div class="kc-sub up"><i class="ti ti-chart-line" style="font-size:11px"></i>por dia do mês</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-chart-line" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Dia de pico</div><div class="kc-val" id="map-kpi-peak" style="color:var(--yellow);font-size:16px">—</div><div class="kc-sub wn" id="map-kpi-peak-sub"><i class="ti ti-flame" style="font-size:11px"></i>maior volume</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-flame" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Equipes no filtro</div><div class="kc-val" id="map-kpi-teams" style="color:var(--purple)">0</div><div class="kc-sub up"><i class="ti ti-users" style="font-size:11px"></i>linhas visíveis</div></div><div class="kc-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-users" aria-hidden="true"></i></div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Mapa de Calor — Programações por Equipe/Dia</div><div class="csub" id="map-table-subtitle">Carregando...</div></div>
+    <div class="map-wrap">
+      <table class="maptable">
+        <thead id="map-table-head"></thead>
+        <tbody id="map-table-body"><tr><td style="color:var(--t2);padding:14px">Carregando mapa de programação...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  </div><!-- /map-page-body -->
+</div><!-- /mapa -->
 
   </main>
 </div><!-- /.main -->
@@ -1688,6 +2146,8 @@ function bindProductionFilters() {
   if (prodFiltersBound) return;
   prodFiltersBound = true;
 
+  document.getElementById('prod-insights-toggle')?.addEventListener('click', toggleProdInsights);
+
   document.querySelectorAll('#prod-mode-seg .seg-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       prodState.mode = btn.dataset.mode;
@@ -1754,11 +2214,21 @@ function bindProductionFilters() {
   document.getElementById('field-work-search')?.addEventListener('input', renderFieldWorkPanel);
 }
 
+function formatPeriodRange(rows) {
+  if (!rows.length) return '';
+  const dates = rows.map((row) => row.data.getTime());
+  const min = new Date(Math.min(...dates));
+  const max = new Date(Math.max(...dates));
+  if (min.getTime() === max.getTime()) return `(${formatDateLabel(min)})`;
+  return `(de ${formatDateLabel(min)} até ${formatDateLabel(max)})`;
+}
+
 function buildLiveData(rows) {
   if (!rows.length) {
     return {
       mode: prodState.mode,
       periodLabel: 'Sem dados',
+      periodRange: '',
       target: getTargetForMode(prodState.mode),
       producao: { totalValue: 0, totalPosts: 0, totalNotes: 0, teamsHit: 0, teamsTotal: 0, teams: [] },
     };
@@ -1793,6 +2263,7 @@ function buildLiveData(rows) {
   return {
     mode: prodState.mode,
     periodLabel: getPeriodInfo(rows[0], prodState.mode).label,
+    periodRange: formatPeriodRange(rows),
     target,
     producao: {
       totalValue: rows.reduce((sum, row) => sum + row.valor, 0),
@@ -1812,6 +2283,7 @@ function renderLiveSummary(data) {
   const accumulated = data.producao.totalValue;
   const grandTotal = getGrandProductionTotal();
   setText('prod-breadcrumb-week', data.periodLabel);
+  setText('prod-period-range', data.periodRange || '');
   setHTML('prod-live-pill', `<div class="live-dot"></div>Meta ${modeLabel.toLowerCase()}: ${fmtCurrencyExact(target)}`);
   setText('prod-kpi-value-label', `Prod. Valor ${modeLabel}`);
   setText('prod-kpi-value', fmtCurrencyExact(accumulated));
@@ -1970,6 +2442,79 @@ function exportProductionXlsx() {
   XLSX.writeFile(wb, fileName, { compression: true });
 }
 
+function generateProdInsights(data) {
+  const insights = [];
+  if (!data || !data.producao.teams.length) {
+    insights.push({ severity: 'low', icon: 'ti-info-circle', title: 'Sem dados para os filtros atuais', desc: 'Ajuste os filtros para gerar insights.' });
+    return insights;
+  }
+
+  const { teams, teamsHit, teamsTotal } = data.producao;
+  const target = data.target;
+  const missCount = teamsTotal - teamsHit;
+  const missRate = teamsTotal ? missCount / teamsTotal : 0;
+  const modeLabel = getPeriodDescriptor(data.mode).toLowerCase();
+
+  if (missRate >= 0.5) {
+    insights.push({ severity: 'high', icon: 'ti-trending-down', title: `${fmtNumber(missCount)} de ${fmtNumber(teamsTotal)} equipes não atingiram a meta`, desc: `Meta ${modeLabel}: ${fmtCurrencyExact(target)} por equipe.` });
+  } else if (missCount > 0) {
+    insights.push({ severity: 'medium', icon: 'ti-trending-down', title: `${fmtNumber(missCount)} equipe(s) abaixo da meta`, desc: `${fmtNumber(teamsHit)} de ${fmtNumber(teamsTotal)} bateram a meta ${modeLabel} de ${fmtCurrencyExact(target)}.` });
+  } else {
+    insights.push({ severity: 'good', icon: 'ti-trending-up', title: 'Todas as equipes atingiram a meta', desc: `Meta ${modeLabel} de ${fmtCurrencyExact(target)} cumprida por 100% das equipes.` });
+  }
+
+  const worst = teams[teams.length - 1];
+  if (worst && target && worst.valor < target * 0.5) {
+    insights.push({ severity: 'high', icon: 'ti-alert-triangle', title: `${worst.equipe} produziu apenas ${fmtCurrencyExact(worst.valor)}`, desc: `Menos de 50% da meta (${fmtCurrencyExact(target)}) no período filtrado.` });
+  }
+
+  const best = teams[0];
+  if (best) {
+    insights.push({ severity: 'good', icon: 'ti-trophy', title: `${best.equipe} lidera com ${fmtCurrencyExact(best.valor)}`, desc: 'Melhor produção do período filtrado.' });
+  }
+
+  const zeroPostTeams = teams.filter((team) => team.postes === 0 && team.valor > 0);
+  if (zeroPostTeams.length) {
+    insights.push({ severity: 'medium', icon: 'ti-bolt-off', title: `${fmtNumber(zeroPostTeams.length)} equipe(s) com produção mas sem postes registrados`, desc: 'Possível pendência de apontamento de campo (postes implantados).' });
+  }
+
+  return insights;
+}
+
+function renderProdInsights() {
+  const container = document.getElementById('prod-insights');
+  if (!container || !liveData) return;
+  const insights = generateProdInsights(liveData);
+  container.innerHTML = `
+    <div class="insight-card">
+      <div class="ch"><div class="ct">Pontos de Atenção — Produção Diária</div><div class="csub">${liveData.periodLabel}</div></div>
+      <div class="insight-grid">
+        ${insights.map((item) => `
+          <div class="insight-item insight-sev-${item.severity}">
+            <div class="insight-icon"><i class="ti ${item.icon}" aria-hidden="true"></i></div>
+            <div>
+              <div class="insight-title">${item.title}</div>
+              <div class="insight-desc">${item.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function toggleProdInsights() {
+  const insightsEl = document.getElementById('prod-insights');
+  const bodyEl = document.getElementById('prod-page-body');
+  const btn = document.getElementById('prod-insights-toggle');
+  if (!insightsEl || !bodyEl || !btn) return;
+  const isOn = insightsEl.classList.toggle('on');
+  bodyEl.classList.toggle('hidden', isOn);
+  btn.classList.toggle('on', isOn);
+  btn.innerHTML = isOn
+    ? '<i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard'
+    : '<i class="ti ti-bulb" aria-hidden="true"></i>Insights';
+  if (isOn) renderProdInsights();
+}
+
 function updateProductionDashboard() {
   if (!prodRows.length) return;
   updateFilterControls();
@@ -1977,6 +2522,7 @@ function updateProductionDashboard() {
   renderLiveSummary(liveData);
   renderFieldWorkPanel();
   rebuildCharts();
+  if (document.getElementById('prod-insights')?.classList.contains('on')) renderProdInsights();
 }
 
 async function loadPublishedSheet() {
@@ -1997,6 +2543,7 @@ function getColors() {
     yellow: cs.getPropertyValue('--yellow').trim() || '#f7b84b',
     red:    cs.getPropertyValue('--red').trim()    || '#f06548',
     purple: cs.getPropertyValue('--purple').trim() || '#7c6cf2',
+    cyan:   cs.getPropertyValue('--cyan').trim()   || '#2c8fb8',
     gray:   cs.getPropertyValue('--t3').trim()     || '#495057',
     grid:   cs.getPropertyValue('--border').trim() || '#32383e',
     tick:   cs.getPropertyValue('--t2').trim()     || '#878a99',
@@ -2009,11 +2556,7 @@ const valueLabelPlugin = {
   id: 'valueLabelPlugin',
   afterDatasetsDraw(chart, args, pluginOptions) {
     if (!pluginOptions?.enabled) return;
-    const datasetIndex = pluginOptions.datasetIndex ?? 0;
-    const dataset = chart.data.datasets[datasetIndex];
-    const meta = chart.getDatasetMeta(datasetIndex);
-    if (!dataset || !meta?.data?.length) return;
-
+    const indexes = pluginOptions.datasetIndexes || [pluginOptions.datasetIndex ?? 0];
     const { ctx, chartArea } = chart;
     ctx.save();
     ctx.font = `600 ${pluginOptions.fontSize || 10}px Poppins, sans-serif`;
@@ -2021,22 +2564,74 @@ const valueLabelPlugin = {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
 
-    meta.data.forEach((element, index) => {
-      const rawValue = dataset.data[index];
-      if (rawValue == null) return;
-      const props = element.getProps(['x', 'y'], true);
-      const y = Math.max(props.y - 6, chartArea.top + 10);
-      const text = typeof pluginOptions.formatter === 'function'
-        ? pluginOptions.formatter(rawValue, index, chart)
-        : String(rawValue);
-      ctx.fillText(text, props.x, y);
+    indexes.forEach((datasetIndex) => {
+      const dataset = chart.data.datasets[datasetIndex];
+      const meta = chart.getDatasetMeta(datasetIndex);
+      if (!dataset || !meta?.data?.length || meta.hidden) return;
+
+      meta.data.forEach((element, index) => {
+        const rawValue = dataset.data[index];
+        if (!rawValue) return;
+        const props = element.getProps(['x', 'y'], true);
+        const y = Math.max(props.y - 6, chartArea.top + 10);
+        const text = typeof pluginOptions.formatter === 'function'
+          ? pluginOptions.formatter(rawValue, index, chart, datasetIndex)
+          : String(rawValue);
+        ctx.fillText(text, props.x, y);
+      });
     });
 
     ctx.restore();
   }
 };
 
-Chart.register(valueLabelPlugin);
+const doughnutLabelPlugin = {
+  id: 'doughnutLabelPlugin',
+  afterDatasetsDraw(chart, args, pluginOptions) {
+    if (!pluginOptions?.enabled) return;
+    const meta = chart.getDatasetMeta(0);
+    const dataset = chart.data.datasets[0];
+    if (!dataset || !meta?.data?.length) return;
+
+    const { ctx } = chart;
+    const lineLength = pluginOptions.lineLength ?? 14;
+    const labelOffset = pluginOptions.labelOffset ?? 18;
+    ctx.save();
+    ctx.font = `600 ${pluginOptions.fontSize || 12}px Poppins, sans-serif`;
+    ctx.lineWidth = 1.25;
+    ctx.textBaseline = 'middle';
+
+    meta.data.forEach((arc, index) => {
+      const rawValue = dataset.data[index];
+      if (!rawValue) return;
+      const angle = (arc.startAngle + arc.endAngle) / 2;
+      const color = Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[index] : (pluginOptions.color || '#fff');
+      const outerR = arc.outerRadius;
+      const innerPoint = { x: arc.x + Math.cos(angle) * outerR, y: arc.y + Math.sin(angle) * outerR };
+      const bendPoint = { x: arc.x + Math.cos(angle) * (outerR + lineLength), y: arc.y + Math.sin(angle) * (outerR + lineLength) };
+      const isRight = Math.cos(angle) >= 0;
+      const outerPoint = { x: bendPoint.x + (isRight ? labelOffset : -labelOffset), y: bendPoint.y };
+
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(innerPoint.x, innerPoint.y);
+      ctx.lineTo(bendPoint.x, bendPoint.y);
+      ctx.lineTo(outerPoint.x, outerPoint.y);
+      ctx.stroke();
+
+      ctx.fillStyle = pluginOptions.color || '#d8dee6';
+      ctx.textAlign = isRight ? 'left' : 'right';
+      const text = typeof pluginOptions.formatter === 'function'
+        ? pluginOptions.formatter(rawValue, index, chart)
+        : String(rawValue);
+      ctx.fillText(text, outerPoint.x + (isRight ? 5 : -5), outerPoint.y);
+    });
+
+    ctx.restore();
+  }
+};
+
+Chart.register(valueLabelPlugin, doughnutLabelPlugin);
 
 function axCfg(C) {
   return { grid: { color: C.grid }, ticks: { color: C.tick, font: { family: 'Poppins', size: 10 } } };
@@ -2050,75 +2645,14 @@ function build() {
     plugins: { legend: { display: false } }
   };
 
-  /* ch1 – Horizontal bars viabilidade */
-  mkChart('ch1', { type: 'bar',
-    data: {
-      labels: ['Expurgo','Apto','F. Viabilizar','Devolução','Em Análise','Dev. Campo','Pendente'],
-      datasets: [{ data: [462, 410, 233, 72, 45, 31, 21],
-        backgroundColor: [C.red, C.green, C.yellow, C.purple, C.blue, C.purple, C.gray],
-        borderRadius: 4, borderSkipped: false }]
-    },
-    options: { ...defs, indexAxis: 'y',
-      scales: { x: axCfg(C), y: { ...axCfg(C), grid: { display: false } } }
-    }
-  });
+  /* ch1, ch2 – Viabilidade charts são construídos por viabilidade.js (dados ao vivo) */
+  if (window.renderViabilidadeCharts) window.renderViabilidadeCharts(C);
 
-  /* ch2 – Monthly bars */
-  mkChart('ch2', { type: 'bar',
-    data: { labels: ['out/25','fev/26','mar/26','abr/26','mai/26'],
-      datasets: [{ data: [135, 133, 144, 67, 31],
-        backgroundColor: [C.gray, C.gray, C.green, C.green, C.green],
-        borderRadius: 3 }]
-    },
-    options: { ...defs, scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), display: false } } }
-  });
+  /* ch3, ch4 – PEP's charts são construídos por peps.js (dados ao vivo) */
+  if (window.renderPepsCharts) window.renderPepsCharts(C);
 
-  /* ch3 – PEPs weekly line */
-  mkChart('ch3', { type: 'line',
-    data: {
-      labels: ['S35','S37','S39','S41','S43','S45','S47','S49','S51','S01','S03','S05','S07','S09','S11','S13'],
-      datasets: [{ data: [21,8,12,5,22,10,11,6,8,7,5,3,10,12,19,9],
-        borderColor: C.green, backgroundColor: C.green + '22',
-        pointBackgroundColor: C.green, pointRadius: 2.5,
-        tension: .4, fill: true, borderWidth: 2 }]
-    },
-    options: { ...defs, scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), beginAtZero: true } } }
-  });
-
-  /* ch4 – Aptos bar */
-  mkChart('ch4', { type: 'bar',
-    data: { labels: ['Aptos','Sem PEP','Total'],
-      datasets: [{ data: [421, -16, 405],
-        backgroundColor: [C.blue, C.red, C.gray],
-        borderRadius: 4 }]
-    },
-    options: { ...defs, scales: { x: { ...axCfg(C), grid: { display: false } }, y: { ...axCfg(C), display: false } } }
-  });
-
-  /* ch5 – Programação donut */
-  mkChart('ch5', { type: 'doughnut',
-    data: { labels: ['Concluídas','Programadas','Canceladas','Reprogramadas'],
-      datasets: [{ data: [297, 70, 27, 10],
-        backgroundColor: [C.green, C.blue, C.red, C.yellow],
-        borderWidth: 2, borderColor: C.bg }]
-    },
-    options: { ...defs, cutout: '68%' }
-  });
-
-  /* ch6 – Valor por status */
-  mkChart('ch6', { type: 'bar',
-    data: { labels: ['Concluídas','Programadas','Canceladas','Reprog.'],
-      datasets: [{ data: [3312242, 1783337, 208998, 136800],
-        backgroundColor: [C.green, C.blue, C.red, C.yellow],
-        borderRadius: 4 }]
-    },
-    options: { ...defs,
-      scales: {
-        x: { ...axCfg(C), grid: { display: false } },
-        y: { ...axCfg(C), ticks: { ...axCfg(C).ticks, callback: v => 'R$' + (v/1e6).toFixed(1) + 'M' } }
-      }
-    }
-  });
+  /* ch5, ch6, ch9 – Programação charts são construídos por programacao.js (dados ao vivo) */
+  if (window.renderProgramacaoCharts) window.renderProgramacaoCharts(C);
 
   /* ch7 – Produção por equipe */
   mkChart('ch7', { type: 'bar',
@@ -2194,6 +2728,10 @@ function rebuildCharts() {
 document.addEventListener('DOMContentLoaded', async () => {
   build();
   bindProductionFilters();
+  if (window.initProgramacao) window.initProgramacao();
+  if (window.initMapa) window.initMapa();
+  if (window.initViabilidade) window.initViabilidade();
+  if (window.initPeps) window.initPeps();
   try {
     await loadPublishedSheet();
   } catch (error) {
@@ -2206,5 +2744,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 </script>
+<script src="cg-data.js"></script>
+<script src="programacao.js"></script>
+<script src="mapa.js"></script>
+<script src="viabilidade.js"></script>
+<script src="peps.js"></script>
 </body>
 </html>
