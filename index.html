@@ -2043,7 +2043,6 @@ function updateLogo(themeName) {
   const img = document.getElementById('logo-img');
   if (!img) return;
   const isDark = themeName.startsWith('dark');
-  // gray-white has --bg dark -> usa logo branco; light-gray has --bg light -> usa logo escuro
   if (themeName === 'gray-white') img.src = '/logo_white.png';
   else if (themeName === 'light-gray') img.src = '/logo.png';
   else img.src = isDark ? '/logo_white.png' : '/logo.png';
