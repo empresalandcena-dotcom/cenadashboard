@@ -1546,6 +1546,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor Faturado</div><div class="kc-val" id="enc-kpi-valor-faturado" style="color:var(--green);font-size:18px">R$ 0</div><div class="kc-sub up" id="enc-kpi-valor-faturado-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>de R$ 0 medido</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
   </div>
 
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="ct">Resumo por Situação</div><div class="csub" id="enc-resumo-subtitle">0 notas analisadas</div></div>
+    <div id="enc-resumo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px"></div>
+  </div>
+
   <div class="g3">
     <div class="card">
       <div class="ch"><div class="ct">Situação de Encerramento</div><div class="csub" id="enc-situacao-chart-subtitle">0 notas · valores em R$</div></div>
@@ -1573,7 +1578,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="card">
     <div class="ch"><div class="ct">Envios por Período</div><div class="csub" id="enc-trend-subtitle">Sem dados</div></div>
     <div class="cw" style="height:200px">
-      <canvas id="ch10" role="img" aria-label="Linha de tendência de envios de encerramento por período"></canvas>
+      <canvas id="ch11" role="img" aria-label="Linha de tendência de envios de encerramento por período"></canvas>
     </div>
   </div>
 

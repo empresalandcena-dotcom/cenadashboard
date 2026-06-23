@@ -170,6 +170,54 @@ function encRenderKpis(rows) {
   setHTML('enc-kpi-valor-faturado-sub', `<i class="ti ti-arrow-up-right" style="font-size:11px"></i>de ${fmtCurrencyCompact(valorMedido)} medido`);
 }
 
+function encRenderResumo(rows) {
+  const grid = document.getElementById('enc-resumo-grid');
+  if (!grid) return;
+
+  const total = rows.length;
+  setText('enc-resumo-subtitle', `${fmtNumber(total)} notas analisadas`);
+
+  if (!total) {
+    grid.innerHTML = '<div style="color:var(--t2);font-size:11px;padding:8px">Sem dados para os filtros atuais.</div>';
+    return;
+  }
+
+  const statusMap = new Map();
+  rows.forEach((row) => {
+    if (!statusMap.has(row.situacao)) {
+      statusMap.set(row.situacao, { situacao: row.situacao, count: 0, faturado: 0, medido: 0, mo: 0 });
+    }
+    const item = statusMap.get(row.situacao);
+    item.count += 1;
+    item.faturado += row.valorFaturado;
+    item.medido += row.valorMedido;
+    item.mo += row.valorMo;
+  });
+
+  const entries = Array.from(statusMap.values()).sort((a, b) => b.count - a.count);
+  const isFaturada = (s) => s.toUpperCase() === 'OBRA FATURADA';
+
+  grid.innerHTML = entries.map((item) => {
+    const pct = Math.round((item.count / total) * 1000) / 10;
+    const badgeColor = isFaturada(item.situacao) ? 'var(--green)' : 'var(--blue)';
+    const badgeBg = isFaturada(item.situacao) ? 'var(--green-bg)' : 'var(--blue-bg)';
+    return `<div style="background:var(--bg);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;color:${badgeColor};background:${badgeBg};padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.situacao}</span>
+        <span style="font-size:11px;color:var(--t2)">${pct}%</span>
+      </div>
+      <div style="font-size:22px;font-weight:700;color:var(--t1)">${fmtNumber(item.count)}</div>
+      <div style="font-size:10px;color:var(--t2)">
+        <span title="MO total">MO ${fmtCurrencyCompact(item.mo)}</span>
+        <span style="margin:0 6px">·</span>
+        <span title="Medido total">Med ${fmtCurrencyCompact(item.medido)}</span>
+        <span style="margin:0 6px">·</span>
+        <span title="Faturado total">Fat ${fmtCurrencyCompact(item.faturado)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
   const rows = encLastRows;
 
@@ -177,7 +225,7 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
   const trendOptions = encGetPeriodOptions(nonPeriodRows, encState.mode).slice().sort((a, b) => a.order - b.order);
   const trendCounts = trendOptions.map((option) => nonPeriodRows.filter((row) => encPeriodInfo(row, encState.mode).key === option.key).length);
   setText('enc-trend-subtitle', trendOptions.length ? `${trendOptions[0].label} → ${trendOptions[trendOptions.length - 1].label}` : 'Sem dados');
-  mkChart('ch10', {
+  mkChart('ch11', {
     type: 'line',
     data: {
       labels: trendOptions.map((option) => option.label),
@@ -256,6 +304,7 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
   setText('enc-total-mo', fmtCurrencyCompact(rows.reduce((sum, row) => sum + row.valorMo, 0)));
   setText('enc-total-medido', fmtCurrencyCompact(rows.reduce((sum, row) => sum + row.valorMedido, 0)));
   setText('enc-total-faturado', fmtCurrencyCompact(rows.reduce((sum, row) => sum + row.valorFaturado, 0)));
+  encRenderResumo(rows);
 };
 
 function encPopulateTableFilters(rows) {
@@ -537,6 +586,7 @@ function encUpdateDashboard() {
   encUpdateFilterControls();
   encLastRows = encGetFilteredRows();
   encRenderKpis(encLastRows);
+  encRenderResumo(encLastRows);
   encRenderTable(encLastRows);
   setText('enc-period-range', encFormatPeriodRange(encLastRows));
   if (typeof rebuildCharts === 'function') rebuildCharts();
