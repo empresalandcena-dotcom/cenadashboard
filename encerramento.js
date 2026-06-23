@@ -7,6 +7,7 @@
 
 let encRows = [];
 let encLastRows = [];
+let encCascataRows = [];
 let encFiltersBound = false;
 const encState = {
   mode: 'month',
@@ -306,7 +307,75 @@ window.renderEncerramentoCharts = function renderEncerramentoCharts(C) {
   setText('enc-total-medido', fmtCurrencyCompact(rows.reduce((sum, row) => sum + row.valorMedido, 0)));
   setText('enc-total-faturado', fmtCurrencyCompact(rows.reduce((sum, row) => sum + row.valorFaturado, 0)));
   encRenderResumo(rows);
+  encRenderCascataStatus(C);
 };
+
+function encRenderCascataStatus(C) {
+  const rows = encCascataRows;
+  if (!rows || !rows.length) return;
+
+  const STATUS_ORDER = [
+    'ABER // ABER', 'ABER // LOG',
+    'LIB // LOG', 'LIB // ATEC', 'LIB // ENER', 'LIB // CONC', 'LIB // PEND', 'LIB // COMS', 'LIB // DFEC', 'LIB // MED', 'LIB // DEV', 'LIB // ENTE', 'LIB // CKCP',
+    'ENTE // CKCP', 'ENTE // ANCE',
+    'ENCE // ENCE',
+  ];
+
+  const countMap = new Map();
+  rows.forEach((row) => {
+    const status = row['STATUS RESUMO'];
+    if (!status || status === '-') return;
+    countMap.set(status, (countMap.get(status) || 0) + 1);
+  });
+
+  const labels = [];
+  const counts = [];
+  STATUS_ORDER.forEach((status) => {
+    const count = countMap.get(status) || 0;
+    if (count === 0) return;
+    labels.push(status);
+    counts.push(count);
+  });
+
+  if (!counts.length) return;
+
+  let runningTotal = 0;
+  const data = counts.map((count, index) => {
+    const point = [runningTotal, runningTotal + count];
+    runningTotal += count;
+    return point;
+  });
+
+  labels.push('Total');
+  data.push([0, runningTotal]);
+
+  setText('enc-cascata-subtitle', `${fmtNumber(countMap.size)} status · ${fmtNumber(counts.reduce((a, b) => a + b, 0))} registros`);
+
+  const isTotal = (ctx) => ctx.dataIndex === labels.length - 1;
+
+  mkChart('ch12', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: (ctx) => isTotal(ctx) ? C.green : C.blue + 'cc',
+        borderRadius: 3,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+      plugins: {
+        legend: { display: false },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 9, formatter: (rawValue) => fmtNumber(Array.isArray(rawValue) ? rawValue[1] - rawValue[0] : rawValue) },
+      },
+      scales: {
+        x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 8 } } },
+        y: { ...axCfg(C), beginAtZero: true, ticks: { ...axCfg(C).ticks, callback: (v) => v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v } },
+      },
+    },
+  });
+}
 
 function encPopulateTableFilters(rows) {
   const situacaoOptions = encUniqueValues(rows, 'situacao').map((value) => ({ value, label: value }));
@@ -657,6 +726,7 @@ window.initEncerramento = async function initEncerramento() {
   encBindFilters();
   try {
     const rows = await window.cgLoadRows();
+    encCascataRows = rows;
     encRows = extractEncRows(rows);
     encUpdateDashboard();
     setHTML('enc-live-pill', '<div class="live-dot"></div>Atualizado agora');
