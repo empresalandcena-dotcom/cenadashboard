@@ -786,11 +786,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 #fs-close:hover { background: var(--red); color: #fff; }
 
-#fs-content { flex: 1; min-height: 0; }
-#fs-content .card { background: transparent; border: none; box-shadow: none; padding: 0; }
+#fs-content { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#fs-content .ch { display: none; }
+#fs-content .card { background: transparent; border: none; box-shadow: none; padding: 0; height: 100%; }
 #fs-content .ct { font-size: 20px; }
 #fs-content .csub { font-size: 13px; }
-#fs-content .cw { height: 100%; }
+#fs-content .cw { flex: 1; min-height: 0; }
 #fs-content canvas, #fs-content .cw canvas { max-height: none !important; }
 #fs-content .kc-val { font-size: 32px; }
 #fs-content .kc-sub { font-size: 13px; }
@@ -799,9 +800,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #fs-content .hrows { max-height: none !important; }
 #fs-content .hnum { font-size: 14px; }
 #fs-content .hlbl { font-size: 13px; }
-#fs-content .ch { display: none; }
 #fs-content table { font-size: 14px; }
 #fs-content .hrow { gap: 12px; }
+#fs-content .kpi-row { gap: 16px; }
+#fs-content .kcard { padding: 16px 20px; }
 </style>
 </head>
 <body>
@@ -2817,41 +2819,56 @@ function rebuildCharts() {
 
 /* ═══════════════════ FULLSCREEN EXPAND ═══════════════════ */
 let fsCard = null;
+let fsCardParent = null;
+let fsCardNext = null;
 
 function expandCard(card) {
   const backdrop = document.getElementById('fs-backdrop');
   const content = document.getElementById('fs-content');
+
   fsCard = card;
+  fsCardParent = card.parentNode;
+  fsCardNext = card.nextSibling;
 
   while (content.firstChild) content.removeChild(content.firstChild);
+  content.appendChild(card);
 
-  const clone = card.cloneNode(true);
-  clone.classList.add('card'); // mantem estilos base
-
-  // snapshot de canvas de grafico -> img
-  const origCanvases = card.querySelectorAll('canvas');
-  const cloneCanvases = clone.querySelectorAll('canvas');
-  cloneCanvases.forEach((cloneCanvas, i) => {
-    const origCanvas = origCanvases[i];
-    if (!origCanvas) return;
-    const img = document.createElement('img');
-    img.src = origCanvas.toDataURL();
-    img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block';
-    cloneCanvas.replaceWith(img);
-  });
-
-  content.appendChild(clone);
   backdrop.classList.add('on');
   document.body.style.overflow = 'hidden';
+
+  setTimeout(() => {
+    card.querySelectorAll('canvas').forEach((c) => {
+      const ch = Chart.getChart(c);
+      if (ch) ch.resize();
+    });
+  }, 80);
 }
 
 function collapseCard() {
   const backdrop = document.getElementById('fs-backdrop');
-  const content = document.getElementById('fs-content');
   backdrop.classList.remove('on');
   document.body.style.overflow = '';
-  while (content.firstChild) content.removeChild(content.firstChild);
-  fsCard = null;
+
+  if (fsCard && fsCardParent) {
+    if (fsCardNext) {
+      fsCardParent.insertBefore(fsCard, fsCardNext);
+    } else {
+      fsCardParent.appendChild(fsCard);
+    }
+  }
+
+  setTimeout(() => {
+    if (fsCard) {
+      fsCard.querySelectorAll('canvas').forEach((c) => {
+        const ch = Chart.getChart(c);
+        if (ch) ch.resize();
+      });
+    }
+    fsCard = null;
+    fsCardParent = null;
+    fsCardNext = null;
+    window.dispatchEvent(new Event('resize'));
+  }, 150);
 }
 
 document.getElementById('fs-close').addEventListener('click', collapseCard);
