@@ -2686,7 +2686,19 @@ const valueLabelPlugin = {
         const text = typeof pluginOptions.formatter === 'function'
           ? pluginOptions.formatter(rawValue, index, chart, datasetIndex)
           : String(rawValue);
-        ctx.fillText(text, props.x, y);
+
+        if (pluginOptions.rotate) {
+          const rad = (pluginOptions.rotate * Math.PI) / 180;
+          ctx.save();
+          ctx.translate(props.x, y);
+          ctx.rotate(rad);
+          ctx.textAlign = pluginOptions.rotate === -90 ? 'right' : 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(text, 0, 0);
+          ctx.restore();
+        } else {
+          ctx.fillText(text, props.x, y);
+        }
       });
     });
 
