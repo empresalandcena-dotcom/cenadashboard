@@ -763,26 +763,55 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .card-expand-btn:hover { background: var(--track); color: var(--t1); }
 
-.card-fs {
-  position: fixed !important; top: 0 !important; left: 0 !important;
-  width: 100vw !important; height: 100vh !important; max-width: 100vw !important;
-  z-index: 10001 !important; margin: 0 !important; border-radius: 0 !important;
-  border: none !important; padding: 36px 44px !important; overflow: auto !important;
-  background: var(--bg) !important; display: flex !important; flex-direction: column !important;
-}
-.card-fs .card-expand-btn { background: var(--track); color: var(--t1); }
-.card-fs .card-expand-btn i::before { content: '\\eb55'; } /* ti-x */
-
 #fs-backdrop {
-  display: none; position: fixed; inset: 0; z-index: 10000;
-  background: rgba(0,0,0,.85); backdrop-filter: blur(4px);
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.88); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
 }
-#fs-backdrop.on { display: block; }
+#fs-backdrop.on { display: flex; }
+
+#fs-panel {
+  position: relative; width: 96vw; height: 94vh; max-width: 1700px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+  padding: 36px 44px; overflow: auto;
+  box-shadow: 0 12px 48px rgba(0,0,0,.6);
+  display: flex; flex-direction: column;
+}
+
+#fs-close {
+  position: sticky; top: 0; float: right; z-index: 10; margin: -8px -12px 0 auto;
+  width: 36px; height: 36px; border-radius: 8px; background: var(--track);
+  color: var(--t2); display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; transition: all .15s; flex-shrink: 0;
+}
+#fs-close:hover { background: var(--red); color: #fff; }
+
+#fs-content { flex: 1; min-height: 0; }
+#fs-content .card { background: transparent; border: none; box-shadow: none; padding: 0; }
+#fs-content .ct { font-size: 20px; }
+#fs-content .csub { font-size: 13px; }
+#fs-content .cw { height: 100%; }
+#fs-content canvas, #fs-content .cw canvas { max-height: none !important; }
+#fs-content .kc-val { font-size: 32px; }
+#fs-content .kc-sub { font-size: 13px; }
+#fs-content .val-num { font-size: 18px; }
+#fs-content .val-lbl { font-size: 12px; }
+#fs-content .hrows { max-height: none !important; }
+#fs-content .hnum { font-size: 14px; }
+#fs-content .hlbl { font-size: 13px; }
+#fs-content .ch { display: none; }
+#fs-content table { font-size: 14px; }
+#fs-content .hrow { gap: 12px; }
 </style>
 </head>
 <body>
 
-<div id="fs-backdrop"></div>
+<div id="fs-backdrop">
+  <div id="fs-panel">
+    <button id="fs-close" aria-label="Fechar tela cheia"><i class="ti ti-x"></i></button>
+    <div id="fs-content"></div>
+  </div>
+</div>
 
 <div class="shell">
 
@@ -2791,26 +2820,46 @@ let fsCard = null;
 
 function expandCard(card) {
   const backdrop = document.getElementById('fs-backdrop');
+  const content = document.getElementById('fs-content');
   fsCard = card;
-  card.classList.add('card-fs');
+
+  while (content.firstChild) content.removeChild(content.firstChild);
+
+  const clone = card.cloneNode(true);
+  clone.classList.add('card'); // mantem estilos base
+
+  // snapshot de canvas de grafico -> img
+  const origCanvases = card.querySelectorAll('canvas');
+  const cloneCanvases = clone.querySelectorAll('canvas');
+  cloneCanvases.forEach((cloneCanvas, i) => {
+    const origCanvas = origCanvases[i];
+    if (!origCanvas) return;
+    const img = document.createElement('img');
+    img.src = origCanvas.toDataURL();
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block';
+    cloneCanvas.replaceWith(img);
+  });
+
+  content.appendChild(clone);
   backdrop.classList.add('on');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => {
-    card.querySelectorAll('canvas').forEach((c) => { const ch = Chart.getChart(c); if (ch) ch.resize(); });
-  }, 80);
 }
 
 function collapseCard() {
   const backdrop = document.getElementById('fs-backdrop');
-  if (fsCard) { fsCard.classList.remove('card-fs'); fsCard = null; }
+  const content = document.getElementById('fs-content');
   backdrop.classList.remove('on');
   document.body.style.overflow = '';
-  setTimeout(() => window.dispatchEvent(new Event('resize')), 150);
+  while (content.firstChild) content.removeChild(content.firstChild);
+  fsCard = null;
 }
 
-document.getElementById('fs-backdrop').addEventListener('click', collapseCard);
+document.getElementById('fs-close').addEventListener('click', collapseCard);
+document.getElementById('fs-backdrop').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) collapseCard();
+});
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && fsCard) collapseCard();
+  if (e.key === 'Escape' && document.getElementById('fs-backdrop').classList.contains('on')) collapseCard();
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -2822,11 +2871,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.className = 'card-expand-btn';
     btn.title = 'Tela cheia';
     btn.innerHTML = '<i class="ti ti-arrows-diagonal" aria-hidden="true"></i>';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (card.classList.contains('card-fs')) collapseCard();
-      else expandCard(card);
-    });
+    btn.addEventListener('click', (e) => { e.stopPropagation(); expandCard(card); });
     header.appendChild(btn);
   });
 
