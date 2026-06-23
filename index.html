@@ -875,26 +875,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .tb-dropdown .dd-btn:hover { background: var(--green); color: #fff; }
 .tb-dropdown .dd-btn.loading { pointer-events: none; opacity: .6; }
-.tb-dropdown .palette-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px;
-}
-.tb-dropdown .palette-swatch {
-  height: 28px; border-radius: 5px; border: 2px solid transparent; cursor: pointer;
-  transition: border-color .15s, transform .1s; display: flex; align-items: center; justify-content: center;
-  font-size: 9px; color: #fff; font-weight: 600;
-}
-.tb-dropdown .palette-swatch:hover { transform: scale(1.05); }
-.tb-dropdown .palette-swatch.active { border-color: var(--t1); }
-.tb-dropdown .palette-swatch.dark { background: #1a1e24; }
-.tb-dropdown .palette-swatch.dark-ocean { background: #20b2aa; }
-.tb-dropdown .palette-swatch.dark-forest { background: #4caf50; }
-.tb-dropdown .palette-swatch.dark-sunset { background: #e09050; }
-.tb-dropdown .palette-swatch.light { background: #f0f4f8; color: #333; }
-.tb-dropdown .palette-swatch.light-ocean { background: #c8e8f0; color: #178076; }
-.tb-dropdown .palette-swatch.light-forest { background: #c8e8d0; color: #2e7d32; }
-.tb-dropdown .palette-swatch.light-sunset { background: #f0e0c8; color: #c07030; }
-.tb-dropdown .palette-swatch.gray-white { background: #1a1d26; border: 1px solid #555; }
-.tb-dropdown .palette-swatch.light-gray { background: #e8ecf2; color: #1d232b; border: 1px solid #ccc; }
 
 /* density compact */
 [data-density="compact"] .card { padding: 12px; }
@@ -3206,7 +3186,11 @@ function setupDropdowns() {
     });
   }
 
-  document.addEventListener('click', () => closeAll(null));
+  document.addEventListener('click', (e) => {
+    // nao fecha dropdown se clicou dentro dele
+    if (e.target.closest('.tb-dropdown')) return;
+    closeAll(null);
+  });
 
   // theme modal
   const modalBackdrop = document.getElementById('theme-modal-backdrop');
@@ -3284,8 +3268,10 @@ function setupDropdowns() {
 }
 
 function updateThemeModalActive() {
+  const grid = document.getElementById('theme-modal-grid');
+  if (!grid) return;
   const current = document.documentElement.dataset.theme || 'dark';
-  document.querySelectorAll('#theme-modal-grid .theme-card').forEach(c => {
+  grid.querySelectorAll('.theme-card').forEach(c => {
     c.classList.toggle('active', c.dataset.theme === current);
   });
 }
