@@ -1,5 +1,5 @@
 export const config = {
-  matcher: '/((?!login\\.html|api/login|_next|favicon\\.ico|\\.(?:png|jpe?g|gif|svg|ico|js|css|woff2?|docx|xlsx|pdf)).*)',
+  matcher: '/((?!login\\.html|api/login).*)',
 };
 
 function parseCookie(header, name) {
@@ -9,6 +9,13 @@ function parseCookie(header, name) {
 }
 
 export default function middleware(request) {
+  const url = new URL(request.url);
+
+  // static files — no auth needed
+  if (/\.(png|jpe?g|gif|svg|ico|js|css|woff2?|docx|xlsx|pdf)$/i.test(url.pathname)) {
+    return;
+  }
+
   const sessionToken = process.env.SESSION_TOKEN;
   const cookieHeader = request.headers.get('cookie');
   const sessionCookie = parseCookie(cookieHeader, 'cena_session');
@@ -16,8 +23,6 @@ export default function middleware(request) {
   if (sessionToken && sessionCookie === sessionToken) {
     return;
   }
-
-  const url = new URL(request.url);
 
   if (url.pathname.startsWith('/api/')) {
     return new Response(JSON.stringify({ ok: false, error: 'Não autenticado.' }), {
