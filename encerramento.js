@@ -324,7 +324,9 @@ function encRenderCascataStatus(C) {
   const countMap = new Map();
   rows.forEach((row) => {
     const status = row['STATUS RESUMO'];
+    const encerSituacao = row['ENCER_SITUAÇÃO'];
     if (!status || status === '-') return;
+    if (!encerSituacao || encerSituacao === '-') return;
     countMap.set(status, (countMap.get(status) || 0) + 1);
   });
 
