@@ -1485,113 +1485,133 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="page-head">
     <div>
       <div class="page-title">Encerramento</div>
-      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span>Encerramento</span></div>
+      <div class="breadcrumb">Dashboards <i class="ti ti-chevron-right" style="font-size:10px" aria-hidden="true"></i><span id="enc-breadcrumb-period">Encerramento</span><span id="enc-period-range" style="color:var(--t2);margin-left:6px"></span></div>
     </div>
-    <div class="live-pill"><div class="live-dot"></div>Atualizado agora</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="live-pill" id="enc-live-pill"><div class="live-dot"></div>Carregando base ao vivo...</div>
+      <button class="insights-toggle" id="enc-insights-toggle" type="button"><i class="ti ti-bulb" aria-hidden="true"></i>Insights</button>
+    </div>
   </div>
-  <div class="kpi-grid">
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Notas Enc.</div><div class="kc-val">297</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>encerradas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-clipboard-check" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Obra Faturada</div><div class="kc-val" style="color:var(--green)">143</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>48.1% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-receipt" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Medição Enviada</div><div class="kc-val" style="color:var(--blue)">116</div><div class="kc-sub up"><i class="ti ti-send" style="font-size:11px"></i>39.1% do total</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-send" aria-hidden="true"></i></div></div>
-    <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor Faturado</div><div class="kc-val" style="color:var(--green);font-size:18px">R$ 2,38M</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>de R$ 4,45M medido</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
-  </div>
-  <div class="card field-panel">
-    <div class="field-toolbar">
+  <div class="page-insights" id="enc-insights"></div>
+  <div class="page-body" id="enc-page-body">
+
+  <div class="filter-card">
+    <div class="filter-toolbar">
       <div>
-        <div class="ct">Obras em Campo</div>
-        <div class="csub" id="field-work-subtitle">Status de conclusão por nota, com equipes e supervisores envolvidos</div>
+        <div class="filter-title">Filtros de Encerramento</div>
+        <div class="filter-subtitle">Troque o período (dia/semana/mês) e filtre por carteira, PI, situação ou responsável.</div>
       </div>
-      <input class="field-search" id="field-work-search" type="search" placeholder="Buscar nota, equipe ou município">
-    </div>
-    <div class="field-metrics">
-      <div class="field-metric">
-        <div class="field-metric-label">Obras analisadas</div>
-        <div class="field-metric-value" id="field-work-notes">0</div>
-        <div class="field-metric-sub"><i class="ti ti-database" style="font-size:11px"></i>notas distintas na base</div>
-      </div>
-      <div class="field-metric">
-        <div class="field-metric-label">Concluídas em campo</div>
-        <div class="field-metric-value" id="field-work-complete">0</div>
-        <div class="field-metric-sub"><i class="ti ti-circle-check" style="font-size:11px"></i>obra finalizada no campo</div>
-      </div>
-      <div class="field-metric">
-        <div class="field-metric-label">Em andamento</div>
-        <div class="field-metric-value" id="field-work-open">0</div>
-        <div class="field-metric-sub"><i class="ti ti-progress" style="font-size:11px"></i>pendente de conclusão</div>
-      </div>
-      <div class="field-metric">
-        <div class="field-metric-label">Equipes envolvidas</div>
-        <div class="field-metric-value" id="field-work-teams">0</div>
-        <div class="field-metric-sub"><i class="ti ti-users" style="font-size:11px"></i>participação por obra</div>
-      </div>
-      <div class="field-metric">
-        <div class="field-metric-label">Última atualização</div>
-        <div class="field-metric-value" id="field-work-records">0</div>
-        <div class="field-metric-sub"><i class="ti ti-clock" style="font-size:11px"></i>último registro na base</div>
+      <div class="filter-toolbar-actions">
+        <div class="seg" id="enc-mode-seg">
+          <button class="seg-btn" type="button" data-mode="day">Dia</button>
+          <button class="seg-btn" type="button" data-mode="week">Semana</button>
+          <button class="seg-btn on" type="button" data-mode="month">Mês</button>
+        </div>
+        <button class="filter-reset" id="enc-reset-filters" type="button">Limpar filtros</button>
+        <button class="filter-export" id="enc-export-xlsx" type="button"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>Exportar Excel</button>
       </div>
     </div>
-    <div class="tbl-wrap">
-      <table class="dtable field-table">
-        <thead>
-          <tr>
-            <th style="min-width:120px">Nota / Obra</th>
-            <th style="min-width:120px">Município</th>
-            <th style="min-width:140px">Status em campo</th>
-            <th>Equipes</th>
-            <th>Supervisores</th>
-            <th style="min-width:90px">Registros</th>
-            <th style="min-width:110px">Último registro</th>
-          </tr>
-        </thead>
-        <tbody id="field-work-table-body">
-          <tr><td colspan="7" style="color:var(--t2)">Carregando resumo de campo...</td></tr>
-        </tbody>
-      </table>
+    <div class="filter-grid">
+      <div class="fctl span-2">
+        <label for="enc-period-select">Período</label>
+        <select id="enc-period-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="enc-carteira-select">Carteira</label>
+        <select id="enc-carteira-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="enc-pi-select">PI</label>
+        <select id="enc-pi-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="enc-situacao-select">Situação</label>
+        <select id="enc-situacao-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="enc-responsavel-select">Responsável</label>
+        <select id="enc-responsavel-select"></select>
+      </div>
+      <div class="fctl span-2">
+        <label for="enc-nota-input">Nota</label>
+        <input id="enc-nota-input" type="search" placeholder="Buscar nota...">
+      </div>
     </div>
   </div>
+
+  <div class="kpi-grid">
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Total Notas Enc.</div><div class="kc-val" id="enc-kpi-total" style="color:var(--blue)">0</div><div class="kc-sub up"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>encerradas</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-clipboard-check" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Obra Faturada</div><div class="kc-val" id="enc-kpi-faturada" style="color:var(--green)">0</div><div class="kc-sub up" id="enc-kpi-faturada-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>0% do total</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-receipt" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Medição Enviada</div><div class="kc-val" id="enc-kpi-medicao" style="color:var(--blue)">0</div><div class="kc-sub up" id="enc-kpi-medicao-sub"><i class="ti ti-send" style="font-size:11px"></i>0% do total</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-send" aria-hidden="true"></i></div></div>
+    <div class="kcard"><div style="min-width:0"><div class="kc-label">Valor Faturado</div><div class="kc-val" id="enc-kpi-valor-faturado" style="color:var(--green);font-size:18px">R$ 0</div><div class="kc-sub up" id="enc-kpi-valor-faturado-sub"><i class="ti ti-arrow-up-right" style="font-size:11px"></i>de R$ 0 medido</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div></div>
+  </div>
+
   <div class="g3">
     <div class="card">
-      <div class="ch"><div class="ct">Situação por Status</div><div class="csub">297 notas · valores em R$</div></div>
+      <div class="ch"><div class="ct">Situação de Encerramento</div><div class="csub" id="enc-situacao-chart-subtitle">0 notas · valores em R$</div></div>
       <div class="leg">
         <div class="leg-item"><div class="leg-sq" style="background:var(--blue)"></div>MO</div>
         <div class="leg-item"><div class="leg-sq" style="background:var(--green)"></div>Medido</div>
         <div class="leg-item"><div class="leg-sq" style="background:var(--yellow)"></div>Faturado</div>
       </div>
-      <div class="cw" style="height:200px">
-        <canvas id="ch8" role="img" aria-label="Barras agrupadas de encerramento por status">Barras agrupadas com MO, Medido e Faturado por status.</canvas>
+      <div class="cw" style="height:220px">
+        <canvas id="ch8" role="img" aria-label="Barras agrupadas de encerramento por situação">Barras agrupadas com MO, Medido e Faturado por situação.</canvas>
       </div>
     </div>
     <div class="card">
-      <div class="ch"><div class="ct">Fontes Integradas</div><div class="csub">Conexões ativas</div></div>
-      <div class="integ">
-        <div class="ic">
-          <div class="icicon" style="background:var(--green-bg)"><i class="ti ti-brand-google" style="color:var(--green)" aria-hidden="true"></i></div>
-          <div style="min-width:0"><div class="ict">Google Sheets</div><div class="ics">Produção Diária · tempo real</div></div>
-          <div class="ic-right"><span class="pill ok"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:3px"></span>Ativo</span></div>
-        </div>
-        <div class="ic">
-          <div class="icicon" style="background:var(--blue-bg)"><i class="ti ti-file-spreadsheet" style="color:var(--blue)" aria-hidden="true"></i></div>
-          <div style="min-width:0"><div class="ict">Excel Online</div><div class="ics">Controle · PEP · Programação</div></div>
-          <div class="ic-right"><span class="pill ok"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:3px"></span>Ativo</span></div>
-        </div>
-        <div class="ic">
-          <div class="icicon" style="background:var(--yellow-bg)"><i class="ti ti-chart-bar" style="color:var(--yellow)" aria-hidden="true"></i></div>
-          <div style="min-width:0"><div class="ict">Power BI Embed</div><div class="ics">Relatórios avançados</div></div>
-          <div class="ic-right"><span class="pill wn">Configurar</span></div>
-        </div>
-        <div class="ic dashed">
-          <div class="icicon" style="background:var(--track)"><i class="ti ti-plus" style="color:var(--t2)" aria-hidden="true"></i></div>
-          <div style="min-width:0"><div class="ict" style="color:var(--t2)">Adicionar fonte</div><div class="ics">SharePoint · API REST · OneDrive</div></div>
-        </div>
-      </div>
+      <div class="ch"><div class="ct">Por Responsável</div><div class="csub" id="enc-resp-subtitle">Notas por responsável de fechamento</div></div>
+      <div class="hrows" id="enc-resp-hbars" style="display:flex;flex-direction:column;gap:8px"></div>
       <div class="divider"></div>
       <div class="val-row">
-        <div><div class="val-lbl">Valor MO</div><div class="val-num">R$ 3,78M</div></div>
-        <div><div class="val-lbl">Medido</div><div class="val-num" style="color:var(--blue)">R$ 4,45M</div></div>
-        <div><div class="val-lbl">Faturado</div><div class="val-num" style="color:var(--green)">R$ 2,38M</div></div>
+        <div><div class="val-lbl">MO</div><div class="val-num" id="enc-total-mo">R$ 0</div></div>
+        <div><div class="val-lbl">Medido</div><div class="val-num" style="color:var(--blue)" id="enc-total-medido">R$ 0</div></div>
+        <div><div class="val-lbl">Faturado</div><div class="val-num" style="color:var(--green)" id="enc-total-faturado">R$ 0</div></div>
       </div>
     </div>
   </div>
+
+  <div class="card field-panel">
+    <div class="field-toolbar">
+      <div>
+        <div class="ct">Detalhe de Encerramento</div>
+        <div class="csub" id="enc-table-subtitle">Carregando registros...</div>
+      </div>
+      <input class="field-search" id="enc-table-search" type="search" placeholder="Buscar nota, município...">
+    </div>
+    <div class="tbl-wrap">
+      <table class="dtable">
+        <thead><tr>
+          <th style="min-width:100px">Nota</th>
+          <th style="min-width:150px">Situação</th>
+          <th style="min-width:120px">Responsável</th>
+          <th style="min-width:110px">Município</th>
+          <th style="min-width:100px">Carteira</th>
+          <th style="min-width:70px">PI</th>
+          <th style="min-width:90px">Valor MO</th>
+          <th style="min-width:90px">Medido</th>
+          <th style="min-width:90px">Faturado</th>
+          <th style="min-width:90px">Divergência</th>
+          <th style="min-width:100px">Envio</th>
+        </tr>
+        <tr class="dtable-filter-row">
+          <th></th>
+          <th><select class="dtable-col-filter" id="enc-col-situacao"></select></th>
+          <th><select class="dtable-col-filter" id="enc-col-responsavel"></select></th>
+          <th><select class="dtable-col-filter" id="enc-col-municipio"></select></th>
+          <th><select class="dtable-col-filter" id="enc-col-carteira"></select></th>
+          <th><select class="dtable-col-filter" id="enc-col-pi"></select></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr></thead>
+        <tbody id="enc-table-body"><tr><td colspan="11" style="color:var(--t2)">Carregando base de encerramento...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /enc-page-body -->
 </div><!-- /enc -->
 
 <!-- ══════════════════════════════════════════════════════
@@ -2700,25 +2720,8 @@ function build() {
     }
   });
 
-  /* ch8 – Encerramento grouped */
-  mkChart('ch8', { type: 'bar',
-    data: {
-      labels: ['Em Medição','Pend. EQTL','Corr. Const.','Med. Enviada','Obra Fat.','Total'],
-      datasets: [
-        { label: 'MO',      data: [58358,87379,193178,1269440,2120321,3781995], backgroundColor: C.blue+'cc',   borderRadius: 2 },
-        { label: 'Medido',  data: [10890,75472,65548, 1610781,2632291,4447449], backgroundColor: C.green+'cc',  borderRadius: 2 },
-        { label: 'Faturado',data: [0,    0,    0,     0,      2242974,2383756], backgroundColor: C.yellow+'cc', borderRadius: 2 }
-      ]
-    },
-    options: { ...defs,
-      scales: {
-        x: { ...axCfg(C), grid: { display: false },
-             ticks: { ...axCfg(C).ticks, maxRotation: 30 } },
-        y: { ...axCfg(C), ticks: { ...axCfg(C).ticks,
-             callback: v => v >= 1e6 ? 'R$'+(v/1e6).toFixed(1)+'M' : v >= 1e3 ? 'R$'+(v/1e3).toFixed(0)+'k' : v } }
-      }
-    }
-  });
+  /* ch8 – Encerramento charts são construídos por encerramento.js (dados ao vivo) */
+  if (window.renderEncerramentoCharts) window.renderEncerramentoCharts(C);
 }
 
 function mkChart(id, cfg) {
@@ -2740,6 +2743,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.initMapa) window.initMapa();
   if (window.initViabilidade) window.initViabilidade();
   if (window.initPeps) window.initPeps();
+  if (window.initEncerramento) window.initEncerramento();
   try {
     await loadPublishedSheet();
   } catch (error) {
@@ -2757,5 +2761,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 <script src="mapa.js"></script>
 <script src="viabilidade.js"></script>
 <script src="peps.js"></script>
+<script src="encerramento.js"></script>
 </body>
 </html>
