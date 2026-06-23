@@ -9,6 +9,13 @@ let encRows = [];
 let encLastRows = [];
 let encCascataRows = [];
 let encFiltersBound = false;
+
+function toNum(val) {
+  if (val === undefined || val === null || val === '' || val === '-') return 0;
+  const n = Number(val);
+  return Number.isFinite(n) ? n : 0;
+}
+
 const encState = {
   mode: 'month',
   periodKey: '',
@@ -43,10 +50,10 @@ function extractEncRows(rows) {
         carteira: row['CARTERIA'] || 'Sem carteira',
         municipio: row['MUNICIPIO'] || 'Sem município',
         pi: row['PI'] || 'Sem PI',
-        valorMo: typeof row['VALOR MÃO DE OBRA'] === 'number' ? row['VALOR MÃO DE OBRA'] : 0,
-        valorMedido: typeof row['VALOR MEDIDO'] === 'number' ? row['VALOR MEDIDO'] : 0,
-        valorFaturado: typeof row['VALOR FATURADO'] === 'number' ? row['VALOR FATURADO'] : 0,
-        divergencia: typeof row['DIVERGÊNCIA'] === 'number' ? row['DIVERGÊNCIA'] : 0,
+      valorMo: toNum(row['VALOR MÃO DE OBRA']),
+      valorMedido: toNum(row['VALOR MEDIDO']),
+      valorFaturado: toNum(row['VALOR FATURADO']),
+      divergencia: toNum(row['DIVERGÊNCIA']),
         dataEnvio: dataEnvioRaw ? new Date(`${dataEnvioRaw}T00:00:00`) : null,
       };
     });
@@ -322,26 +329,34 @@ function encRenderCascataStatus(C) {
   ];
 
   const countMap = new Map();
-  const valorMap = new Map();
+  const moMap = new Map();
+  const medMap = new Map();
+  const fatMap = new Map();
+
   rows.forEach((row) => {
     const status = row['STATUS RESUMO'];
     const encerSituacao = row['ENCER_SITUAÇÃO'];
     if (!status || status === '-') return;
     if (!encerSituacao || encerSituacao === '-') return;
     countMap.set(status, (countMap.get(status) || 0) + 1);
-    const valor = typeof row['VALOR FATURADO'] === 'number' ? row['VALOR FATURADO'] : 0;
-    valorMap.set(status, (valorMap.get(status) || 0) + valor);
+    moMap.set(status, (moMap.get(status) || 0) + toNum(row['VALOR MÃO DE OBRA']));
+    medMap.set(status, (medMap.get(status) || 0) + toNum(row['VALOR MEDIDO']));
+    fatMap.set(status, (fatMap.get(status) || 0) + toNum(row['VALOR FATURADO']));
   });
 
   const labels = [];
   const counts = [];
-  const valores = [];
+  const moValues = [];
+  const medValues = [];
+  const fatValues = [];
   STATUS_ORDER.forEach((status) => {
     const count = countMap.get(status) || 0;
     if (count === 0) return;
     labels.push(status);
     counts.push(count);
-    valores.push(valorMap.get(status) || 0);
+    moValues.push(moMap.get(status) || 0);
+    medValues.push(medMap.get(status) || 0);
+    fatValues.push(fatMap.get(status) || 0);
   });
 
   if (!counts.length) return;
@@ -356,7 +371,11 @@ function encRenderCascataStatus(C) {
   labels.push('Total');
   data.push([0, runningTotal]);
 
-  setText('enc-cascata-subtitle', `${fmtNumber(countMap.size)} status · ${fmtNumber(counts.reduce((a, b) => a + b, 0))} registros · ${fmtCurrencyCompact(valores.reduce((a, b) => a + b, 0))} faturado`);
+  const totalMo = moValues.reduce((a, b) => a + b, 0);
+  const totalMed = medValues.reduce((a, b) => a + b, 0);
+  const totalFat = fatValues.reduce((a, b) => a + b, 0);
+
+  setText('enc-cascata-subtitle', `${fmtNumber(countMap.size)} status · ${fmtNumber(counts.reduce((a, b) => a + b, 0))} registros · ${fmtCurrencyCompact(totalFat)} faturado`);
 
   const isTotal = (ctx) => ctx.dataIndex === labels.length - 1;
 
@@ -387,18 +406,18 @@ function encRenderCascataStatus(C) {
     type: 'bar',
     data: {
       labels,
-      datasets: [{
-        data: valores.concat(valores.reduce((a, b) => a + b, 0)),
-        backgroundColor: (ctx) => ctx.dataIndex === labels.length - 1 ? C.green : C.blue + '99',
-        borderRadius: 4,
-      }],
+      datasets: [
+        { label: 'MO', data: moValues.concat(totalMo), backgroundColor: C.blue + '99', borderRadius: 4, minBarLength: 2 },
+        { label: 'Medido', data: medValues.concat(totalMed), backgroundColor: C.green + '99', borderRadius: 4, minBarLength: 2 },
+        { label: 'Faturado', data: fatValues.concat(totalFat), backgroundColor: C.yellow + 'cc', borderRadius: 4, minBarLength: 2 },
+      ],
     },
     options: {
       responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      layout: { padding: { top: 30 } },
+      layout: { padding: { top: 24, bottom: 8 } },
       plugins: {
         legend: { display: false },
-        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 11, rotate: -90, formatter: (value) => fmtCurrencyCompact(value) },
+        valueLabelPlugin: { enabled: true, color: C.text, fontSize: 10, datasetIndexes: [0, 1, 2], rotate: -90, formatter: (value) => fmtCurrencyCompact(value) },
       },
       scales: {
         x: { ...axCfg(C), grid: { display: false }, ticks: { ...axCfg(C).ticks, maxRotation: 45, font: { family: 'Poppins', size: 11 } } },

@@ -8,6 +8,13 @@
 let pepsRows = [];
 let pepsLastRows = [];
 let pepsFiltersBound = false;
+
+function pepsToNum(val) {
+  if (val === undefined || val === null || val === '' || val === '-') return 0;
+  const n = Number(val);
+  return Number.isFinite(n) ? n : 0;
+}
+
 const pepsState = {
   mode: 'month',
   periodKey: '',
@@ -51,7 +58,7 @@ function extractPepsRows(rows) {
       pi: row['PI'] || 'Sem PI',
       licenciamento: row['LICENCIAMENTO'] || 'Sem informação',
       encerSituacao: row['ENCER_SITUAÇÃO'] && row['ENCER_SITUAÇÃO'] !== '-' ? row['ENCER_SITUAÇÃO'] : 'Sem situação',
-      valorMaoObra: typeof row['VALOR MÃO DE OBRA'] === 'number' ? row['VALOR MÃO DE OBRA'] : 0,
+      valorMaoObra: pepsToNum(row['VALOR MÃO DE OBRA']),
       dataEnvio: row['DATA_DE_ENVIO'] ? new Date(`${row['DATA_DE_ENVIO']}T00:00:00`) : null,
       temPep: Boolean(row['STATUS RESUMO'] && row['STATUS RESUMO'] !== '-'),
     }))
