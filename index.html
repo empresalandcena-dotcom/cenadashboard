@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" as="image" href="/logo_Branco.png">
+<link rel="preload" as="image" href="/logo_Azul.png">
 <title>CENA Engenharia — Painel Operacional</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -198,6 +200,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 700; color: #fff;
   flex-shrink: 0; overflow: hidden;
+  background-color: var(--green);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1014,7 +1017,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ═══════════════════════════════════════════════════════ -->
 <aside class="sb">
   <div class="sb-logo">
-    <div class="sb-logo-icon" id="logo-icon">
+    <div class="sb-logo-icon" id="logo-icon" style="background-image:url(/logo_Branco.png)">
       <span class="sb-logo-fallback" id="logo-fallback" style="display:none">C</span>
     </div>
     <div>
@@ -2049,7 +2052,7 @@ function updateLogo(themeName) {
   if (!el) return;
   const isDark = themeName.startsWith('dark') || themeName === 'gray-white';
   const src = isDark ? '/logo_Branco.png' : '/logo_Azul.png';
-  el.style.backgroundImage = `url(${src}?t=${Date.now()})`;
+  el.style.backgroundImage = `url(${src})`;
   if (fb) fb.style.display = 'none';
 }
 
