@@ -2050,8 +2050,8 @@ function updateLogo(themeName) {
   const el = document.getElementById('logo-icon');
   const fb = document.getElementById('logo-fallback');
   if (!el) return;
-  const isDark = themeName.startsWith('dark') || themeName === 'gray-white';
-  const src = isDark ? '/logo_Branco.png' : '/logo_Azul.png';
+  const useWhite = themeName !== 'light' && themeName !== 'light-gray';
+  const src = useWhite ? '/logo_Branco.png' : '/logo_Azul.png';
   el.style.backgroundImage = `url(${src})`;
   if (fb) fb.style.display = 'none';
 }
