@@ -1015,7 +1015,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 <aside class="sb">
   <div class="sb-logo">
     <div class="sb-logo-icon">
-      <img id="logo-img" src="/logo.png" alt="CENA" style="display:block">
+      <img id="logo-img" src="/logo_Brano.png" alt="CENA" style="display:block">
       <span class="sb-logo-fallback" id="logo-fallback" style="display:none">C</span>
     </div>
     <div>
@@ -2049,15 +2049,11 @@ function updateLogo(themeName) {
   const fb = document.getElementById('logo-fallback');
   if (!img) return;
   const isDark = themeName.startsWith('dark') || themeName === 'gray-white';
-  let src;
-  if (isDark) src = '/logo.png';
-  else if (themeName === 'light-gray') src = '/logo_white.png';
-  else src = '/logo_white.png';
   img.style.display = 'block';
   if (fb) fb.style.display = 'none';
   img.onerror = function() { img.style.display = 'none'; if (fb) fb.style.display = 'flex'; };
   img.onload = function() { img.style.display = 'block'; if (fb) fb.style.display = 'none'; };
-  img.src = src + '?t=' + Date.now();
+  img.src = (isDark ? '/logo_Brano.png' : '/logo_Azul.png') + '?t=' + Date.now();
 }
 
 function cycleTheme() {
