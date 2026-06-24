@@ -1083,6 +1083,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <button class="theme-toggle" onclick="cycleTheme()" aria-label="Alternar tema" title="Alternar paleta de cores">
         <i class="ti ti-sun" id="theme-icon" aria-hidden="true"></i>
       </button>
+      <span id="theme-label" style="font-size:10px;color:var(--t2-bg);margin-left:-2px;white-space:nowrap">dark</span>
 
       <div class="tb-icon" title="Notificações" id="btn-notif" style="position:relative">
         <i class="ti ti-bell" aria-hidden="true"></i>
@@ -2035,6 +2036,8 @@ function applyTheme(name) {
     const isDark = name.startsWith('dark');
     icon.className = isDark ? 'ti ti-sun' : 'ti ti-moon';
   }
+  const label = document.getElementById('theme-label');
+  if (label) label.textContent = name;
   localStorage.setItem('cena-theme', name);
   updateLogo(name);
   updateThemeModalActive();
@@ -2050,10 +2053,11 @@ function updateLogo(themeName) {
   if (themeName === 'gray-white') src = '/logo_white.png';
   else if (themeName === 'light-gray') src = '/logo.png';
   else src = isDark ? '/logo_white.png' : '/logo.png';
+  console.log('updateLogo:', themeName, '→', src);
   img.style.display = 'block';
   if (fb) fb.style.display = 'none';
-  img.onerror = function() { img.style.display = 'none'; if (fb) fb.style.display = 'flex'; };
-  img.onload = function() { img.style.display = 'block'; if (fb) fb.style.display = 'none'; };
+  img.onerror = function() { console.log('logo error:', src); img.style.display = 'none'; if (fb) fb.style.display = 'flex'; };
+  img.onload = function() { console.log('logo ok:', src); img.style.display = 'block'; if (fb) fb.style.display = 'none'; };
   img.src = src + '?t=' + Date.now();
 }
 
@@ -2070,7 +2074,10 @@ function cycleTheme() {
     applyTheme(saved);
   }
   // always sync logo with current theme (including default dark)
-  updateLogo(document.documentElement.dataset.theme || 'dark');
+  const current = document.documentElement.dataset.theme || 'dark';
+  updateLogo(current);
+  const label = document.getElementById('theme-label');
+  if (label) label.textContent = current;
 })();
 
 /* ═══ CHART.JS HELPERS ═══ */
