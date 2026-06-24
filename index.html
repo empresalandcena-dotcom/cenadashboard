@@ -2053,11 +2053,10 @@ function updateLogo(themeName) {
   if (themeName === 'gray-white') src = '/logo_white.png';
   else if (themeName === 'light-gray') src = '/logo.png';
   else src = isDark ? '/logo_white.png' : '/logo.png';
-  console.log('updateLogo:', themeName, '→', src);
   img.style.display = 'block';
   if (fb) fb.style.display = 'none';
-  img.onerror = function() { console.log('logo error:', src); img.style.display = 'none'; if (fb) fb.style.display = 'flex'; };
-  img.onload = function() { console.log('logo ok:', src); img.style.display = 'block'; if (fb) fb.style.display = 'none'; };
+  img.onerror = function() { img.style.display = 'none'; if (fb) fb.style.display = 'flex'; };
+  img.onload = function() { img.style.display = 'block'; if (fb) fb.style.display = 'none'; };
   img.src = src + '?t=' + Date.now();
 }
 
