@@ -193,14 +193,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   flex-shrink: 0;
 }
 .sb-logo-icon {
-  width: 36px; height: 36px;
+  width: 40px; height: 40px;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 700; color: #fff;
   flex-shrink: 0; overflow: hidden;
 }
 .sb-logo-icon img {
-  width: 100%; height: 100%; object-fit: cover;
+  width: 100%; height: 100%; object-fit: contain;
 }
 .sb-logo-icon .sb-logo-fallback {
   width: 100%; height: 100%;
@@ -2048,11 +2048,11 @@ function updateLogo(themeName) {
   const img = document.getElementById('logo-img');
   const fb = document.getElementById('logo-fallback');
   if (!img) return;
-  const isDark = themeName.startsWith('dark');
+  const isDark = themeName.startsWith('dark') || themeName === 'gray-white';
   let src;
-  if (themeName === 'gray-white') src = '/logo_white.png';
-  else if (themeName === 'light-gray') src = '/logo.png';
-  else src = isDark ? '/logo_white.png' : '/logo.png';
+  if (isDark) src = '/logo.png';
+  else if (themeName === 'light-gray') src = '/logo_white.png';
+  else src = '/logo_white.png';
   img.style.display = 'block';
   if (fb) fb.style.display = 'none';
   img.onerror = function() { img.style.display = 'none'; if (fb) fb.style.display = 'flex'; };
