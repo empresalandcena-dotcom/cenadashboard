@@ -2062,7 +2062,8 @@ function updateLogo(themeName) {
   const el = document.getElementById('logo-icon');
   const fb = document.getElementById('logo-fallback');
   if (!el) return;
-  const useWhite = themeName !== 'light' && themeName !== 'light-gray';
+  const useAzul = ['light', 'light-gray', 'light-ocean', 'light-forest', 'light-sunset'].includes(themeName);
+  const useWhite = !useAzul;
   const src = useWhite ? '/logo_Branco.png' : '/logo_Azul.png';
   el.style.backgroundImage = `url(${src})`;
   if (fb) fb.style.display = 'none';
