@@ -1015,7 +1015,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 <aside class="sb">
   <div class="sb-logo">
     <div class="sb-logo-icon">
-      <img id="logo-img" src="/logo.png" alt="CENA" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex'">
+      <img id="logo-img" src="/logo.png" alt="CENA" style="display:block">
       <span class="sb-logo-fallback" id="logo-fallback" style="display:none">C</span>
     </div>
     <div>
@@ -2043,11 +2043,18 @@ function applyTheme(name) {
 
 function updateLogo(themeName) {
   const img = document.getElementById('logo-img');
+  const fb = document.getElementById('logo-fallback');
   if (!img) return;
   const isDark = themeName.startsWith('dark');
-  if (themeName === 'gray-white') img.src = '/logo_white.png';
-  else if (themeName === 'light-gray') img.src = '/logo.png';
-  else img.src = isDark ? '/logo_white.png' : '/logo.png';
+  let src;
+  if (themeName === 'gray-white') src = '/logo_white.png';
+  else if (themeName === 'light-gray') src = '/logo.png';
+  else src = isDark ? '/logo_white.png' : '/logo.png';
+  img.style.display = 'block';
+  if (fb) fb.style.display = 'none';
+  img.onerror = function() { img.style.display = 'none'; if (fb) fb.style.display = 'flex'; };
+  img.onload = function() { img.style.display = 'block'; if (fb) fb.style.display = 'none'; };
+  img.src = src + '?t=' + Date.now();
 }
 
 function cycleTheme() {
