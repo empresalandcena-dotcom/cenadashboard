@@ -48,6 +48,7 @@ function extractEncRows(rows) {
         nota: row['NOTA'],
         situacao: row['ENCER_SITUAÇÃO'],
         statusResumo: (row['STATUS RESUMO'] && row['STATUS RESUMO'] !== '-') ? row['STATUS RESUMO'] : '',
+        pep: (row['PEP 3º Nível'] && row['PEP 3º Nível'] !== '-') ? row['PEP 3º Nível'] : '',
         responsavel: responsavelRaw,
         carteira: row['CARTERIA'] || 'Sem carteira',
         municipio: row['MUNICIPIO'] || 'Sem município',
@@ -505,7 +506,7 @@ function encRenderTable(rows) {
   setText('enc-table-subtitle', `${fmtNumber(filtered.length)} registros visíveis (mais recentes primeiro) de ${fmtNumber(rows.length)} filtrados · ${fmtNumber(encRows.length)} com encerramento na base`);
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="12" style="color:var(--t2)">Nenhum registro encontrado para os filtros selecionados.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" style="color:var(--t2)">Nenhum registro encontrado para os filtros selecionados.</td></tr>`;
     return;
   }
 
@@ -525,12 +526,13 @@ function encRenderTable(rows) {
       <td>${fmtCurrencyCompact(row.valorMedido)}</td>
       <td>${fmtCurrencyCompact(row.valorFaturado)}</td>
       <td style="color:${divergenciaColor}">${fmtCurrencyCompact(row.divergencia)}</td>
+      <td style="font-size:11px;color:var(--t2)">${row.pep || '—'}</td>
       <td>${row.dataEnvio ? formatDateLabel(row.dataEnvio) : '—'}</td>
     </tr>`;
   }).join('');
 
   const moreNotice = filtered.length > visible.length
-    ? `<tr><td colspan="12" style="color:var(--t2);text-align:center">Mostrando ${fmtNumber(visible.length)} de ${fmtNumber(filtered.length)} — refine os filtros para ver mais.</td></tr>`
+    ? `<tr><td colspan="13" style="color:var(--t2);text-align:center">Mostrando ${fmtNumber(visible.length)} de ${fmtNumber(filtered.length)} — refine os filtros para ver mais.</td></tr>`
     : '';
 
   tbody.innerHTML = rowsHtml + moreNotice;
@@ -677,6 +679,7 @@ function encGetExportBundle() {
     'Valor Medido': row.valorMedido,
     'Valor Faturado': row.valorFaturado,
     'Divergência': row.divergencia,
+    'PEP': row.pep || '',
     'Data de Envio': row.dataEnvio ? formatDateLabel(row.dataEnvio) : '',
   }));
 
