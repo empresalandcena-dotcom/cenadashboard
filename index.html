@@ -3514,8 +3514,8 @@ function setupPreferences() {
 document.addEventListener('DOMContentLoaded', async () => {
   setupDropdowns();
   setupPreferences();
-  /* injeta botao expandir em todos os cards com header */
-  document.querySelectorAll('.card > .ch').forEach((header) => {
+  /* injeta botao expandir em todos os cards com header (.ch ou .field-toolbar) */
+  document.querySelectorAll('.card > .ch, .card > .field-toolbar').forEach((header) => {
     const card = header.closest('.card');
     if (!card || card.querySelector('.card-expand-btn')) return;
     const btn = document.createElement('span');
