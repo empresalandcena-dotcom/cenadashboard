@@ -1059,6 +1059,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="sb-item" onclick="go('enc',this)">
     <i class="ti ti-clipboard-check" aria-hidden="true"></i>Encerramento
   </div>
+  <div class="sb-item" onclick="go('pulso',this)">
+    <i class="ti ti-pulse" aria-hidden="true"></i>Pulso da Operação
+    <span class="sb-badge hot">New</span>
+  </div>
 
   <div class="sb-section">Fontes de dados</div>
   <div class="sb-item">
@@ -1930,6 +1934,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <thead><tr>
           <th style="min-width:100px">Nota</th>
           <th style="min-width:150px">Situação</th>
+          <th style="min-width:130px">Status SAP</th>
           <th style="min-width:120px">Responsável</th>
           <th style="min-width:110px">Município</th>
           <th style="min-width:100px">Carteira</th>
@@ -1943,6 +1948,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <tr class="dtable-filter-row">
           <th></th>
           <th><select class="dtable-col-filter" id="enc-col-situacao"></select></th>
+          <th><select class="dtable-col-filter" id="enc-col-status-resumo"></select></th>
           <th><select class="dtable-col-filter" id="enc-col-responsavel"></select></th>
           <th><select class="dtable-col-filter" id="enc-col-municipio"></select></th>
           <th><select class="dtable-col-filter" id="enc-col-carteira"></select></th>
@@ -1953,7 +1959,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <th></th>
           <th></th>
         </tr></thead>
-        <tbody id="enc-table-body"><tr><td colspan="11" style="color:var(--t2)">Carregando base de encerramento...</td></tr></tbody>
+        <tbody id="enc-table-body"><tr><td colspan="12" style="color:var(--t2)">Carregando base de encerramento...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -2025,6 +2031,80 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </div>
   </div><!-- /map-page-body -->
 </div><!-- /mapa -->
+
+<div id="p-pulso" class="pane">
+  <div class="pheader">
+    <div>
+      <div class="page-title">Pulso da Operação</div>
+      <div class="breadcrumb">Produção acumulada · metas · pódio · ranking por serviço · motivos</div>
+    </div>
+    <div class="live-pill" id="pulso-live-pill"><div class="live-dot"></div>Carregando...</div>
+  </div>
+  <div id="pulso-page-body">
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Painel de Metas</div><div class="csub" id="pulso-meta-subtitle">Configurando...</div></div>
+      <div class="kpi-grid" style="margin-bottom:14px">
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Dias Úteis</div><div class="kc-val" id="pulso-dias-uteis" style="color:var(--blue)">0</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-calendar-stats"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Meta/Dia/Equipe</div><div class="kc-val" id="pulso-meta-dia" style="color:var(--green)">R$ 0</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-target"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Meta/Semana/Eq.</div><div class="kc-val" id="pulso-meta-semana" style="color:var(--yellow)">R$ 0</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-calendar-week"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Meta Total Mês</div><div class="kc-val" id="pulso-meta-mes" style="color:var(--purple)">R$ 0</div></div><div class="kc-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-coin"></i></div></div>
+      </div>
+      <div id="pulso-calendario"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Resumo Geral</div><div class="csub" id="pulso-resumo-subtitle">Aguardando...</div></div>
+      <div class="kpi-grid">
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Produção Total</div><div class="kc-val" id="pulso-prod-total" style="color:var(--green);font-size:18px">R$ 0</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-building-factory-2"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">% Atingimento</div><div class="kc-val" id="pulso-pct-meta" style="color:var(--blue)">0%</div></div><div class="kc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-percentage"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Falta Meta</div><div class="kc-val" id="pulso-falta-meta" style="color:var(--red)">R$ 0</div></div><div class="kc-icon" style="background:var(--red-bg);color:var(--red)"><i class="ti ti-alert-triangle"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Dias c/ Dados</div><div class="kc-val" id="pulso-dias-dados" style="color:var(--cyan)">0</div></div><div class="kc-icon" style="background:#2c8fb81a;color:var(--cyan)"><i class="ti ti-calendar-check"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Maior Produtor</div><div class="kc-val" id="pulso-maior-produtor" style="color:var(--green)">—</div></div><div class="kc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ti ti-trophy"></i></div></div>
+        <div class="kcard"><div style="min-width:0"><div class="kc-label">Média eq/dia</div><div class="kc-val" id="pulso-media-eq-dia" style="color:var(--yellow)">R$ 0</div></div><div class="kc-icon" style="background:var(--yellow-bg);color:var(--yellow)"><i class="ti ti-calculator"></i></div></div>
+      </div>
+      <div id="pulso-sem-rdo" style="display:none;font-size:12px;color:var(--red);padding:8px 12px;background:var(--red-bg);border-radius:6px;margin-top:10px"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Pódio do Período</div><div class="csub" id="pulso-podio-subtitle">Top equipes por categoria</div></div>
+      <div class="g2">
+        <div><div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px">⚡ Linha Viva</div><div id="pulso-podio-lv"></div></div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px">🏗 Linha Morta</div><div id="pulso-podio-lm"></div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Totalizador de Equipes</div><div class="csub" id="pulso-equipes-subtitle">Clique para ver detalhes</div></div>
+      <div id="pulso-equipes-list"></div>
+    </div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card"><div class="ch"><div class="ct">Desempenho por Supervisor</div><div class="csub" id="pulso-sup-subtitle">—</div></div><div id="pulso-sup-list"></div></div>
+      <div class="card"><div class="ch"><div class="ct">Média por Supervisor</div><div class="csub">média/eq/dia</div></div><div id="pulso-sup-media-list"></div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Ranking por Tipo de Serviço</div><div class="csub" id="pulso-servico-subtitle">—</div></div>
+      <div id="pulso-servico-list"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Motivos de Não Execução</div><div class="csub" id="pulso-motivos-subtitle">Meta − Produzido = Potencial não realizado</div></div>
+      <div id="pulso-motivos-total"></div><div class="divider"></div><div id="pulso-motivos-sup"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Obras em Aberto</div><div class="csub" id="pulso-obras-subtitle">—</div></div>
+      <div id="pulso-obras-list"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch"><div class="ct">Evolução Semanal</div><div class="csub" id="pulso-evo-subtitle">—</div></div>
+      <div class="cw" style="height:220px"><canvas id="chPulso" role="img" aria-label="Evolução semanal"></canvas></div>
+    </div>
+    <div class="card field-panel">
+      <div class="field-toolbar"><div><div class="ct">Registros do Período</div><div class="csub" id="pulso-registros-subtitle">—</div></div></div>
+      <div class="tbl-wrap">
+        <table class="dtable">
+          <thead><tr><th style="min-width:90px">Data</th><th style="min-width:120px">Supervisor</th><th style="min-width:200px">Equipes</th><th style="min-width:100px">Produção</th><th style="min-width:90px">Meta dia</th><th style="min-width:70px">% Meta</th></tr></thead>
+          <tbody id="pulso-registros-body"><tr><td colspan="6" style="color:var(--t2)">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
   </main>
 </div><!-- /.main -->
@@ -3323,9 +3403,9 @@ function updateThemeModalActive() {
 }
 
 function updateNotifications() {
-  const pillIds = ['enc-live-pill','peps-live-pill','viab-live-pill','prog-live-pill','map-live-pill','prod-live-pill'];
-  const labels = { 'enc-live-pill':'Encerramento','peps-live-pill':'PEPs','viab-live-pill':'Viabilidade','prog-live-pill':'Programação','map-live-pill':'Mapa','prod-live-pill':'Produção Diária' };
-  const colors = { 'enc-live-pill':'var(--green)','peps-live-pill':'var(--blue)','viab-live-pill':'var(--yellow)','prog-live-pill':'var(--purple)','map-live-pill':'var(--cyan)','prod-live-pill':'var(--green)' };
+  const pillIds = ['enc-live-pill','peps-live-pill','viab-live-pill','prog-live-pill','map-live-pill','prod-live-pill','pulso-live-pill'];
+  const labels = { 'enc-live-pill':'Encerramento','peps-live-pill':'PEPs','viab-live-pill':'Viabilidade','prog-live-pill':'Programação','map-live-pill':'Mapa','prod-live-pill':'Produção Diária','pulso-live-pill':'Pulso da Operação' };
+  const colors = { 'enc-live-pill':'var(--green)','peps-live-pill':'var(--blue)','viab-live-pill':'var(--yellow)','prog-live-pill':'var(--purple)','map-live-pill':'var(--cyan)','prod-live-pill':'var(--green)','pulso-live-pill':'var(--red)' };
 
   const summary = document.getElementById('notif-summary');
   const updated = document.getElementById('notif-updated');
@@ -3451,6 +3531,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.initViabilidade) window.initViabilidade();
   if (window.initPeps) window.initPeps();
   if (window.initEncerramento) window.initEncerramento();
+  if (window.initPulso) window.initPulso();
   try {
     await loadPublishedSheet();
   } catch (error) {
@@ -3521,6 +3602,7 @@ function exportStyledXlsx(sheets, fileName, opts = {}) {
 <script src="viabilidade.js"></script>
 <script src="peps.js"></script>
 <script src="encerramento.js"></script>
+<script src="pulso.js"></script>
 
 <div id="theme-modal-backdrop">
   <div id="theme-modal">

@@ -28,6 +28,7 @@ const encState = {
 
 const encTableFilters = {
   situacao: 'all',
+  statusResumo: 'all',
   responsavel: 'all',
   municipio: 'all',
   carteira: 'all',
@@ -46,6 +47,7 @@ function extractEncRows(rows) {
       return {
         nota: row['NOTA'],
         situacao: row['ENCER_SITUAÇÃO'],
+        statusResumo: (row['STATUS RESUMO'] && row['STATUS RESUMO'] !== '-') ? row['STATUS RESUMO'] : '',
         responsavel: responsavelRaw,
         carteira: row['CARTERIA'] || 'Sem carteira',
         municipio: row['MUNICIPIO'] || 'Sem município',
@@ -433,6 +435,9 @@ function encPopulateTableFilters(rows) {
   const situacaoOptions = encUniqueValues(rows, 'situacao').map((value) => ({ value, label: value }));
   buildSelectOptions('enc-col-situacao', situacaoOptions, encTableFilters.situacao, 'Todas');
 
+  const statusResumoOptions = Array.from(new Set(rows.map((r) => r.statusResumo).filter(Boolean))).sort().map((value) => ({ value, label: value }));
+  buildSelectOptions('enc-col-status-resumo', statusResumoOptions, encTableFilters.statusResumo, 'Todos');
+
   const responsavelOptions = encUniqueValues(rows, 'responsavel').map((value) => ({ value, label: titleCase(value) }));
   buildSelectOptions('enc-col-responsavel', responsavelOptions, encTableFilters.responsavel, 'Todos');
 
@@ -449,6 +454,7 @@ function encPopulateTableFilters(rows) {
 function encApplyTableFilters(rows) {
   return rows.filter((row) => {
     if (encTableFilters.situacao !== 'all' && row.situacao !== encTableFilters.situacao) return false;
+    if (encTableFilters.statusResumo !== 'all' && row.statusResumo !== encTableFilters.statusResumo) return false;
     if (encTableFilters.responsavel !== 'all' && row.responsavel !== encTableFilters.responsavel) return false;
     if (encTableFilters.municipio !== 'all' && row.municipio !== encTableFilters.municipio) return false;
     if (encTableFilters.carteira !== 'all' && row.carteira !== encTableFilters.carteira) return false;
@@ -462,6 +468,7 @@ function encBindTableColumnFilters() {
   encTableFiltersBound = true;
   const fieldByElementId = {
     'enc-col-situacao': 'situacao',
+    'enc-col-status-resumo': 'statusResumo',
     'enc-col-responsavel': 'responsavel',
     'enc-col-municipio': 'municipio',
     'enc-col-carteira': 'carteira',
@@ -498,7 +505,7 @@ function encRenderTable(rows) {
   setText('enc-table-subtitle', `${fmtNumber(filtered.length)} registros visíveis (mais recentes primeiro) de ${fmtNumber(rows.length)} filtrados · ${fmtNumber(encRows.length)} com encerramento na base`);
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="11" style="color:var(--t2)">Nenhum registro encontrado para os filtros selecionados.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" style="color:var(--t2)">Nenhum registro encontrado para os filtros selecionados.</td></tr>`;
     return;
   }
 
@@ -509,6 +516,7 @@ function encRenderTable(rows) {
     return `<tr>
       <td style="color:var(--t1);font-weight:500">${row.nota}</td>
       <td><span class="pill ${isFaturada ? 'ok' : 'bl'}">${row.situacao}</span></td>
+      <td style="font-size:11px;color:var(--t2)">${row.statusResumo || '—'}</td>
       <td>${titleCase(row.responsavel)}</td>
       <td>${titleCase(row.municipio)}</td>
       <td>${titleCase(row.carteira)}</td>
@@ -522,7 +530,7 @@ function encRenderTable(rows) {
   }).join('');
 
   const moreNotice = filtered.length > visible.length
-    ? `<tr><td colspan="11" style="color:var(--t2);text-align:center">Mostrando ${fmtNumber(visible.length)} de ${fmtNumber(filtered.length)} — refine os filtros para ver mais.</td></tr>`
+    ? `<tr><td colspan="12" style="color:var(--t2);text-align:center">Mostrando ${fmtNumber(visible.length)} de ${fmtNumber(filtered.length)} — refine os filtros para ver mais.</td></tr>`
     : '';
 
   tbody.innerHTML = rowsHtml + moreNotice;
@@ -660,6 +668,7 @@ function encGetExportBundle() {
   const detailRows = encGetExportRows().map((row) => ({
     Nota: row.nota,
     Situação: row.situacao,
+    'Status SAP': row.statusResumo || '',
     Responsável: titleCase(row.responsavel),
     Município: titleCase(row.municipio),
     Carteira: titleCase(row.carteira),
@@ -749,6 +758,7 @@ function encBindFilters() {
     const notaInput = document.getElementById('enc-nota-input');
     if (notaInput) notaInput.value = '';
     encTableFilters.situacao = 'all';
+    encTableFilters.statusResumo = 'all';
     encTableFilters.responsavel = 'all';
     encTableFilters.municipio = 'all';
     encTableFilters.carteira = 'all';
