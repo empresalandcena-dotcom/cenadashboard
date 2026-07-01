@@ -33,6 +33,7 @@ const encTableFilters = {
   municipio: 'all',
   carteira: 'all',
   pi: 'all',
+  pep: 'all',
 };
 let encTableFiltersBound = false;
 
@@ -450,6 +451,9 @@ function encPopulateTableFilters(rows) {
 
   const piOptions = encUniqueValues(rows, 'pi').map((value) => ({ value, label: value }));
   buildSelectOptions('enc-col-pi', piOptions, encTableFilters.pi, 'Todos');
+
+  const pepOptions = Array.from(new Set(rows.map((r) => r.pep).filter(Boolean))).sort().map((value) => ({ value, label: value }));
+  buildSelectOptions('enc-col-pep', pepOptions, encTableFilters.pep, 'Todos');
 }
 
 function encApplyTableFilters(rows) {
@@ -460,6 +464,7 @@ function encApplyTableFilters(rows) {
     if (encTableFilters.municipio !== 'all' && row.municipio !== encTableFilters.municipio) return false;
     if (encTableFilters.carteira !== 'all' && row.carteira !== encTableFilters.carteira) return false;
     if (encTableFilters.pi !== 'all' && row.pi !== encTableFilters.pi) return false;
+    if (encTableFilters.pep !== 'all' && row.pep !== encTableFilters.pep) return false;
     return true;
   });
 }
@@ -474,6 +479,7 @@ function encBindTableColumnFilters() {
     'enc-col-municipio': 'municipio',
     'enc-col-carteira': 'carteira',
     'enc-col-pi': 'pi',
+    'enc-col-pep': 'pep',
   };
   Object.entries(fieldByElementId).forEach(([elementId, field]) => {
     document.getElementById(elementId)?.addEventListener('change', (event) => {
@@ -766,6 +772,7 @@ function encBindFilters() {
     encTableFilters.municipio = 'all';
     encTableFilters.carteira = 'all';
     encTableFilters.pi = 'all';
+    encTableFilters.pep = 'all';
     encUpdateDashboard();
   });
   document.getElementById('enc-table-search')?.addEventListener('input', () => encRenderTable(encLastRows));
